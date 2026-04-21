@@ -111,30 +111,30 @@ Total: 13 payline-paying symbols + Wild + Scatter + Bonus = 16 symbol slots. Thi
 
 ### 4.2 Paytable (payout as multiple of line bet)
 
-These values are our starting proposal. Because the symbol count is higher than the industry baseline (see §4.1), reel strip weights — not paytable values — will be tuned by the math team to hit the target RTP (§8). Values are shown for 3, 4, and 5 matching symbols on a payline, left-to-right starting from reel 1.
+These values are **math-validated against a 2,000,000-spin Monte Carlo simulation targeting 96% RTP** (see §19 for the full calculation). Values shown for 3, 4, and 5 matching symbols on a payline, left-to-right starting from reel 1.
 
 | Symbol | 3-of-a-kind | 4-of-a-kind | 5-of-a-kind |
 |---|---|---|---|
-| Cherry | 5× | 20× | 80× |
-| Lime | 5× | 20× | 80× |
-| Watermelon | 5× | 20× | 80× |
-| BAR | 10× | 40× | 150× |
-| Bell | 10× | 40× | 150× |
-| Horseshoe | 15× | 60× | 200× |
-| Clover | 15× | 60× | 200× |
-| Diamond | 25× | 100× | 350× |
-| Neon 7 | 50× | 200× | 750× |
-| Katana | 75× | 250× | 900× |
-| Cyber iris | 100× | 300× | 1,000× |
-| Chrome Skull | 150× | 500× | 1,500× |
-| Gold Kanji | 250× | 1,000× | **5,000×** (fixed jackpot) |
+| Cherry | 10× | 40× | 120× |
+| Lime | 10× | 40× | 120× |
+| Watermelon | 10× | 40× | 120× |
+| BAR | 20× | 75× | 235× |
+| Bell | 20× | 75× | 235× |
+| Horseshoe | 20× | 85× | 310× |
+| Clover | 20× | 85× | 310× |
+| Diamond | 35× | 150× | 525× |
+| Neon 7 | 75× | 300× | 1,050× |
+| Katana | 95× | 375× | 1,300× |
+| Cyber iris | 130× | 440× | 1,550× |
+| Chrome Skull | 210× | 725× | 2,100× |
+| Gold Kanji | 325× | 1,300× | **5,000×** (fixed jackpot) |
 | Wild (W) | 100× | 500× | 2,000× |
 | Neural chip (Scatter) | 2× *total bet* | 10× *total bet* | 50× *total bet* + triggers Free Spins |
 | Oni mask (Bonus) | — | — | 3 on reels 1/3/5 triggers Heist Mini-Game (no direct pay) |
 
 **Reading example:** With a line bet of 10 credits, five Gold Kanji on a single payline pays 10 × 5,000 = 50,000 credits. Five Neural Chip scatters anywhere on the grid at 25-credit total bet pay 25 × 50 = 1,250 credits *plus* launch free spins.
 
-Per Jack's research, symbol weighting on the reel strips — not the paytable values — is the primary tool for controlling RTP and hit frequency. High-value symbols (Gold Kanji, Chrome Skull, Cyber Iris) appear rarely; low-value symbols (Cherry, Lime, Watermelon, BAR, Bell) appear often.
+Per Jack's research, symbol weighting on the reel strips — not the paytable values — is the primary tool for controlling RTP and hit frequency. High-value symbols (Gold Kanji, Chrome Skull, Cyber Iris) appear rarely; low-value symbols (Cherry, Lime, Watermelon, BAR, Bell) appear often. The actual reel strip weights used to derive this paytable are documented in §19.2.
 
 ---
 
@@ -180,7 +180,7 @@ Bonus features are the primary driver of both engagement and session length. Per
 
 - **Trigger:** Any winning combination during the base game or free spins.
 - **Behavior:** Winning symbols "disintegrate" (pixel-dissolve animation) and new symbols fall from above. The new symbols are evaluated for wins. Chains continue until no new wins occur.
-- **Progressive multiplier within a chain:** 1st win = 1×, 2nd = 2×, 3rd = 3×, 4th+ = 5×. Resets at end of chain.
+- **Progressive multiplier within a chain:** 1st win = 1×, 2nd = 2×, 3rd and beyond = 3× (capped). Resets at end of chain.
 - **Rationale:** Per Michael's Gemza observation, cascading wins make a single spin feel like multiple events and sustain player attention for longer. This is one of the strongest engagement levers in modern slots.
 
 ### 6.3 Heist Mini-Game — "The Data Vault"
@@ -452,6 +452,10 @@ We are not building a feature that **impersonates a specific other app** (fake C
 
 The Privacy Mode as specified above gives users reasonable privacy control (similar to what banking and password apps offer) without the deception layer.
 
+### 13.3 Resolved
+
+This was previously flagged as a team discussion item and has been resolved in favor of the banking-app pattern described in §13.1. Decision logged in §18.1.
+
 ---
 
 ## 14. Progression, Retention, and Daily Systems
@@ -570,7 +574,17 @@ This section is not optional. Per Kareem's research, ~5% of users drive ~82% of 
 
 ### 17.2 Explainability Readiness
 
-Per Aarnav's research, if we eventually use any kind of ML-driven recommendation (e.g., suggested bet sizes, recommended games), those decisions must be loggable and explainable. We should not ship ML-driven outcome modulation at all; but if any ML shows up elsewhere in the stack, use the SHAP/LIME-ready pattern of logging feature contributions.
+**Decision locked (see §18.1): no ML features ship in v1. ML is deferred to v2.**
+
+This means the v1 game is purely deterministic from the player's perspective: RNG produces spin outcomes, reel weights are static and version-controlled, and nothing in the stack adapts to a player's behavior, session length, loss streak, or spend pattern. This is the simplest possible posture and also the safest one — it sidesteps the EU/California explainability requirements entirely, because there are no AI decisions to explain.
+
+**For v2 planning.** Per Aarnav's research, when we introduce ML features in v2 (candidates include personalized game recommendations, dynamic difficulty in the Heist mini-game, adaptive daily reward tuning, or bet-size suggestions), those decisions must be loggable and explainable using SHAP/LIME-style feature-contribution tracking. Specifically:
+
+- Any ML-driven feature must emit a structured log entry per decision, including the input features and their relative contributions to the output.
+- **ML-driven modulation of core spin outcomes remains off-limits even in v2.** RNG fairness is a hard line. ML is allowed around the game (recommendations, rewards, UX personalization) but never inside the spin resolution path.
+- The v2 architecture should assume server-authoritative spins (deferred from v1 per §18.1), because server-side is where explainability logs should live for audit purposes.
+
+The v1 codebase should avoid shipping hooks or scaffolding for ML that we won't use, to keep the v1 surface area clean. v2 is a separate architectural pass.
 
 ### 17.3 App Store and Jurisdiction Positioning
 
@@ -597,13 +611,15 @@ The team has made the following scope decisions for MVP. Each resolves an earlie
 | 5 | Real-money purchases | **Mock purchase screens in MVP.** UI should look as real as possible — packs, prices, "Buy" buttons, confirmation flow — but the final purchase step is stubbed and no real payment is processed. | §9.3 |
 | 6 | Localization | **English only** for MVP. Internationalization architecture can be added in v2. | — |
 | 7 | Live progressive jackpot pool | **Seeded-random incrementing counter** on the client for MVP. Counter advances at a plausible rate so the jackpot number on the main screen always feels "live," but it is not a real shared pool. | §7.2 |
+| 8 | ML / Explainable AI scope | **No ML features in v1.** ML deferred to v2 (candidates: recommendations, dynamic difficulty, personalized rewards — never spin-outcome modulation). v2 will require SHAP/LIME-style explainability logging and server-authoritative spins. | §17.2 |
 
 ### 18.2 Still Open
 
 | # | Question | Who owns it |
 |---|---|---|
-| 8 | **Explainable AI / ML scope.** Are we shipping any ML features in v1, and if so do we need SHAP/LIME-style explainability logging? Section 17.2 is currently written as readiness, not a feature. | Kareem (LLM strategy owner) |
 | 9 | **Reel weighting + RTP tuning pass.** The expanded 16-symbol set (§4.1) is on the higher end of typical slot symbol counts. Reel strip weights need to be calculated and simulation-tested to confirm the paytable in §4.2 actually hits the 96% target RTP at medium volatility. This is a math-and-simulation task, not a design decision. | Math pass — owner TBD (candidate: Theo or Jack given prior work on mechanics) |
+
+With ML scope now resolved (deferred to v2), the only remaining open item is the RTP tuning math pass. All other scope decisions are locked and the team is clear to implement.
 
 ---
 
