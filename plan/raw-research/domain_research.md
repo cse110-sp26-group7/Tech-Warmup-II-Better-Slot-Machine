@@ -178,6 +178,12 @@ Note: RTP and Hit Frequency are independent design parameters. Two games with th
 
 ### 7.3 88 Fortunes
 **Mechanics**: 5 reels × 3 rows, 243 ways to win, and a distinctive stake-based jackpot ladder: players must wager progressively more credits (8 / 18 / 38 / 68 / 88) to unlock Mini, Minor, Major, and Grand tiers respectively. The Fu Bat symbol serves dual duty as wild (reels 2–4 only) and random trigger for the Fu Bat Jackpot pick-and-reveal feature, where players uncover 12 lucky coins seeking three matching Fu Baby icons. Gong scatters on reels 1–3 trigger 10 free spins with infinite retriggers; all low-value card symbols are stripped from the reels during free spins, raising high-symbol hit frequency.
+<div align="center">
+  <figure>
+    <img src="./images_in_domain_research/88 fortunes.png">
+    <figcaption>88 Fortunes gameplay interface showing the 243-ways-to-win reel structure, active gold symbols, and the four progressive jackpot tiers (Grand, Major, Minor, Mini)</figcaption>
+  </figure>
+</div>
 
 **Player incentives**: Grand awards approximately 2,272× stake, Major ~852×, with the Fu Bat pick producing the progressive. On land-based cabinets the jackpots are in-house multi-link progressives; online versions typically implement them as stake-based fixed-multiplier awards rather than networked progressives. RTP is commonly cited at 96.00% (some sources 96.23%), volatility is high-to-medium, and max win on the base game reaches ~2,761× stake with a typical £/$250,000 hard cap.
 
