@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SLOT.77 · START — Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#030208;
+    --bg-2:#0B0615;
+    --bg-3:#120820;
+    --panel:#0A0414;
+    --line:#1A0E30;
+    --line-2:#2A1850;
+    --fg:#E8E0FF;
+    --dim:#8A7AB0;
+    --dim-2:#5A4A80;
+    --acid:#C8FF00;
+    --magenta:#FF1493;
+    --cyan:#00F0FF;
+    --amber:#FFB020;
+    --red:#FF0030;
+    --gold:#FFEE00;
+    --purple:#B026FF;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:'Chakra Petch',sans-serif;height:100%;overflow:hidden}
+
+  /* ---------- FIT-TO-SCREEN WRAPPER ---------- */
+  .fit-root{
+    position:fixed;inset:0;z-index:2;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+
+  /* ---------- BACKGROUND LAYERS ---------- */
+  .bg-root{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+  .bg-grid{
+    position:absolute;inset:-2px;
+    background-image:
+      linear-gradient(rgba(176,38,255,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(176,38,255,0.06) 1px, transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(ellipse at 50% 40%, #000 30%, transparent 75%);
+    -webkit-mask-image:radial-gradient(ellipse at 50% 40%, #000 30%, transparent 75%);
+  }
+  .bg-scan{
+    position:absolute;inset:0;
+    background:repeating-linear-gradient(to bottom, transparent 0 2px, rgba(255,255,255,0.018) 2px 3px);
+    mix-blend-mode:overlay;
+  }
+  .bg-vign{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,20,147,0.09), transparent 50%),
+      radial-gradient(ellipse at 85% 90%, rgba(0,240,255,0.07), transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(200,255,0,0.03), transparent 60%);
+  }
+  .bg-noise{
+    position:absolute;inset:0;opacity:0.35;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* ---------- LAYOUT SHELL ---------- */
+  .shell{
+    position:relative;
+    width:1440px;
+    padding:32px 48px 48px;
+    display:flex;flex-direction:column;gap:24px;
+    flex:0 0 auto;transform-origin:center center;
+  }
+  .chrome{
+    display:flex;align-items:center;justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--dim);
+    letter-spacing:0.14em;text-transform:uppercase;
+  }
+  .chrome .left,.chrome .right{display:flex;gap:20px;align-items:center}
+  .chrome .dot{width:7px;height:7px;background:var(--acid);box-shadow:0 0 10px var(--acid);border-radius:50%;animation:pulse 1.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  .chrome .brand{color:var(--acid);font-weight:600;letter-spacing:0.22em}
+  .chrome .slash{color:var(--magenta)}
+
+  /* ---------- TERMINAL CARD ---------- */
+  .term-card{
+    position:relative;
+    flex:1;
+    border:1px solid var(--line-2);
+    background:linear-gradient(180deg, rgba(26,14,48,0.35) 0%, rgba(3,2,8,0.85) 100%);
+    box-shadow:
+      0 0 0 1px rgba(176,38,255,0.1),
+      0 40px 80px -30px rgba(0,0,0,0.9),
+      inset 0 0 120px rgba(176,38,255,0.05);
+    display:grid;
+    grid-template-columns:1.4fr 1fr;
+    gap:0;
+    overflow:hidden;
+  }
+  .term-card::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(to bottom, transparent 0 3px, rgba(200,255,0,0.02) 3px 4px);
+  }
+  .term-card::after{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 60px rgba(0,0,0,0.7);
+  }
+
+  /* corner brackets */
+  .corner{position:absolute;width:18px;height:18px;border:1px solid var(--acid);pointer-events:none;z-index:3}
+  .corner.tl{top:-1px;left:-1px;border-right:0;border-bottom:0}
+  .corner.tr{top:-1px;right:-1px;border-left:0;border-bottom:0}
+  .corner.bl{bottom:-1px;left:-1px;border-right:0;border-top:0}
+  .corner.br{bottom:-1px;right:-1px;border-left:0;border-top:0}
+
+  /* ---------- LEFT: BOOT LOG ---------- */
+  .boot{
+    padding:40px 48px 40px 48px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:14px;
+    line-height:1.85;
+    position:relative;
+    display:flex;flex-direction:column;gap:2px;
+    min-height:640px;
+  }
+  .boot .hdr{
+    font-size:10px;color:var(--dim-2);letter-spacing:0.25em;
+    text-transform:uppercase;margin-bottom:16px;
+    display:flex;justify-content:space-between;
+  }
+  .boot-line{color:var(--dim);opacity:0;animation:line-in 0.3s ease forwards}
+  .boot-line.ok .tag{color:var(--acid)}
+  .boot-line.warn .tag{color:var(--amber)}
+  .boot-line .ts{color:var(--dim-2)}
+  .boot-line .path{color:var(--fg)}
+  .boot-line .val{color:var(--cyan)}
+
+  @keyframes line-in{to{opacity:1}}
+
+  .boot-line:nth-child(1){animation-delay:0.05s}
+  .boot-line:nth-child(2){animation-delay:0.25s}
+  .boot-line:nth-child(3){animation-delay:0.45s}
+  .boot-line:nth-child(4){animation-delay:0.65s}
+  .boot-line:nth-child(5){animation-delay:0.85s}
+  .boot-line:nth-child(6){animation-delay:1.05s}
+  .boot-line:nth-child(7){animation-delay:1.25s}
+  .boot-line:nth-child(8){animation-delay:1.45s}
+  .boot-line:nth-child(9){animation-delay:1.65s}
+  .boot-line:nth-child(10){animation-delay:1.85s}
+  .boot-line:nth-child(11){animation-delay:2.05s}
+  .boot-line:nth-child(12){animation-delay:2.25s}
+
+  .boot-ready{
+    font-family:'Chakra Petch',sans-serif;
+    font-weight:700;
+    font-size:84px;
+    letter-spacing:0.04em;
+    line-height:0.95;
+    margin:32px 0 8px;
+    color:var(--fg);
+    text-shadow:
+      0 0 1px var(--acid),
+      0 0 24px rgba(200,255,0,0.35),
+      0 0 48px rgba(176,38,255,0.25);
+    opacity:0;animation:line-in 0.5s ease 2.5s forwards;
+  }
+  .boot-ready .pct{color:var(--acid)}
+  .boot-ready .sub{
+    display:block;font-size:13px;letter-spacing:0.35em;
+    color:var(--dim);font-weight:400;margin-top:10px;
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  .boot-prompt{
+    display:flex;align-items:center;gap:14px;
+    margin-top:24px;
+    opacity:0;animation:line-in 0.4s ease 2.8s forwards;
+  }
+  .boot-prompt .caret{
+    color:var(--magenta);font-weight:700;
+    animation:blink 1s steps(2) infinite;
+  }
+  @keyframes blink{50%{opacity:0}}
+
+  .cta-primary{
+    font-family:'Chakra Petch',sans-serif;
+    background:var(--acid);
+    color:var(--bg);
+    border:0;
+    padding:18px 32px;
+    font-size:18px;font-weight:700;
+    letter-spacing:0.2em;
+    cursor:pointer;
+    clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    box-shadow:0 0 0 1px var(--acid), 0 0 32px rgba(200,255,0,0.4);
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .cta-primary:hover{transform:translateY(-2px);box-shadow:0 0 0 1px var(--acid), 0 0 48px rgba(200,255,0,0.7)}
+  .cta-ghost{
+    font-family:'JetBrains Mono',monospace;
+    background:transparent;
+    color:var(--fg);
+    border:1px solid var(--line-2);
+    padding:18px 28px;
+    font-size:13px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  .cta-ghost:hover{border-color:var(--acid);color:var(--acid)}
+
+  .cta-row{display:flex;gap:12px;margin-top:32px;opacity:0;animation:line-in 0.4s ease 3.0s forwards}
+
+  /* ---------- RIGHT: STATS DASHBOARD ---------- */
+  .stats{
+    padding:40px 40px 40px;
+    border-left:1px solid var(--line-2);
+    display:flex;flex-direction:column;gap:20px;
+    background:linear-gradient(180deg, rgba(176,38,255,0.04), transparent 60%);
+  }
+  .stats .hdr{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;color:var(--dim);letter-spacing:0.25em;text-transform:uppercase;
+    display:flex;justify-content:space-between;align-items:center;
+    padding-bottom:14px;border-bottom:1px solid var(--line);
+  }
+  .stats .hdr .dot{display:inline-block;width:6px;height:6px;background:var(--magenta);border-radius:50%;margin-right:8px;animation:pulse 1.2s infinite}
+
+  .stat-row{
+    display:grid;grid-template-columns:1fr auto;align-items:baseline;
+    padding:14px 0;border-bottom:1px dashed var(--line);
+  }
+  .stat-label{
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:var(--dim);letter-spacing:0.25em;text-transform:uppercase;
+  }
+  .stat-val{
+    font-family:'Chakra Petch',sans-serif;font-weight:600;
+    font-size:28px;color:var(--fg);letter-spacing:0.02em;
+  }
+  .stat-val .u{font-size:12px;color:var(--dim);margin-left:4px;letter-spacing:0.2em}
+  .stat-val.acid{color:var(--acid)}
+  .stat-val.cyan{color:var(--cyan)}
+  .stat-val.magenta{color:var(--magenta)}
+
+  .jackpot{
+    margin-top:8px;
+    border:1px solid var(--magenta);
+    background:radial-gradient(ellipse at top, rgba(255,20,147,0.18), transparent 70%);
+    padding:20px;
+    text-align:center;
+    position:relative;
+  }
+  .jackpot::before{
+    content:'';position:absolute;inset:3px;border:1px dashed rgba(255,20,147,0.4);pointer-events:none;
+  }
+  .jackpot .lbl{
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:var(--magenta);letter-spacing:0.35em;text-transform:uppercase;
+  }
+  .jackpot .val{
+    font-family:'Chakra Petch',sans-serif;font-weight:700;
+    font-size:40px;color:var(--fg);
+    text-shadow:0 0 20px rgba(255,20,147,0.6);
+    letter-spacing:0.04em;
+    margin:6px 0 2px;
+  }
+  .jackpot .tick{
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:0.2em;
+  }
+  .jackpot .tick b{color:var(--acid)}
+
+  .mini-reel{
+    margin-top:auto;
+    display:grid;grid-template-columns:repeat(4, 1fr);gap:6px;
+    padding-top:16px;
+  }
+  .mini-reel .cell{
+    aspect-ratio:1;
+    border:1px solid var(--line-2);
+    background:var(--bg-2);
+    overflow:hidden;
+    position:relative;
+  }
+  .mini-reel .cell svg{display:block;width:100%;height:100%}
+
+  /* ---------- FOOTER TICKER ---------- */
+  .ticker{
+    border-top:1px solid var(--line-2);
+    padding:14px 20px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--dim);letter-spacing:0.18em;text-transform:uppercase;
+    display:flex;gap:36px;overflow:hidden;
+    background:var(--panel);
+  }
+  .ticker-track{display:flex;gap:36px;animation:scroll 40s linear infinite;white-space:nowrap}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+  .ticker .k{color:var(--acid)}
+  .ticker .m{color:var(--magenta)}
+  .ticker .c{color:var(--cyan)}
+
+  /* ---------- MOBILE OVERLAY ---------- */
+  .mobile-wrap{display:none}
+  body[data-view="mobile"] .shell{display:none}
+  body[data-view="mobile"] .mobile-wrap{display:flex;align-items:center;justify-content:center;padding:0;position:relative;z-index:2;flex:0 0 auto;transform-origin:center center}
+
+  .phone{
+    width:390px;height:844px;
+    border:10px solid #0c0618;
+    border-radius:48px;
+    background:var(--bg);
+    position:relative;
+    box-shadow:0 0 0 2px #1A0E30, 0 60px 120px -40px rgba(176,38,255,0.4);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .phone .notch{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:130px;height:28px;background:#000;border-radius:0 0 18px 18px;z-index:5;
+  }
+  .phone .status{
+    padding:14px 26px 6px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg);
+    display:flex;justify-content:space-between;
+  }
+  .phone .m-boot{
+    padding:20px 22px;
+    font-family:'JetBrains Mono',monospace;font-size:12px;
+    line-height:1.9;color:var(--dim);
+    flex:1;display:flex;flex-direction:column;gap:2px;
+  }
+  .phone .m-boot .boot-ready{font-size:52px;margin:22px 0 8px}
+  .phone .m-cta{padding:0 22px 28px;display:flex;flex-direction:column;gap:10px}
+  .phone .cta-primary{padding:18px;font-size:15px}
+
+  /* ---------- TWEAKS PANEL ---------- */
+  .tweaks{
+    position:fixed;right:20px;bottom:20px;z-index:100;
+    background:rgba(10,4,20,0.95);
+    border:1px solid var(--line-2);
+    padding:16px 18px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--fg);letter-spacing:0.1em;
+    backdrop-filter:blur(8px);
+    min-width:220px;
+    display:none;
+  }
+  .tweaks.on{display:block}
+  .tweaks .t-hdr{color:var(--acid);font-weight:700;letter-spacing:0.25em;margin-bottom:12px;text-transform:uppercase;display:flex;justify-content:space-between}
+  .tweaks .t-hdr .x{cursor:pointer;color:var(--dim)}
+  .tweaks .t-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:12px}
+  .tweaks .t-label{color:var(--dim);text-transform:uppercase;letter-spacing:0.2em}
+  .tweaks .t-seg{display:flex;border:1px solid var(--line-2)}
+  .tweaks .t-seg button{
+    background:transparent;border:0;color:var(--dim);
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    padding:6px 10px;cursor:pointer;letter-spacing:0.15em;text-transform:uppercase;
+  }
+  .tweaks .t-seg button.on{background:var(--acid);color:var(--bg)}
+
+  /* responsive layout handled by .fit-root scale; media query removed */
+</style>
+</head>
+<body data-view="desktop">
+
+<!-- Background layers -->
+<div class="bg-root">
+  <div class="bg-grid"></div>
+  <div class="bg-vign"></div>
+  <div class="bg-scan"></div>
+  <div class="bg-noise"></div>
+</div>
+
+<div class="fit-root">
+<!-- ===== DESKTOP VIEW ===== -->
+<div class="shell">
+  <header class="chrome">
+    <div class="left">
+      <span class="dot"></span>
+      <span class="brand">//SLOT<span class="slash">.</span>77</span>
+      <span>v2.04.3 · kernel 6.11</span>
+    </div>
+    <div class="right">
+      <span>◈ user_0091</span>
+      <span>◉ bronze tier</span>
+      <span>◎ 03:12:44 last session</span>
+    </div>
+  </header>
+
+  <div class="term-card">
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <!-- LEFT: boot log -->
+    <div class="boot">
+      <div class="hdr">
+        <span>// system.boot — verbose</span>
+        <span>stdout: /dev/tty0</span>
+      </div>
+
+      <div class="boot-line"><span class="ts">[ 0.001 ]</span> &gt; slot.77/boot --init --verbose</div>
+      <div class="boot-line ok"><span class="ts">[ 0.042 ]</span> loading kernel........................ <span class="tag">OK</span></div>
+      <div class="boot-line ok"><span class="ts">[ 0.088 ]</span> mounting /wallet...................... <span class="tag">OK</span></div>
+      <div class="boot-line ok"><span class="ts">[ 0.112 ]</span> auth <span class="path">user_0091@neon.net</span>.......... <span class="tag">OK</span></div>
+      <div class="boot-line ok"><span class="ts">[ 0.134 ]</span> sync jackpot_pool..................... <span class="tag">OK</span> <span class="val">(44,902 ¢r)</span></div>
+      <div class="boot-line ok"><span class="ts">[ 0.168 ]</span> load assets/reels.pak................. <span class="tag">OK</span></div>
+      <div class="boot-line ok"><span class="ts">[ 0.201 ]</span> load assets/symbols/cyberpunk......... <span class="tag">OK</span></div>
+      <div class="boot-line warn"><span class="ts">[ 0.244 ]</span> haptics.device........................ <span class="tag">WARN</span> <span style="color:var(--dim-2)">(fallback:web)</span></div>
+      <div class="boot-line ok"><span class="ts">[ 0.289 ]</span> daily.missions 3/5.................... <span class="tag">OK</span></div>
+      <div class="boot-line ok"><span class="ts">[ 0.312 ]</span> streak <span class="val">07 days</span> verified........... <span class="tag">OK</span></div>
+      <div class="boot-line"><span class="ts">[ 0.355 ]</span> <span style="color:var(--dim-2)">all subsystems nominal.</span></div>
+
+      <div class="boot-ready">READY<span class="pct">_</span><span class="sub">// entropy pool seeded · rng primed</span></div>
+
+      <div class="boot-prompt">
+        <span style="color:var(--dim)">&gt;</span>
+        <span>press <span class="caret">█</span> to begin</span>
+      </div>
+
+      <div class="cta-row">
+        <button class="cta-primary">▶ START GAME</button>
+        <button class="cta-ghost">RESUME · 03:12</button>
+        <button class="cta-ghost">HOW TO PLAY</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: stats -->
+    <div class="stats">
+      <div class="hdr">
+        <span><span class="dot"></span>user session</span>
+        <span>live</span>
+      </div>
+
+      <div class="stat-row">
+        <span class="stat-label">Balance</span>
+        <span class="stat-val">12,430<span class="u">¢R</span></span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Tier</span>
+        <span class="stat-val acid">BRONZE</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Rank</span>
+        <span class="stat-val">#128<span class="u">of 18K</span></span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Streak</span>
+        <span class="stat-val cyan">07<span class="u">days</span></span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Missions</span>
+        <span class="stat-val">3 <span style="color:var(--dim)">/</span> 5</span>
+      </div>
+
+      <div class="jackpot">
+        <div class="lbl">◈ PROGRESSIVE JACKPOT</div>
+        <div class="val">44,902</div>
+        <div class="tick"><b>+12</b> ¢r · last 60s</div>
+      </div>
+
+      <div class="mini-reel">
+        <div class="cell"><svg viewBox="20 40 150 148" preserveAspectRatio="xMidYMid meet"><image href="symbols-cyberpunk.svg" x="0" y="0" width="680" height="430"/></svg></div>
+        <div class="cell"><svg viewBox="180 40 150 148" preserveAspectRatio="xMidYMid meet"><image href="symbols-cyberpunk.svg" x="0" y="0" width="680" height="430"/></svg></div>
+        <div class="cell"><svg viewBox="340 40 150 148" preserveAspectRatio="xMidYMid meet"><image href="symbols-cyberpunk.svg" x="0" y="0" width="680" height="430"/></svg></div>
+        <div class="cell"><svg viewBox="500 40 150 148" preserveAspectRatio="xMidYMid meet"><image href="symbols-cyberpunk.svg" x="0" y="0" width="680" height="430"/></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="ticker">
+    <div class="ticker-track">
+      <span><span class="k">◈</span> JACKPOT 44,902 ¢r</span>
+      <span><span class="m">▲</span> user_09ab +2,400 ¢r</span>
+      <span><span class="c">◎</span> next drop T−01:22:44</span>
+      <span><span class="k">◈</span> LIVE 18,204 players</span>
+      <span><span class="m">▲</span> daily leader_x7 +8,800</span>
+      <span><span class="c">◎</span> daily mission resets 04:00</span>
+      <span><span class="k">◈</span> JACKPOT 44,902 ¢r</span>
+      <span><span class="m">▲</span> user_09ab +2,400 ¢r</span>
+      <span><span class="c">◎</span> next drop T−01:22:44</span>
+      <span><span class="k">◈</span> LIVE 18,204 players</span>
+      <span><span class="m">▲</span> daily leader_x7 +8,800</span>
+      <span><span class="c">◎</span> daily mission resets 04:00</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ===== MOBILE VIEW ===== -->
+<div class="mobile-wrap">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="status">
+      <span>9:41</span>
+      <span>◈ ◉ ▮▮▮</span>
+    </div>
+    <div class="m-boot">
+      <div style="color:var(--acid);font-size:10px;letter-spacing:0.3em;margin-bottom:10px">// SLOT.77 BOOT</div>
+      <div class="boot-line">&gt; slot.77/boot --init</div>
+      <div class="boot-line" style="color:var(--dim-2)">loading modules.............. <span style="color:var(--acid)">OK</span></div>
+      <div class="boot-line" style="color:var(--dim-2)">auth user_0091............... <span style="color:var(--acid)">OK</span></div>
+      <div class="boot-line" style="color:var(--dim-2)">wallet 12,430 ¢r............. <span style="color:var(--acid)">OK</span></div>
+      <div class="boot-line" style="color:var(--dim-2)">jackpot pool 44,902.......... <span style="color:var(--acid)">OK</span></div>
+      <div class="boot-ready">READY<span class="pct">_</span></div>
+      <div style="margin-top:8px;color:var(--fg)">▸ last session: 03:12:44</div>
+      <div style="color:var(--fg)">▸ streak: <span style="color:var(--cyan)">07 days</span></div>
+      <div style="color:var(--fg)">▸ rank: #128</div>
+      <div style="margin-top:18px;color:var(--dim)">&gt; press <span style="color:var(--magenta);animation:blink 1s steps(2) infinite">█</span> to start</div>
+    </div>
+    <div class="m-cta">
+      <button class="cta-primary">▶ START GAME</button>
+      <button class="cta-ghost">RESUME · 03:12</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TWEAKS ===== -->
+<div class="tweaks on" id="tweaks">
+  <div class="t-hdr">Tweaks <span class="x" onclick="document.getElementById('tweaks').classList.remove('on')">×</span></div>
+  <div class="t-row">
+    <span class="t-label">Device</span>
+    <div class="t-seg" id="seg-view">
+      <button data-v="desktop" class="on">Desktop</button>
+      <button data-v="mobile">Mobile</button>
+    </div>
+  </div>
+  <div class="t-row">
+    <span class="t-label">Scanlines</span>
+    <div class="t-seg" id="seg-scan">
+      <button data-v="on" class="on">On</button>
+      <button data-v="off">Off</button>
+    </div>
+  </div>
+  <div class="t-row">
+    <span class="t-label">Accent</span>
+    <div class="t-seg" id="seg-acc">
+      <button data-v="acid" class="on">Acid</button>
+      <button data-v="cyan">Cyan</button>
+      <button data-v="magenta">Magenta</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "view": "desktop",
+    "scan": "on",
+    "accent": "acid"
+  }/*EDITMODE-END*/;
+
+  let state = {...TWEAK_DEFAULTS};
+
+  function apply(){
+    document.body.dataset.view = state.view;
+    document.querySelectorAll('#seg-view button').forEach(b=>b.classList.toggle('on', b.dataset.v===state.view));
+    document.querySelectorAll('#seg-scan button').forEach(b=>b.classList.toggle('on', b.dataset.v===state.scan));
+    document.querySelectorAll('#seg-acc button').forEach(b=>b.classList.toggle('on', b.dataset.v===state.accent));
+    document.querySelector('.bg-scan').style.display = state.scan==='on' ? '' : 'none';
+
+    const accentMap = {acid:'#C8FF00', cyan:'#00F0FF', magenta:'#FF1493'};
+    document.documentElement.style.setProperty('--acid', accentMap[state.accent]);
+    fitToScreen();
+  }
+
+  function fitToScreen(){
+    const view = document.body.dataset.view;
+    const target = document.querySelector(view==='mobile' ? '.mobile-wrap' : '.shell');
+    if(!target) return;
+    target.style.transform = 'none';
+    const w = target.offsetWidth;
+    const h = target.offsetHeight;
+    if(!w || !h) return;
+    const scale = Math.min(window.innerWidth/w, window.innerHeight/h);
+    target.style.transform = `scale(${scale})`;
+  }
+
+  window.addEventListener('resize', fitToScreen);
+  window.addEventListener('load', fitToScreen);
+
+  function set(key, val){
+    state[key] = val;
+    apply();
+    window.parent?.postMessage({type:'__edit_mode_set_keys', edits:{[key]:val}}, '*');
+  }
+
+  document.querySelectorAll('#seg-view button').forEach(b=>b.onclick=()=>set('view', b.dataset.v));
+  document.querySelectorAll('#seg-scan button').forEach(b=>b.onclick=()=>set('scan', b.dataset.v));
+  document.querySelectorAll('#seg-acc button').forEach(b=>b.onclick=()=>set('accent', b.dataset.v));
+
+  // Edit mode protocol
+  window.addEventListener('message', (e)=>{
+    if(e.data?.type==='__activate_edit_mode') document.getElementById('tweaks').classList.add('on');
+    if(e.data?.type==='__deactivate_edit_mode') document.getElementById('tweaks').classList.remove('on');
+  });
+  window.parent?.postMessage({type:'__edit_mode_available'}, '*');
+
+  apply();
+</script>
+</body>
+</html>
