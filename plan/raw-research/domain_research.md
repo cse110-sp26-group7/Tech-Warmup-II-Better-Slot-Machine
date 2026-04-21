@@ -217,6 +217,12 @@ Note: RTP and Hit Frequency are independent design parameters. Two games with th
 
 ### 7.6 Double Diamond
 **Mechanics**: Classic 3-reel, single-payline stepper. Symbols: cherries, single/double/triple BAR, 7, and the Double Diamond logo — nothing more. The core innovation is the multiplying wild: one Double Diamond in a winning combo doubles the payout; two Double Diamonds quadruples it; three on the payline is the top jackpot. No bonus rounds, no free spins, no scatters, no second-screen. The elegance of the 2×/4× wild mechanic is why the formula has been copied across the entire 3-reel industry.
+<div align="center">
+  <figure>
+    <img src="./images_in_domain_research/Double Diamond.png">
+    <em>Classic slot machine UI of Double Diamond, highlighting the traditional BAR and Diamond symbols, mechanical-style reels, and the 'Boost' and 'Spin' tactile button interface.</em>
+  </figure>
+</div>
 
 **Player incentives**: No progressive standalone; top prize is 2,500 coins for three Double Diamonds at max coin bet on land-based cabinets (1,000× stake on the online port). Online RTP is fixed at 95.44%; land-based RTP is operator-configurable across a manufacturer range of roughly 85–98%, typically settling around 93–96%. Volatility reviewers split between medium and medium-high, reflecting a top-heavy distribution built on rare three-of-a-kind wins combined with frequent small cherry and BAR payouts.
 
