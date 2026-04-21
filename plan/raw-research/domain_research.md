@@ -230,6 +230,12 @@ Note: RTP and Hit Frequency are independent design parameters. Two games with th
 
 ### 7.7 Wheel of Fortune
 **Mechanics**: Original 1996 design: 3-reel single-payline stepper built on Double Diamond's math, with a 22-wedge physical bonus wheel mounted on the top-box and triggered by a "Spin" symbol on the payline. Modern descendants span every imaginable configuration: Triple Extreme Spin (720 MULTIWAY XTRA, diamond-shaped layout, pays both ways), Gold Spin with multi-pointer electronic wheels, Megaways (up to 1,000,000 ways, 96.46% RTP), 4D with gesture recognition and mid-air ultrasound haptics, Super Spin with a nine-player community wheel, and the 2025 Trio cabinet pairing a 76-inch physical mechanical wheel with three 49-inch portrait UHD screens and a 140-inch video backdrop.
+<div align="center">
+  <figure style="center">
+    <img src="./images_in_domain_research/Wheel_of_Fortune_Trio_Cabinet.jpg" style="display: block; margin: 0 auto;">
+    <p><i>Wheel of Fortune 'Cash Link Big Money' trio cabinet configuration, featuring synchronized overhead LED displays and a shared progressive jackpot overhead.</i></p>
+  </figure>
+</div>
 
 **Player incentives**: Wheel spins award credits, multiplier wedges, free-spin wedges, or a MegaJackpots wedge. Wheel of Fortune is linked to IGT's MegaJackpots wide-area progressive network, the technology pioneered by Megabucks in 1986. RTPs vary by version from ~92% to 96.6%; volatility is usually medium (higher on Megaways and Gold Spin Deluxe); top prizes range from 10,000× line bet on Double Diamond variants to multi-million-dollar WAP jackpots. The current Ultra Link WAP resets at $1.125 million.
 The task prompt's reference to Cynthia Jay-Brennan's $34.9M and the $39.7M Excalibur jackpot requires correction: contemporaneous primary reporting (Las Vegas Sun, January 2000; Guinness World Records) confirms both were won on IGT's Megabucks, not Wheel of Fortune. The largest true Wheel of Fortune jackpot on record is Tommy McMillan's $14,387,950 at Hard Rock Biloxi on February 10, 2009 — still the largest slot jackpot in Mississippi history. Other major Wheel hits include $9.9M at Beau Rivage (2002), $8.3M at Fitz Casino Tunica (2013), and multiple $1M+ wins at Beau Rivage as recently as January 2026.
