@@ -452,10 +452,6 @@ We are not building a feature that **impersonates a specific other app** (fake C
 
 The Privacy Mode as specified above gives users reasonable privacy control (similar to what banking and password apps offer) without the deception layer.
 
-### 13.3 Resolved
-
-This was previously flagged as a team discussion item and has been resolved in favor of the banking-app pattern described in §13.1. Decision logged in §18.1.
-
 ---
 
 ## 14. Progression, Retention, and Daily Systems
