@@ -179,9 +179,9 @@ Note: RTP and Hit Frequency are independent design parameters. Two games with th
 ### 7.3 88 Fortunes
 **Mechanics**: 5 reels × 3 rows, 243 ways to win, and a distinctive stake-based jackpot ladder: players must wager progressively more credits (8 / 18 / 38 / 68 / 88) to unlock Mini, Minor, Major, and Grand tiers respectively. The Fu Bat symbol serves dual duty as wild (reels 2–4 only) and random trigger for the Fu Bat Jackpot pick-and-reveal feature, where players uncover 12 lucky coins seeking three matching Fu Baby icons. Gong scatters on reels 1–3 trigger 10 free spins with infinite retriggers; all low-value card symbols are stripped from the reels during free spins, raising high-symbol hit frequency.
 <div align="center">
-  <figure>
-    <img src="./images_in_domain_research/88 fortunes.png">
-    <figcaption>88 Fortunes gameplay interface showing the 243-ways-to-win reel structure, active gold symbols, and the four progressive jackpot tiers (Grand, Major, Minor, Mini)</figcaption>
+  <figure style="center">
+    <img src="./images_in_domain_research/88 fortunes.png" style="display: block; margin: 0 auto;">
+    <p><i>88 Fortunes gameplay interface showing the 243-ways-to-win reel structure, active gold symbols, and the four progressive jackpot tiers (Grand, Major, Minor, Mini)</i></p>
   </figure>
 </div>
 
@@ -192,9 +192,9 @@ Note: RTP and Hit Frequency are independent design parameters. Two games with th
 ### 7.4 Starburst
 **Mechanics**: Deliberately minimalist: 5 reels × 3 rows, 10 fixed paylines paying both ways. The only special feature is the expanding Starburst Wild, which lands on reels 2, 3, and 4, expands to cover the entire reel, locks in place, and triggers a re-spin (up to three sequential re-spins if new wilds land). There are no free spins, no scatter, no bonus round, no multipliers, no progressive jackpot. This radical simplicity is exactly what made it commercially dominant.
 <div align="center">
-  <figure>
-    <img src="./images_in_domain_research/Starburst gameply images.png" align="center">
-    <figcaption>Starburst Touch mobile interface by NetEnt, featuring a 5-reel, 3-row layout with vibrant jewel symbols and the signature expanding Starburst Wild mechanic.</figcaption>
+  <figure style="center">
+    <img src="./images_in_domain_research/Starburst gameply images.png" style="display: block; margin: 0 auto;">
+    <p><i>Starburst Touch mobile interface by NetEnt, featuring a 5-reel, 3-row layout with vibrant jewel symbols and the signature expanding Starburst Wild mechanic.</i></p>
   </figure>
 </div>
 
@@ -205,9 +205,9 @@ Note: RTP and Hit Frequency are independent design parameters. Two games with th
 ### 7.5 Divine Fortune
 **Mechanics**: 5 reels × 3 rows with 20 fixed paylines, wrapped in two signature mechanics. Falling Wilds Re-Spin: any Pegasus wild triggers a free re-spin and shifts one position downward each spin, continuing as long as new wilds land. Wild-on-Wild: when an overlay wild lands on an existing wild, the wild expands to cover the full reel and awards an additional re-spin. The Jackpot Bonus Game is triggered by 3/4/5 bonus coin symbols and plays on a 5×3 grid where sticky coins land and the player tries to fill rows: one row = Minor (fixed 20×), two rows = Major (fixed 100×), all three rows = the progressive Mega, which seeds at €10,000.
 <div align="center">
-  <figure>
-    <img src="./images_in_domain_research/divine_fortune_desktop_screenshot_megajackpot_win_ca116e434a.webp">
-    <em>Divine Fortune gameplay showing a 'Mega Jackpot' win of €129,361.01 during the Jackpot Bonus game, featuring the 5x3 gold coin collection grid.</em>
+  <figure style="center">
+    <img src="./images_in_domain_research/divine_fortune_desktop_screenshot_megajackpot_win_ca116e434a.webp" style="display: block; margin: 0 auto;">
+    <p><i>Divine Fortune gameplay showing a 'Mega Jackpot' win of €129,361.01 during the Jackpot Bonus game, featuring the 5x3 gold coin collection grid.</i></p>
   </figure>
 </div>
 
