@@ -1302,6 +1302,45 @@ Added a new `describe('Spin flow invariants')` block to `tests/state.test.js` wi
 
 **Commit message:** fix: phase 8B - remove duplicate recordSpin call so totalSpins increments once per spin
 
+## Entry 30 — April 22, 2026 3:52PM
+
+**Phase:** 8C
+
+**Prompt used:**
+
+> In `src/js/paylines.js`, lines 6 and 14 are both `[0, 1, 0, 1, 0]`, and lines 8 and 15 are both `[2, 1, 2, 1, 2]`. The same duplicates appear in the hardcoded paylines list inside `generatePaylineDiagrams()` in `src/js/ui.js`. With duplicates present there are only 23 unique paylines, but the README, HTML side panel, and paytable all claim 25 — and any win on those two patterns is counted and paid twice.
+>
+> Fix: replace the two duplicate entries with distinct payline patterns (e.g. different zigzag or stepped shapes that aren't already in the list). Keep the total count at 25. Apply the same two replacements to `generatePaylineDiagrams()` so the paytable stays in sync. Add a unit test in `tests/paylines.test.js` asserting `new Set(PAYLINES.map((p) => JSON.stringify(p))).size === PAYLINES.length` so duplicates cannot silently return.
+
+**Outcome:**
+
+Replaced the two duplicate payline entries in `src/js/paylines.js`:
+- Line 14: `[0, 1, 0, 1, 0]` → `[1, 1, 0, 1, 1]` (middle row with a center top-spike)
+- Line 15: `[2, 1, 2, 1, 2]` → `[1, 1, 2, 1, 1]` (middle row with a center bottom-spike)
+
+Both new shapes were verified not to exist elsewhere in the 25-entry list. Updated the comments accordingly.
+
+Mirrored the same two replacements in the hardcoded paylines array inside `generatePaylineDiagrams()` in `src/js/ui.js` so the paytable modal displays the correct diagrams. Noted that the duplication between `paylines.js` and `ui.js` is a latent maintainability issue — a future phase could DRY it up by importing `PAYLINES` from `paylines.js` into `ui.js`, but that was out of scope for 8C.
+
+Rewrote `tests/paylines.test.js` (previously just a placeholder) with a proper suite:
+- Asserts `PAYLINES.length === 25`.
+- **Uniqueness regression guard**: `new Set(PAYLINES.map(JSON.stringify)).size === PAYLINES.length`.
+- Asserts each payline has 5 integer row indices in [0, 2].
+- Tests `getPaylineSymbols` extracts correctly for straight and V-shape paylines.
+- Tests `getPaylineSymbols` throws on invalid input (out-of-range row, wrong length).
+
+**Linter result:** Passed
+
+**Tests result:** 71 passed, all pass (4 unit test suites) — 65 previous + 6 new payline tests
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/paylines.js, src/js/ui.js, tests/paylines.test.js
+
+**Commit message:** fix: phase 8C - replace duplicate paylines 14 and 15 with unique patterns
+
 ## Entry # — [date] [time]
 
 **Phase:**
