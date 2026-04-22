@@ -386,7 +386,7 @@ Passed all 3 tests now
 
 **Commit message:** N/A
 
-## Entry 10 — April 22, 2026 1:00PM
+## Entry 10 — April 22, 2026 1:00AM
 
 **Phase:** 1F
 
@@ -417,6 +417,325 @@ Export pure functions to update state: placeBet(amount), recordSpin(payout), set
 **Files changed:** state.js
 
 **Commit message:** Finished Phase 1, passed all lint test and tests
+
+## Entry 11 — April 22, 2026 9:46AM
+
+**Phase:** 2A
+
+**Prompt used:**
+
+> In `src/css/styles.css`, define a CSS custom property system for the DATA HEIST cyberpunk theme. Include:
+>
+> - **Backgrounds:** main background `#0D0B1A`, card/reel background `#1A1528`, panel background `#12101F`
+> - **Neon accents:** `#C8FF00` neon yellow-green (spin button, win highlights), `#FF2D78` neon pink/magenta (wild symbols, payline labels), `#00FFD4` neon cyan (credits display, some symbols), `#B44FFF` neon purple (chrome skull symbol)
+> - **Symbol accents:** `#FFD700` neon gold (Gold Kanji symbol)
+> - **UI text:** `#FFFFFF` primary white, `#6B6480` muted gray-purple for inactive elements, `#00FF88` win green, `#FF4444` loss red
+> - **Border/glow:** `#C8FF00` active reel border on winning row, `#2A2040` subtle dark purple card border
+>
+> Do not write any layout or component styles yet — variables only. Comment each group clearly.
+
+**Outcome:**
+
+Defined CSS custom properties system in `:root` with all required color variables organized into 5 groups: backgrounds, neon accents, symbol accents, UI text, and border/glow.
+
+**Linter result:** Passed
+
+**Tests result:** N/A
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/css/styles.css
+
+**Commit message:** feat: phase 2A - add cyberpunk color system CSS variables
+
+## Entry 12 — April 22, 2026 1:18PM
+
+**Phase:** 2B
+
+**Prompt used:**
+
+> Using the CSS variables defined, build the base layout in `index.html` and `styles.css`. The layout should have:
+>
+> - A full-viewport dark background (`#0D0B1A`) with a subtle scanline or grid texture overlay using CSS only
+> - A centered game container (max-width 1100px on desktop, full-width on mobile)
+> - A top bar with: game title "DATA_HEIST // VOL.01" on the left using the Google Font "Share Tech Mono" or "Orbitron", balance display on the right
+> - A main reel area placeholder (5 columns × 3 rows grid)
+> - A controls bar below the reels with placeholders for: balance display, bet controls, spin button, auto-spin button, max bet button
+> - A win display area and free-spins counter below the controls
+> - A side panel on the left showing payline numbers
+> - A side panel on the right showing last spins history
+>
+> Mobile-first responsive CSS. No JavaScript yet. Validate HTML with htmlhint and lint CSS — show me clean output.
+
+**Outcome:**
+
+Implemented complete base layout with:
+- Full-viewport scanline texture overlay using CSS repeating-linear-gradient
+- 3-column grid layout (left panel | center content | right panel)
+- Top bar with neon-styled title and balance display using Orbitron font
+- 5×3 reel grid with placeholder cells
+- Win display section
+- Controls bar with bet controls, spin button, auto-spin, and max bet buttons
+- Free spins counter (hidden by default)
+- Side panels for payline numbers (left) and spin history (right)
+- Mobile-first responsive design that stacks on tablets/phones
+- Comprehensive CSS styling using all defined color variables
+
+**Linter result:** Passed (ESLint and htmlhint clean)
+
+**Tests result:** 23 passed, all pass
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/index.html, src/css/styles.css
+
+**Commit message:** feat: phase 2B - build base layout with responsive design
+
+## Entry 13 — April 22, 2026 1:28PM
+
+**Phase:** 2C
+
+**Prompt used:**
+
+> In `src/js/ui.js`, implement symbol rendering. Each symbol cell in the 5×3 grid should render as a styled div with:
+>
+> - A themed Unicode character as a placeholder visual (W for Wild/Glitch, 金 for Gold Kanji, ☠ for Chrome Skull, ◎ for Cyber Iris, ⚔ for Katana, 7 for Neon 7, ◆ for Diamond, ♦ for Bell, ▬ for BAR, ● for Cherry)
+> - The symbol's `displayName` as a visually hidden label for accessibility (`aria-label`)
+> - Color-coded borders and glow matching the symbol's neon accent color from the CSS variable system
+> - A CSS class matching the symbol id for future animation targeting
+>
+> Export a `renderSymbolMatrix(matrix)` function that takes the 2D array from the RNG module and updates the DOM. No spin animation yet — static render only. Full JSDoc.
+
+**Outcome:**
+
+Implemented complete symbol rendering system:
+- Created SYMBOL_UNICODE mapping with themed Unicode characters for all 10 symbols
+- Created SYMBOL_COLOR_VARS mapping linking symbols to their CSS variable colors
+- Implemented `renderSymbolMatrix(matrix)` function that:
+  - Validates matrix structure (5 reels × 3 rows)
+  - Updates DOM cells with symbol elements
+  - Applies aria-label for accessibility
+  - Applies color-coded borders and glows using CSS variables
+  - Adds symbol-specific CSS classes for animation targeting
+- Added .symbol CSS class with styling
+- Full JSDoc annotations and error handling
+
+**Linter result:** Passed
+
+**Tests result:** 23 passed, all pass
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/ui.js, src/css/styles.css
+
+**Commit message:** feat: phase 2C - implement symbol rendering with color-coded styling
+
+## Entry 14 — April 22, 2026 1:38PM
+
+**Phase:** 2D
+
+**Prompt used:**
+
+> In `src/js/ui.js`, add functions to render and update the controls bar. Implement:
+>
+> - `renderBalance(balance)` — updates the Crypto-Credits balance display
+> - `renderBet(bet)` — updates the bet display
+> - `renderWin(amount)` — shows win amount in neon green (`#00FF88`) if > 0, hides if 0
+> - `renderPaylineHighlight(winningPaylineIndices, matrix)` — draws neon pink (`#FF2D78`) highlights connecting winning symbols across the reels
+> - `renderFreeSpinsCounter(count)` — shows or hides the free spins remaining indicator
+> - `setSpinButtonState(isSpinning)` — disables/enables and changes label of spin button
+>
+> All functions must be pure DOM updates with no game logic. Full JSDoc.
+
+**Outcome:**
+
+Implemented 6 control bar update functions:
+- `renderBalance(balance)` - Updates balance display element, validates non-negative number
+- `renderBet(bet)` - Updates bet display element, validates positive number
+- `renderWin(amount)` - Shows/hides win display using .active class, displays in neon green
+- `renderPaylineHighlight(winningPaylineIndices, paylines)` - Draws SVG overlay with neon pink lines connecting winning payline symbols, dynamically calculates symbol center positions
+- `renderFreeSpinsCounter(count)` - Shows/hides free spins counter display
+- `setSpinButtonState(isSpinning)` - Disables/enables spin button, updates label to "SPINNING..." or "SPIN"
+
+All functions:
+- Are pure DOM updates with no game logic
+- Include full JSDoc with @param and @returns
+- Have comprehensive error handling
+- Validate input types and DOM element existence
+
+**Linter result:** Passed
+
+**Tests result:** 23 passed, all pass
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/ui.js, src/css/styles.css
+
+**Commit message:** feat: phase 2D - implement control bar update functions
+
+## Entry 15 — April 22, 2026 1:48PM
+
+**Phase:** 3A
+
+**Prompt used:**
+
+> In `src/js/main.js`, implement the core spin loop as an async function `executeSpin()`. The sequence must be:
+>
+> 1. Validate the player can afford the bet (check state)
+> 2. Deduct bet from balance, update state
+> 3. Set `isSpinning = true`, disable spin button
+> 4. Call RNG to generate a symbol matrix
+> 5. Trigger reel spin animation (stubbed for now — just a 1s delay)
+> 6. Render the resulting symbol matrix
+> 7. Evaluate all paylines, calculate total payout
+> 8. Record spin in state
+> 9. If payout > 0, trigger win animation (stubbed)
+> 10. Update balance display, win display, last spins panel
+> 11. Set `isSpinning = false`, re-enable spin button
+> 12. If auto-spin is active, decrement counter and recurse after a short delay
+>
+> Wire the spin button's click event to `executeSpin()`. Full JSDoc. Handle the insufficient-balance case with a visible UI message styled in neon red (`#FF4444`).
+
+**Outcome:**
+
+Implemented complete spin orchestration system:
+- `executeSpin()` async function implementing all 12 steps
+- Global gameState variable tracking game state
+- `initializeGame()` - initializes UI on page load
+- `showErrorMessage()` - displays neon red error messages with fade animation
+- `updateLastSpinsPanel()` - tracks last 10 spins in history panel
+- Spin button wired to executeSpin() via DOMContentLoaded event listener
+- Full error handling with try/catch
+- Auto-spin recursion with 500ms delay between spins
+- Comprehensive JSDoc annotations
+- Imported all necessary modules: state, RNG, reels, paylines, payout, ui
+
+**Linter result:** Passed (clean, no warnings)
+
+**Tests result:** 23 passed, all pass
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/main.js, src/css/styles.css
+
+**Commit message:** feat: phase 3A - implement core spin orchestration loop
+
+## Entry 16 — April 22, 2026 2:05PM
+
+**Phase:** 3B
+
+**Prompt used:**
+
+> Replace the stub delay in the spin animation with a real CSS-based reel spin effect. Each of the 5 reels should:
+>
+> - Blur and scroll upward rapidly for ~800ms (suggest CSS animation with `transform: translateY`)
+> - Stagger their stop times left to right (reel 1 stops first, reel 5 stops last, ~150ms apart)
+> - Snap to the final symbol matrix values when they stop
+> - Flash a brief neon cyan (`#00FFD4`) glow on each reel as it stops
+>
+> Implement this in `src/css/styles.css` (animation keyframes) and an `animateReelSpin(onComplete)` function in `src/js/ui.js`. The function should return a Promise that resolves when all reels have stopped. Do not use `setTimeout` chains — use Promise-based animation end detection. Run linter after.
+
+**Outcome:**
+
+Implemented complete reel spin animation system:
+
+CSS Animations:
+- @keyframes reelSpin: 800ms animation with translateY(-200px) and blur(4px) effect
+- @keyframes reelGlow: 300ms neon cyan glow animation triggered after each reel stops
+
+JavaScript Function - `animateReelSpin()`:
+- Returns Promise that resolves when all reels complete
+- Applies reelSpin animation to each reel with staggered 150ms delays (left-to-right)
+- Uses Promise-based animation detection with animationend event listeners
+- Triggers reelGlow after spin completes for each reel
+- Resets animation styles after completion
+- No setTimeout chains - fully Promise-based
+- Full JSDoc with @returns and @throws
+
+Integration:
+- Updated main.js to import and use animateReelSpin()
+- Replaced 1s stub delay with actual animation in executeSpin flow
+
+**Linter result:** Passed
+
+**Tests result:** 23 passed, all pass
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/css/styles.css, src/js/ui.js, src/js/main.js
+
+**Commit message:** feat: phase 3B - implement CSS-based reel spin animations with staggered stops
+
+## Entry 17 — April 22, 2026 2:25PM
+
+**Phase:** 3C
+
+**Prompt used:**
+
+> Implement a `celebrateWin(amount, winningPaylineIndices)` function in `src/js/ui.js`. Behavior should scale with win size:
+>
+> - **Small win (1–2× bet):** winning symbols pulse neon yellow-green (`#C8FF00`), win amount counts up quickly
+> - **Medium win (3–9× bet):** neon pink payline traces flash, symbols pulse, dramatic count-up with synth sound
+> - **Big win (10×+ bet):** full-screen overlay with "SYSTEM BREACH — BIG WIN" text in neon green, animated glitch border effect, data-rain CSS animation in background
+>
+> Use CSS classes toggled by JS — no canvas. All animations must be purely CSS keyframes triggered by class addition. Remove animation classes after they complete using `animationend` event listeners. Full JSDoc.
+
+**Outcome:**
+
+Implemented comprehensive win celebration system with 3 celebration tiers:
+
+CSS Animations:
+- @keyframes symbolPulse: 0.5-0.6s scale animation for symbols
+- @keyframes paylineFlash: 0.8s opacity flash for paylines
+- @keyframes glitchBorder: 0.6s skew/translate glitch effect with color shifts
+- @keyframes dataRain: 2s falling animation for data characters
+- @keyframes countUp: Color/glow animation for count-up text
+
+JavaScript Functions:
+- `celebrateWin(amount, winningPaylineIndices, currentBet)`: Main function, calculates multiplier and routes to tier
+- `celebrateSmallWin()`: 700ms duration, symbol pulse + quick count-up (600ms)
+- `celebrateMediumWin()`: 1400ms duration, payline flash + symbol pulse + dramatic count-up (1200ms)
+- `celebrateBigWin()`: 3000ms duration, full-screen overlay with glitch border + data-rain + smooth count-up
+- `countUpWin()`: Animates win amount display using requestAnimationFrame
+
+Features:
+- Multiplier-based tier selection (1-2x: small, 3-9x: medium, 10x+: big)
+- CSS classes dynamically injected for animation control
+- animationend event listeners clean up animations
+- requestAnimationFrame for smooth number counting
+- Data-rain with randomized falling characters
+- Glitch effect with infinite animation loop
+- Overlay with backdrop blur
+- Proper Promise resolution for async flow
+
+Integration:
+- Imported celebrateWin in main.js
+- Replaced win animation stub with actual celebrateWin call
+- Passes amount, winningPaylines, and currentBet from gameState
+
+**Linter result:** Passed
+
+**Tests result:** 23 passed, all pass
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/css/styles.css, src/js/ui.js, src/js/main.js
+
+**Commit message:** feat: phase 3C - implement tiered win celebration animations
 
 ## Entry # — April 22, 2026 12:35PM
 

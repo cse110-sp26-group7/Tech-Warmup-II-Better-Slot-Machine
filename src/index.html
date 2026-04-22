@@ -4,11 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Heist - Slot Machine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div id="app">
-        <!-- Game UI will be rendered here -->
+    <div id="app" class="game-viewport">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="top-bar__title">DATA_HEIST // VOL.01</div>
+            <div class="top-bar__balance">
+                <span class="balance-label">Crypto-Credits:</span>
+                <span id="balance-display" class="balance-amount">10000</span>
+            </div>
+        </header>
+
+        <!-- Main Game Container -->
+        <main class="game-container">
+            <!-- Left Side Panel - Payline Numbers -->
+            <aside class="side-panel side-panel--left">
+                <div class="payline-numbers">
+                    <div class="payline-number" data-line="1">1</div>
+                    <div class="payline-number" data-line="2">2</div>
+                    <div class="payline-number" data-line="3">3</div>
+                    <div class="payline-number" data-line="4">4</div>
+                    <div class="payline-number" data-line="5">5</div>
+                    <div class="payline-number" data-line="6">6</div>
+                    <div class="payline-number" data-line="7">7</div>
+                    <div class="payline-number" data-line="8">8</div>
+                    <div class="payline-number" data-line="9">9</div>
+                    <div class="payline-number" data-line="10">10</div>
+                    <div class="payline-number" data-line="11">11</div>
+                    <div class="payline-number" data-line="12">12</div>
+                    <div class="payline-number" data-line="13">13</div>
+                </div>
+            </aside>
+
+            <!-- Center Content -->
+            <div class="game-center">
+                <!-- Reel Area -->
+                <section class="reel-area">
+                    <div class="reels-grid" id="reels-grid">
+                        <!-- 5 columns × 3 rows grid will be populated -->
+                        <div class="reel-column">
+                            <div class="reel-cell"></div>
+                            <div class="reel-cell"></div>
+                            <div class="reel-cell"></div>
+                        </div>
+                        <div class="reel-column">
+                            <div class="reel-cell"></div>
+                            <div class="reel-cell"></div>
+                            <div class="reel-cell"></div>
+                        </div>
+                        <div class="reel-column">
+                            <div class="reel-cell"></div>
+                            <div class="reel-cell"></div>
+                            <div class="reel-cell"></div>
+                        </div>
+                        <div class="reel-column">
+                            <div class="reel-cell"></div>
+                            <div class="reel-cell"></div>
+                            <div class="reel-cell"></div>
+                        </div>
+                        <div class="reel-column">
+                            <div class="reel-cell"></div>
+                            <div class="reel-cell"></div>
+                            <div class="reel-cell"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Win Display -->
+                <section class="win-display" id="win-display">
+                    <div class="win-amount" id="win-amount">0</div>
+                </section>
+
+                <!-- Controls Bar -->
+                <section class="controls-bar">
+                    <div class="controls-group">
+                        <button id="bet-minus-btn" class="btn btn--control">−</button>
+                        <div class="bet-display">
+                            <span class="bet-label">Bet:</span>
+                            <span id="bet-display" class="bet-amount">25</span>
+                        </div>
+                        <button id="bet-plus-btn" class="btn btn--control">+</button>
+                    </div>
+
+                    <button id="spin-btn" class="btn btn--spin">SPIN</button>
+
+                    <div class="controls-group">
+                        <button id="auto-spin-btn" class="btn btn--control">AUTO SPIN</button>
+                        <button id="max-bet-btn" class="btn btn--control">MAX BET</button>
+                    </div>
+                </section>
+
+                <!-- Free Spins Counter -->
+                <section class="free-spins-counter" id="free-spins-counter" style="display: none;">
+                    <div class="free-spins-label">FREE SPINS</div>
+                    <div class="free-spins-count" id="free-spins-count">0</div>
+                </section>
+            </div>
+
+            <!-- Right Side Panel - Last Spins History -->
+            <aside class="side-panel side-panel--right">
+                <div class="spin-history">
+                    <div class="spin-history__title">LAST SPINS</div>
+                    <div class="spin-history__list" id="spin-history-list">
+                        <!-- Spin history items will be added here -->
+                    </div>
+                </div>
+            </aside>
+        </main>
     </div>
 
     <script type="module" src="js/main.js"></script>
