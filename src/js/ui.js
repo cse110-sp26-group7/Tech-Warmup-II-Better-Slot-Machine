@@ -255,6 +255,66 @@ export function setSpinButtonState(isSpinning) {
 }
 
 /**
+ * Animates the reel spin with staggered stops and glow effects
+ * Each reel spins for 800ms total, stopping left-to-right with 150ms stagger
+ * Returns a Promise that resolves when all reels have stopped
+ * @returns {Promise<void>} Promise that resolves when animation completes
+ * @throws {Error} If reel elements not found in DOM
+ */
+export function animateReelSpin() {
+  return new Promise((resolve) => {
+    const reelsGrid = document.getElementById('reels-grid');
+    if (!reelsGrid) {
+      throw new Error('Reel grid container (#reels-grid) not found in DOM');
+    }
+
+    const reelColumns = reelsGrid.querySelectorAll('.reel-column');
+    if (reelColumns.length !== 5) {
+      throw new Error('Expected 5 reel columns in the DOM');
+    }
+
+    // Configuration
+    const spinDuration = 800; // ms
+    const staggerDelay = 150; // ms between reel stops
+    const glowDuration = 300; // ms
+
+    // Create promises for each reel's animation completion
+    const reelPromises = Array.from(reelColumns).map((column, index) => {
+      return new Promise((reelResolve) => {
+        const delay = index * staggerDelay;
+
+        // Set up the spin animation with delay
+        column.style.animation = `reelSpin ${spinDuration}ms ease-in-out ${delay}ms forwards`;
+
+        // When spin animation ends, trigger glow
+        const handleSpinEnd = () => {
+          column.removeEventListener('animationend', handleSpinEnd);
+
+          // Apply glow effect
+          column.style.animation = `reelGlow ${glowDuration}ms ease-in-out forwards`;
+
+          // Wait for glow to finish
+          const handleGlowEnd = () => {
+            column.removeEventListener('animationend', handleGlowEnd);
+            column.style.animation = 'none';
+            column.style.transform = 'translateY(0)';
+            column.style.filter = 'blur(0px)';
+            reelResolve();
+          };
+
+          column.addEventListener('animationend', handleGlowEnd, { once: true });
+        };
+
+        column.addEventListener('animationend', handleSpinEnd, { once: true });
+      });
+    });
+
+    // Resolve main promise when all reels are done
+    Promise.all(reelPromises).then(resolve);
+  });
+}
+
+/**
  * Renders a symbol matrix to the DOM
  * Updates all cells in the 5×3 reel grid with styled symbol divs
  * @param {string[][]} matrix - 2D array of symbol IDs where matrix[reelIndex][rowIndex]

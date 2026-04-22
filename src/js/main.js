@@ -9,6 +9,7 @@ import { REEL_STRIPS } from './reels.js';
 import { PAYLINES } from './paylines.js';
 import { evaluateAllPaylines } from './payout.js';
 import {
+  animateReelSpin,
   renderSymbolMatrix,
   renderBalance,
   renderBet,
@@ -70,8 +71,8 @@ async function executeSpin() {
     // Step 4: Call RNG to generate symbol matrix
     const symbolMatrix = RNG.generateSymbolMatrix(REEL_STRIPS, 3);
 
-    // Step 5: Trigger reel spin animation (stubbed: 1s delay)
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Step 5: Trigger reel spin animation
+    await animateReelSpin();
 
     // Step 6: Render the resulting symbol matrix
     renderSymbolMatrix(symbolMatrix);

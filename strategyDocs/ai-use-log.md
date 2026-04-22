@@ -630,6 +630,54 @@ Implemented complete spin orchestration system:
 
 **Commit message:** feat: phase 3A - implement core spin orchestration loop
 
+## Entry 16 — April 22, 2026 2:05PM
+
+**Phase:** 3B
+
+**Prompt used:**
+
+> Replace the stub delay in the spin animation with a real CSS-based reel spin effect. Each of the 5 reels should:
+>
+> - Blur and scroll upward rapidly for ~800ms (suggest CSS animation with `transform: translateY`)
+> - Stagger their stop times left to right (reel 1 stops first, reel 5 stops last, ~150ms apart)
+> - Snap to the final symbol matrix values when they stop
+> - Flash a brief neon cyan (`#00FFD4`) glow on each reel as it stops
+>
+> Implement this in `src/css/styles.css` (animation keyframes) and an `animateReelSpin(onComplete)` function in `src/js/ui.js`. The function should return a Promise that resolves when all reels have stopped. Do not use `setTimeout` chains — use Promise-based animation end detection. Run linter after.
+
+**Outcome:**
+
+Implemented complete reel spin animation system:
+
+CSS Animations:
+- @keyframes reelSpin: 800ms animation with translateY(-200px) and blur(4px) effect
+- @keyframes reelGlow: 300ms neon cyan glow animation triggered after each reel stops
+
+JavaScript Function - `animateReelSpin()`:
+- Returns Promise that resolves when all reels complete
+- Applies reelSpin animation to each reel with staggered 150ms delays (left-to-right)
+- Uses Promise-based animation detection with animationend event listeners
+- Triggers reelGlow after spin completes for each reel
+- Resets animation styles after completion
+- No setTimeout chains - fully Promise-based
+- Full JSDoc with @returns and @throws
+
+Integration:
+- Updated main.js to import and use animateReelSpin()
+- Replaced 1s stub delay with actual animation in executeSpin flow
+
+**Linter result:** Passed
+
+**Tests result:** 23 passed, all pass
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/css/styles.css, src/js/ui.js, src/js/main.js
+
+**Commit message:** feat: phase 3B - implement CSS-based reel spin animations with staggered stops
+
 ## Entry # — April 22, 2026 12:35PM
 
 **Phase:**

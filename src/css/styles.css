@@ -298,6 +298,30 @@ body {
     }
 }
 
+@keyframes reelSpin {
+    0% {
+        transform: translateY(0);
+        filter: blur(0px);
+    }
+    100% {
+        transform: translateY(-200px);
+        filter: blur(4px);
+    }
+}
+
+@keyframes reelGlow {
+    0% {
+        box-shadow: 0 0 8px var(--color-border-card);
+    }
+    50% {
+        box-shadow: 0 0 20px var(--color-neon-cyan),
+                    0 0 30px var(--color-neon-cyan);
+    }
+    100% {
+        box-shadow: 0 0 8px var(--color-border-card);
+    }
+}
+
 /* ====================================
    Spin History
    ==================================== */
