@@ -12,7 +12,8 @@
     "lint:all": "npm run lint && npm run lint:html",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:e2e": "playwright test"
   },
   "keywords": [
     "slot-machine",
@@ -23,6 +24,7 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/preset-env": "^7.24.0",
+    "@playwright/test": "^1.59.1",
     "eslint": "^8.57.0",
     "htmlhint": "^1.1.4",
     "http-server": "^14.1.1",
