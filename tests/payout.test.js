@@ -3,7 +3,11 @@
  * Test-driven development for the payout calculation logic
  */
 
-import { calculatePayout, checkScatterTrigger } from '../src/js/payout.js';
+import {
+  calculatePayout,
+  checkScatterTrigger,
+  evaluateAllPaylines,
+} from '../src/js/payout.js';
 
 describe('Payout Module - calculatePayout', () => {
   describe('5 of a kind payouts', () => {
@@ -303,6 +307,115 @@ describe('Payout Module - calculatePayout', () => {
 
       const freeSpins = checkScatterTrigger(matrix);
       expect(freeSpins).toBe(10); // 3 scatters = 10 free spins
+    });
+  });
+
+  describe('evaluateAllPaylines - per-line bet contract', () => {
+    // Regression guard for the 25x inflation bug: evaluateAllPaylines must
+    // be called with the per-line bet, not the total bet. Its results must
+    // match what calculatePayout produces for the same per-line bet.
+
+    test('returns zero payout and no winners on a non-winning matrix', () => {
+      const matrix = [
+        ['CHERRY', 'BAR', 'DIAMOND'],
+        ['BELL', 'NEON_7', 'KATANA'],
+        ['GOLD_KANJI', 'CHROME_SKULL', 'CYBER_IRIS'],
+        ['DIAMOND', 'CHERRY', 'BAR'],
+        ['NEON_7', 'BELL', 'KATANA'],
+      ];
+      const paylines = [[1, 1, 1, 1, 1]]; // middle row only
+
+      const { totalPayout, winningPaylines } = evaluateAllPaylines(
+        matrix,
+        paylines,
+        1,
+      );
+
+      expect(totalPayout).toBe(0);
+      expect(winningPaylines).toEqual([]);
+    });
+
+    test('scales payout by per-line bet, not by total (25x) bet', () => {
+      // 5 CHERRY on middle row → (50 / 5) * 5 * betPerLine = 50 * betPerLine
+      const matrix = [
+        ['BAR', 'CHERRY', 'BAR'],
+        ['BAR', 'CHERRY', 'BAR'],
+        ['BAR', 'CHERRY', 'BAR'],
+        ['BAR', 'CHERRY', 'BAR'],
+        ['BAR', 'CHERRY', 'BAR'],
+      ];
+      const paylines = [[1, 1, 1, 1, 1]];
+      const perLineBet = 1;
+
+      const { totalPayout, winningPaylines } = evaluateAllPaylines(
+        matrix,
+        paylines,
+        perLineBet,
+      );
+
+      expect(totalPayout).toBe(50);
+      expect(winningPaylines).toEqual([0]);
+    });
+
+    test('scales proportionally when per-line bet doubles', () => {
+      const matrix = [
+        ['BAR', 'CHERRY', 'BAR'],
+        ['BAR', 'CHERRY', 'BAR'],
+        ['BAR', 'CHERRY', 'BAR'],
+        ['BAR', 'CHERRY', 'BAR'],
+        ['BAR', 'CHERRY', 'BAR'],
+      ];
+      const paylines = [[1, 1, 1, 1, 1]];
+
+      const result1 = evaluateAllPaylines(matrix, paylines, 1);
+      const result2 = evaluateAllPaylines(matrix, paylines, 2);
+
+      expect(result2.totalPayout).toBe(result1.totalPayout * 2);
+    });
+
+    test('sums payouts across multiple winning paylines and lists their indices', () => {
+      // Top row: 3x DIAMOND then break → (250/5) * 3 * 1 = 150
+      // Middle row: 3x CHERRY then break → (50/5) * 3 * 1 = 30
+      const matrix = [
+        ['DIAMOND', 'CHERRY', 'BAR'],
+        ['DIAMOND', 'CHERRY', 'BAR'],
+        ['DIAMOND', 'CHERRY', 'BAR'],
+        ['KATANA', 'NEON_7', 'BELL'],
+        ['BAR', 'KATANA', 'CHERRY'],
+      ];
+      const paylines = [
+        [0, 0, 0, 0, 0], // top row
+        [1, 1, 1, 1, 1], // middle row
+      ];
+
+      const { totalPayout, winningPaylines } = evaluateAllPaylines(
+        matrix,
+        paylines,
+        1,
+      );
+
+      expect(totalPayout).toBe(180);
+      expect(winningPaylines).toEqual([0, 1]);
+    });
+
+    test('agrees with calculatePayout on a single payline at the same per-line bet', () => {
+      const matrix = [
+        ['KATANA', 'BAR', 'CHERRY'],
+        ['KATANA', 'BAR', 'CHERRY'],
+        ['KATANA', 'BAR', 'CHERRY'],
+        ['BAR', 'CHERRY', 'DIAMOND'],
+        ['CHERRY', 'DIAMOND', 'BAR'],
+      ];
+      const paylines = [[0, 0, 0, 0, 0]];
+      const perLineBet = 3;
+
+      const directPayout = calculatePayout(
+        ['KATANA', 'KATANA', 'KATANA', 'BAR', 'CHERRY'],
+        perLineBet,
+      );
+      const { totalPayout } = evaluateAllPaylines(matrix, paylines, perLineBet);
+
+      expect(totalPayout).toBe(directPayout);
     });
   });
 });

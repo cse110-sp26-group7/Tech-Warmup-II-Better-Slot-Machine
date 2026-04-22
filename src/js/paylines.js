@@ -41,8 +41,8 @@ export const PAYLINES = [
   [1, 2, 2, 2, 1], // Line 13: Dip to bottom
 
   // Payline 14-17: W and M shapes
-  [0, 1, 0, 1, 0], // Line 14: W-shape (repeated for classic slot feel)
-  [2, 1, 2, 1, 2], // Line 15: M-shape (inverted W)
+  [1, 1, 0, 1, 1], // Line 14: Middle row with center top-spike
+  [1, 1, 2, 1, 1], // Line 15: Middle row with center bottom-spike
   [0, 2, 0, 2, 0], // Line 16: Wide W-shape
   [2, 0, 2, 0, 2], // Line 17: Wide M-shape
 

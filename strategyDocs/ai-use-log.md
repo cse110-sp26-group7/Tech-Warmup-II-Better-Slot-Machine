@@ -1235,7 +1235,113 @@ Rewrote `README.md` from the minimal scaffold into a full project README. Sectio
 **Commit message:** “Phase 7D Complete”
 
 
-## Entry # — April 22, 2026 10:43AM
+## Entry 28 — April 22, 2026 4:14PM
+
+**Phase:** 8A
+
+**Prompt used:**
+
+> In `src/js/main.js` inside `executeSpin()`, the call to `evaluateAllPaylines` passes `gameState.currentBet` — which is the **total** bet (per-line × 25) — as the third argument. That value is forwarded straight to `calculatePayout`, whose contract (proven by `tests/payout.test.js`) is that `betAmount` is the **per-line** bet. Every winning line is therefore scaled by the full 25-payline multiplier a second time, making every payout 25× too large.
+>
+> Fix: pass `getBetPerLine()` instead of `gameState.currentBet`. Do not change `evaluateAllPaylines`, `calculatePayout`, or their existing tests — only the caller is wrong. Run the unit tests after to confirm nothing regresses. Then add a new test in `tests/payout.test.js` that exercises `evaluateAllPaylines` directly with a realistic per-line bet so this regression can't silently return.
+
+**Outcome:**
+
+Located and fixed the 25× payout inflation bug in `src/js/main.js` at step 7 of `executeSpin()`. The call to `evaluateAllPaylines` was passing `gameState.currentBet` (the total bet, per-line × 25) instead of the per-line bet that `calculatePayout` expects. The existing `getBetPerLine()` helper at `main.js:65` already computed the correct value — swapped the argument to use it. No changes to `payout.js` or its existing tests were required.
+
+Added a new `describe('evaluateAllPaylines - per-line bet contract')` block to `tests/payout.test.js` with 5 regression tests:
+- Non-winning matrix returns `{ totalPayout: 0, winningPaylines: [] }`
+- 5 Cherries on middle row at bet=1 pays exactly 50 (previously would have been 1250 with the bug)
+- Doubling the per-line bet exactly doubles the total payout
+- Multi-line wins sum payouts and list correct indices
+- Cross-check: single-payline `evaluateAllPaylines` result matches `calculatePayout` directly
+
+Imported `evaluateAllPaylines` into the test file alongside `calculatePayout` and `checkScatterTrigger`.
+
+**Linter result:** Passed
+
+**Tests result:** 62 passed, all pass (4 unit test suites) — 57 previous + 5 new regression tests
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/main.js, tests/payout.test.js
+
+**Commit message:** fix: phase 8A - correct 25x payout inflation by passing per-line bet to evaluateAllPaylines
+
+## Entry 29 — April 22, 2026 3:35PM
+
+**Phase:** 8B
+
+**Prompt used:**
+
+> In `src/js/main.js`, `executeSpin()` calls `State.recordSpin(gameState, 0)` at step 3 and `State.recordSpin(gameState, totalPayout)` again at step 8. Because `recordSpin` increments `totalSpins` and sets `isSpinning: false`, the first call (a) double-counts every spin and (b) flips `isSpinning` off, forcing the manual `{ ...gameState, isSpinning: true }` override on the next line.
+>
+> Fix: delete the step-3 `recordSpin` call entirely and keep only the direct `gameState = { ...gameState, isSpinning: true }` assignment. After the fix, `totalSpins` must increment by exactly 1 per spin. Add a test in `tests/state.test.js` (or an integration-style test) asserting that two sequential spins produce `totalSpins === 2`, not 4.
+
+**Outcome:**
+
+Removed the spurious `State.recordSpin(gameState, 0)` call at step 3 of `executeSpin()` in `src/js/main.js`. Kept the direct `gameState = { ...gameState, isSpinning: true }` assignment to mark the spin in progress. The trailing `setSpinButtonState(true)` and `updateBetButtonStates()` calls remain unchanged. Step 8's single `State.recordSpin(gameState, totalPayout)` now owns the totalSpins increment and the flip back to `isSpinning: false`.
+
+Added a new `describe('Spin flow invariants')` block to `tests/state.test.js` with 3 regression tests:
+- A `simulateSpin(state, payout)` helper mirrors the state transitions executeSpin performs (placeBet → mark isSpinning → recordSpin).
+- Single simulated spin asserts `totalSpins === 1`.
+- Two sequential simulated spins assert `totalSpins === 2` (pre-fix this would have been 4).
+- Documented the `recordSpin` contract: calling it with payout=0 always sets `isSpinning: false` and increments the counter — it must not be used to "mark a spin as in-progress".
+
+**Linter result:** Passed
+
+**Tests result:** 65 passed, all pass (4 unit test suites) — 62 previous + 3 new regression tests
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/main.js, tests/state.test.js
+
+**Commit message:** fix: phase 8B - remove duplicate recordSpin call so totalSpins increments once per spin
+
+## Entry 30 — April 22, 2026 3:52PM
+
+**Phase:** 8C
+
+**Prompt used:**
+
+> In `src/js/paylines.js`, lines 6 and 14 are both `[0, 1, 0, 1, 0]`, and lines 8 and 15 are both `[2, 1, 2, 1, 2]`. The same duplicates appear in the hardcoded paylines list inside `generatePaylineDiagrams()` in `src/js/ui.js`. With duplicates present there are only 23 unique paylines, but the README, HTML side panel, and paytable all claim 25 — and any win on those two patterns is counted and paid twice.
+>
+> Fix: replace the two duplicate entries with distinct payline patterns (e.g. different zigzag or stepped shapes that aren't already in the list). Keep the total count at 25. Apply the same two replacements to `generatePaylineDiagrams()` so the paytable stays in sync. Add a unit test in `tests/paylines.test.js` asserting `new Set(PAYLINES.map((p) => JSON.stringify(p))).size === PAYLINES.length` so duplicates cannot silently return.
+
+**Outcome:**
+
+Replaced the two duplicate payline entries in `src/js/paylines.js`:
+- Line 14: `[0, 1, 0, 1, 0]` → `[1, 1, 0, 1, 1]` (middle row with a center top-spike)
+- Line 15: `[2, 1, 2, 1, 2]` → `[1, 1, 2, 1, 1]` (middle row with a center bottom-spike)
+
+Both new shapes were verified not to exist elsewhere in the 25-entry list. Updated the comments accordingly.
+
+Mirrored the same two replacements in the hardcoded paylines array inside `generatePaylineDiagrams()` in `src/js/ui.js` so the paytable modal displays the correct diagrams. Noted that the duplication between `paylines.js` and `ui.js` is a latent maintainability issue — a future phase could DRY it up by importing `PAYLINES` from `paylines.js` into `ui.js`, but that was out of scope for 8C.
+
+Rewrote `tests/paylines.test.js` (previously just a placeholder) with a proper suite:
+- Asserts `PAYLINES.length === 25`.
+- **Uniqueness regression guard**: `new Set(PAYLINES.map(JSON.stringify)).size === PAYLINES.length`.
+- Asserts each payline has 5 integer row indices in [0, 2].
+- Tests `getPaylineSymbols` extracts correctly for straight and V-shape paylines.
+- Tests `getPaylineSymbols` throws on invalid input (out-of-range row, wrong length).
+
+**Linter result:** Passed
+
+**Tests result:** 71 passed, all pass (4 unit test suites) — 65 previous + 6 new payline tests
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/paylines.js, src/js/ui.js, tests/paylines.test.js
+
+**Commit message:** fix: phase 8C - replace duplicate paylines 14 and 15 with unique patterns
+
+## Entry # — [date] [time]
 
 **Phase:**
 
