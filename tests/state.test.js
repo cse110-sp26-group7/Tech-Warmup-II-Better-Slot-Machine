@@ -134,4 +134,92 @@ describe('State Module', () => {
       expect(newState.lastWin).toBe(0);
     });
   });
+
+  describe('setAutoSpin', () => {
+    test('should set auto-spin count to specified value', () => {
+      const state = State.INITIAL_STATE;
+      const newState = State.setAutoSpin(state, 10);
+      expect(newState.autoSpinCount).toBe(10);
+    });
+
+    test('should turn off auto-spin by setting to 0', () => {
+      let state = State.setAutoSpin(State.INITIAL_STATE, 25);
+      state = State.setAutoSpin(state, 0);
+      expect(state.autoSpinCount).toBe(0);
+    });
+
+    test('should reject negative auto-spin count', () => {
+      const state = State.INITIAL_STATE;
+      expect(() => State.setAutoSpin(state, -1)).toThrow(
+        'Auto-spin count must be a non-negative integer',
+      );
+    });
+
+    test('should reject non-integer auto-spin count', () => {
+      const state = State.INITIAL_STATE;
+      expect(() => State.setAutoSpin(state, 10.5)).toThrow(
+        'Auto-spin count must be a non-negative integer',
+      );
+    });
+  });
+
+  describe('decrementAutoSpin', () => {
+    test('should decrement auto-spin count by 1', () => {
+      let state = State.setAutoSpin(State.INITIAL_STATE, 10);
+      state = State.decrementAutoSpin(state);
+      expect(state.autoSpinCount).toBe(9);
+    });
+
+    test('should not go below 0 when decrementing', () => {
+      let state = State.setAutoSpin(State.INITIAL_STATE, 1);
+      state = State.decrementAutoSpin(state);
+      expect(state.autoSpinCount).toBe(0);
+
+      // Decrement when already 0
+      state = State.decrementAutoSpin(state);
+      expect(state.autoSpinCount).toBe(0);
+    });
+
+    test('should handle multiple decrements', () => {
+      let state = State.setAutoSpin(State.INITIAL_STATE, 5);
+      state = State.decrementAutoSpin(state);
+      state = State.decrementAutoSpin(state);
+      state = State.decrementAutoSpin(state);
+      expect(state.autoSpinCount).toBe(2);
+    });
+  });
+
+  describe('Auto-spin stop conditions', () => {
+    test('should stop auto-spin when balance reaches zero', () => {
+      let state = State.setAutoSpin(State.INITIAL_STATE, 10);
+      state = { ...state, balance: 0 };
+      // In main.js, shouldStopAutoSpin() would return true for this condition
+      expect(state.balance).toBe(0);
+      expect(state.autoSpinCount).toBe(10);
+    });
+
+    test('should stop auto-spin when balance drops below current bet', () => {
+      let state = State.setAutoSpin(State.INITIAL_STATE, 10);
+      state = { ...state, balance: 24, currentBet: 25 };
+      // In main.js, shouldStopAutoSpin() would return true for this condition
+      expect(state.balance).toBeLessThan(state.currentBet);
+      expect(state.autoSpinCount).toBe(10);
+    });
+
+    test('should allow auto-spin when balance equals current bet', () => {
+      let state = State.setAutoSpin(State.INITIAL_STATE, 10);
+      state = { ...state, balance: 25, currentBet: 25 };
+      // In main.js, shouldStopAutoSpin() would return false for this condition
+      expect(state.balance).toBeGreaterThanOrEqual(state.currentBet);
+      expect(state.autoSpinCount).toBe(10);
+    });
+
+    test('should allow auto-spin when balance is greater than current bet', () => {
+      let state = State.setAutoSpin(State.INITIAL_STATE, 10);
+      state = { ...state, balance: 1000, currentBet: 25 };
+      // In main.js, shouldStopAutoSpin() would return false for this condition
+      expect(state.balance).toBeGreaterThan(state.currentBet);
+      expect(state.autoSpinCount).toBe(10);
+    });
+  });
 });

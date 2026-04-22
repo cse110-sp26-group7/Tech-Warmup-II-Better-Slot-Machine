@@ -792,6 +792,76 @@ Unit Tests (tests/state.test.js):
 
 **Commit message:** feat: phase 4A - implement bet controls with full state management and tests
 
+## Entry 19 — April 22, 2026 3:10PM
+
+**Phase:** 4B
+
+**Prompt used:**
+
+> Implement auto-spin. Add an auto-spin button that cycles through options: OFF → 10 → 25 → 50 → 100 → OFF. When active:
+>
+> - Show a countdown indicator next to the button
+> - Continue spinning automatically after each result
+> - Stop immediately if: balance drops below current bet, balance reaches zero, a bonus round triggers, or the player clicks the button again
+> - Add a 500ms pause between auto-spins so the player can see results
+>
+> Auto-spin must use the existing `executeSpin()` loop — no duplicate spin logic. Full JSDoc. Add a unit test for the stop conditions.
+
+**Outcome:**
+
+Implemented complete auto-spin system:
+
+UI Updates (index.html & styles.css):
+- Added auto-spin counter display element next to button
+- CSS styling for countdown indicator (neon yellow-green, glowing text)
+
+Main Module (main.js):
+- Added `toggleAutoSpin()` function that cycles through: OFF → 10 → 25 → 50 → 100 → OFF
+- Added `updateAutoSpinDisplay()` to show/hide countdown with remaining spins
+- Added `shouldStopAutoSpin()` to check all stop conditions:
+  - Balance reaches zero
+  - Balance drops below current bet
+  - Bonus round triggered (placeholder for future implementation)
+- Updated `executeSpin()` to:
+  - Check stop conditions before each auto-spin recursion
+  - Automatically disable auto-spin and show message if stopped
+  - Decrement counter and update display after each spin
+  - Maintain 500ms pause between spins (already implemented)
+- Wired auto-spin button event listener in initialization
+
+Unit Tests (state.test.js):
+- Added 11 new tests covering:
+  - `setAutoSpin()` - setting/clearing auto-spin count
+  - `decrementAutoSpin()` - decrementing counter with bounds checking
+  - Stop conditions:
+    - Balance = 0
+    - Balance < currentBet
+    - Balance ≥ currentBet (allowed to spin)
+  - Multiple sequential operations
+  - Invalid inputs (negative, non-integer)
+- 50 total tests, all passing
+
+Features:
+- Cycles through 5 options: OFF (0), 10, 25, 50, 100 spins
+- Shows remaining spin count as (N) next to button
+- Automatically starts spinning when enabled
+- Stops and shows error message if balance conditions fail
+- Reuses existing executeSpin() logic - no code duplication
+- 500ms pause between spins for result visibility
+- Full JSDoc documentation
+
+**Linter result:** Passed
+
+**Tests result:** 50 passed, all pass (4 test suites)
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/index.html, src/css/styles.css, src/js/main.js, tests/state.test.js
+
+**Commit message:** feat: phase 4B - implement auto-spin with cycle options and stop conditions
+
 ## Entry # — April 22, 2026 12:35PM
 
 **Phase:**

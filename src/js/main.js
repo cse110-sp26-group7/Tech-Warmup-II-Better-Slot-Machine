@@ -93,6 +93,74 @@ function updateBetButtonStates() {
 }
 
 /**
+ * Auto-spin spin count options (in order)
+ * @type {number[]}
+ */
+const AUTO_SPIN_OPTIONS = [0, 10, 25, 50, 100];
+
+/**
+ * Toggles auto-spin to the next option in the cycle
+ * OFF → 10 → 25 → 50 → 100 → OFF
+ * @returns {void}
+ */
+function toggleAutoSpin() {
+  const currentCount = gameState.autoSpinCount;
+  const currentIndex = AUTO_SPIN_OPTIONS.indexOf(currentCount);
+  const nextIndex = (currentIndex + 1) % AUTO_SPIN_OPTIONS.length;
+  const nextCount = AUTO_SPIN_OPTIONS[nextIndex];
+
+  gameState = State.setAutoSpin(gameState, nextCount);
+  updateAutoSpinDisplay();
+
+  // If turning on auto-spin, start the spin loop
+  if (nextCount > 0 && !gameState.isSpinning) {
+    executeSpin();
+  }
+}
+
+/**
+ * Updates the auto-spin counter display
+ * Shows remaining spins if active, empty if off
+ * @returns {void}
+ */
+function updateAutoSpinDisplay() {
+  const counter = document.getElementById('auto-spin-counter');
+  if (!counter) {
+    return;
+  }
+
+  if (gameState.autoSpinCount > 0) {
+    counter.textContent = `(${gameState.autoSpinCount})`;
+    counter.style.display = 'inline-block';
+  } else {
+    counter.textContent = '';
+    counter.style.display = 'none';
+  }
+}
+
+/**
+ * Checks if auto-spin should stop based on stop conditions
+ * Returns true if any stop condition is met
+ * @returns {boolean} True if auto-spin should stop
+ */
+function shouldStopAutoSpin() {
+  // Stop if balance is zero
+  if (gameState.balance === 0) {
+    return true;
+  }
+
+  // Stop if balance drops below current bet
+  if (gameState.balance < gameState.currentBet) {
+    return true;
+  }
+
+  // Note: Bonus round check would go here when bonus features are implemented
+  // For now, we'll assume no bonus rounds
+
+  return false;
+}
+
+/**
  * Initializes the game when the page loads
  * Sets up event listeners and renders initial UI
  * @returns {void}
@@ -102,6 +170,7 @@ function initializeGame() {
   const betMinusBtn = document.getElementById('bet-minus-btn');
   const betPlusBtn = document.getElementById('bet-plus-btn');
   const maxBetBtn = document.getElementById('max-bet-btn');
+  const autoSpinBtn = document.getElementById('auto-spin-btn');
 
   if (spinBtn) {
     spinBtn.addEventListener('click', executeSpin);
@@ -119,12 +188,17 @@ function initializeGame() {
     maxBetBtn.addEventListener('click', setMaxBet);
   }
 
+  if (autoSpinBtn) {
+    autoSpinBtn.addEventListener('click', toggleAutoSpin);
+  }
+
   // Render initial state
   renderBalance(gameState.balance);
   renderBet(gameState.currentBet);
   renderWin(0);
   renderFreeSpinsCounter(0);
   updateBetButtonStates();
+  updateAutoSpinDisplay();
 }
 
 /**
@@ -192,15 +266,31 @@ async function executeSpin() {
     setSpinButtonState(false);
     updateBetButtonStates();
 
-    // Step 12: If auto-spin is active, decrement and recurse
+    // Step 12: If auto-spin is active, check stop conditions and recurse
     if (gameState.autoSpinCount > 0) {
-      gameState = State.decrementAutoSpin(gameState);
+      // Check if auto-spin should stop
+      if (shouldStopAutoSpin()) {
+        // Stop auto-spin immediately
+        gameState = State.setAutoSpin(gameState, 0);
+        updateAutoSpinDisplay();
 
-      // Wait 500ms before next auto-spin
-      await new Promise((resolve) => setTimeout(resolve, 500));
+        // Show appropriate message
+        if (gameState.balance === 0) {
+          showErrorMessage('Auto-spin stopped: Balance is zero!');
+        } else if (gameState.balance < gameState.currentBet) {
+          showErrorMessage('Auto-spin stopped: Insufficient balance!');
+        }
+      } else {
+        // Decrement counter and recurse
+        gameState = State.decrementAutoSpin(gameState);
+        updateAutoSpinDisplay();
 
-      // Recursively call executeSpin for next auto-spin
-      await executeSpin();
+        // Wait 500ms before next auto-spin
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Recursively call executeSpin for next auto-spin
+        await executeSpin();
+      }
     }
   } catch (_error) {
     // Handle any errors during spin

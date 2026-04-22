@@ -402,6 +402,20 @@ body {
 }
 
 /* ====================================
+   Auto-Spin Counter
+   ==================================== */
+
+.auto-spin-counter {
+    font-size: 0.8rem;
+    color: var(--color-neon-yellow-green);
+    text-shadow: 0 0 5px var(--color-neon-yellow-green);
+    font-weight: 700;
+    min-width: 30px;
+    text-align: center;
+    display: inline-block;
+}
+
+/* ====================================
    Win Celebration Animations
    ==================================== */
 
