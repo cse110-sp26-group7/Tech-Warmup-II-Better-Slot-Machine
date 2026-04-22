@@ -1,3 +1,4 @@
-Our group Miro-link:
+Group 7 Miro-links:
 
-[Miro-Group7](https://miro.com/app/board/uXjVHfKGVes=/)
+[Miro research](https://miro.com/app/board/uXjVHfKGVes=/)
+[Miro wireframes and assets](https://miro.com/app/board/uXjVHfKkhlU=/)
