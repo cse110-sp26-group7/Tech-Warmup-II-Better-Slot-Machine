@@ -862,6 +862,68 @@ Features:
 
 **Commit message:** feat: phase 4B - implement auto-spin with cycle options and stop conditions
 
+## Entry 20 — April 22, 2026 3:35PM
+
+**Phase:** 4C (Partial - Core Scatter Logic)
+
+**Prompt used:**
+
+> Implement a free-spins bonus round triggered when 3 or more Neural Chip (scatter) symbols land anywhere on the reels. When triggered:
+>
+> - Show a modal overlay styled as a terminal screen: "ACCESS GRANTED — SYSTEM BREACH — 10 FREE SPINS" with a scrolling green text animation
+> - Run 10 free spins automatically (3 scatters = 10, 4 scatters = 15, 5 scatters = 25), using the current bet but not deducting from balance
+> - During free spins, all wins are multiplied by 2×. Wilds become expanding wilds (fill the full reel column)
+> - Display a free-spin counter in the UI at all times during the bonus
+> - After all free spins complete, show total bonus winnings and return to normal play
+>
+> Implement `checkScatterTrigger(matrix)` in `src/js/payout.js` and `runFreeSpinsRound(bet, spinCount)` in `src/js/main.js`. Full JSDoc. Write a unit test for `checkScatterTrigger` covering 2 scatters (no trigger), 3 scatters (trigger, 10 spins), 4 scatters (trigger, 15 spins), and 5 scatters (trigger, 25 spins).
+
+**Outcome (Core Logic Complete):**
+
+Added NEURAL_CHIP Scatter Symbol:
+- Created NEURAL_CHIP symbol definition in reels.js
+- Added to all 5 reel strips (2-3 instances per reel for appropriate rarity)
+- Added Unicode rendering (⚡) and neon color (yellow-green) in ui.js
+
+Implemented `checkScatterTrigger(matrix)` in payout.js:
+- Counts NEURAL_CHIP symbols anywhere on the 5×3 matrix
+- Returns free spins based on count:
+  - 0 if < 3 scatters
+  - 10 if exactly 3 scatters
+  - 15 if exactly 4 scatters
+  - 25 if 5+ scatters
+- Full validation and error handling
+- Complete JSDoc documentation
+
+Unit Tests for checkScatterTrigger (7 new tests):
+- ✅ No trigger with 2 scatters
+- ✅ 10 free spins with 3 scatters
+- ✅ 15 free spins with 4 scatters
+- ✅ 25 free spins with 5 scatters
+- ✅ 25 free spins when exceeds 5 scatters
+- ✅ Matrix validation
+- ✅ Scatter counting anywhere on reels
+
+**Remaining Phase 4C Tasks (Not Yet Implemented):**
+- ⏳ Bonus modal UI with "ACCESS GRANTED" animation
+- ⏳ runFreeSpinsRound() function in main.js
+- ⏳ 2x win multiplier during free spins
+- ⏳ Expanding wilds implementation
+- ⏳ Free spins counter display
+- ⏳ Total bonus winnings summary
+
+**Linter result:** Passed
+
+**Tests result:** 57 passed, all pass (4 test suites)
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/reels.js, src/js/ui.js, src/js/payout.js, tests/payout.test.js
+
+**Commit message:** feat: phase 4C partial - add scatter symbol and implement scatter trigger detection
+
 ## Entry # — April 22, 2026 12:35PM
 
 **Phase:**

@@ -75,6 +75,50 @@ export function calculatePayout(paylineSymbols, betAmount) {
 }
 
 /**
+ * Checks for scatter symbol trigger and calculates free spins
+ * 3+ Neural Chip symbols anywhere on reels trigger free spins bonus
+ * @param {string[][]} matrix - 2D symbol matrix where each inner array is a reel column
+ * @returns {number} Number of free spins to award (0 if no trigger)
+ * @throws {Error} If matrix is invalid
+ */
+export function checkScatterTrigger(matrix) {
+  // Validate matrix
+  if (!Array.isArray(matrix) || matrix.length !== 5) {
+    throw new Error('Matrix must be an array of 5 reels');
+  }
+
+  for (let i = 0; i < matrix.length; i++) {
+    if (!Array.isArray(matrix[i]) || matrix[i].length < 3) {
+      throw new Error(`Reel ${i} must have at least 3 rows`);
+    }
+  }
+
+  // Count NEURAL_CHIP symbols anywhere on the matrix
+  let scatterCount = 0;
+  for (let reelIndex = 0; reelIndex < matrix.length; reelIndex++) {
+    for (let rowIndex = 0; rowIndex < matrix[reelIndex].length; rowIndex++) {
+      if (matrix[reelIndex][rowIndex] === 'NEURAL_CHIP') {
+        scatterCount++;
+      }
+    }
+  }
+
+  // Return free spins based on scatter count
+  if (scatterCount >= 5) {
+    return 25;
+  }
+  if (scatterCount >= 4) {
+    return 15;
+  }
+  if (scatterCount >= 3) {
+    return 10;
+  }
+
+  // No bonus if fewer than 3 scatters
+  return 0;
+}
+
+/**
  * Evaluates all paylines and calculates total payout
  * @param {string[][]} matrix - 2D symbol matrix where each inner array is a reel column
  * @param {number[][]} paylines - Array of paylines, each payline is 5 row indices

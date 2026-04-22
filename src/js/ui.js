@@ -20,6 +20,7 @@ const SYMBOL_UNICODE = {
   BELL: '♦',
   BAR: '▬',
   CHERRY: '●',
+  NEURAL_CHIP: '⚡',
 };
 
 /**
@@ -38,6 +39,7 @@ const SYMBOL_COLOR_VARS = {
   BELL: '--color-neon-yellow-green',
   BAR: '--color-text-win',
   CHERRY: '--color-text-loss',
+  NEURAL_CHIP: '--color-neon-yellow-green',
 };
 
 /**
