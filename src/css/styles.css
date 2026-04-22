@@ -833,6 +833,27 @@ body {
     cursor: not-allowed;
 }
 
+.btn--mute {
+    background-color: var(--color-bg-panel);
+    border-color: var(--color-neon-cyan);
+    color: var(--color-neon-cyan);
+    text-shadow: 0 0 6px var(--color-neon-cyan);
+    font-size: 0.65rem;
+    padding: 0.3rem 0.8rem;
+    align-self: center;
+}
+
+.btn--mute:hover {
+    background-color: var(--color-border-card);
+    box-shadow: 0 0 10px var(--color-neon-cyan);
+}
+
+.btn--mute.is-muted {
+    border-color: var(--color-text-inactive);
+    color: var(--color-text-inactive);
+    text-shadow: none;
+}
+
 /* ====================================
    Free Spins Counter
    ==================================== */

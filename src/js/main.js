@@ -7,7 +7,16 @@ import * as State from './state.js';
 import * as RNG from './rng.js';
 import { REEL_STRIPS } from './reels.js';
 import { PAYLINES } from './paylines.js';
-import { evaluateAllPaylines } from './payout.js';
+import { evaluateAllPaylines, checkScatterTrigger } from './payout.js';
+import {
+  initAudio,
+  playSpinSound,
+  stopSpinSound,
+  playWinSound,
+  playClickSound,
+  playBonusSound,
+  setMuted,
+} from './audio.js';
 import {
   animateReelSpin,
   celebrateWin,
@@ -175,35 +184,52 @@ function initializeGame() {
   const autoSpinBtn = document.getElementById('auto-spin-btn');
   const paytableBtn = document.getElementById('paytable-btn');
   const paytableCloseBtn = document.getElementById('paytable-close-btn');
+  const muteBtn = document.getElementById('mute-btn');
+
+  // initAudio must be called inside a user gesture; attach to all interactive
+  // elements so the AudioContext is ready the moment any button is clicked.
+  const allBtns = [spinBtn, betMinusBtn, betPlusBtn, maxBetBtn, autoSpinBtn, paytableBtn, paytableCloseBtn, muteBtn];
+  allBtns.forEach((btn) => {
+    if (btn) btn.addEventListener('click', initAudio, { once: true });
+  });
 
   if (spinBtn) {
     spinBtn.addEventListener('click', executeSpin);
   }
 
   if (betMinusBtn) {
-    betMinusBtn.addEventListener('click', decreaseBet);
+    betMinusBtn.addEventListener('click', () => { playClickSound(); decreaseBet(); });
   }
 
   if (betPlusBtn) {
-    betPlusBtn.addEventListener('click', increaseBet);
+    betPlusBtn.addEventListener('click', () => { playClickSound(); increaseBet(); });
   }
 
   if (maxBetBtn) {
-    maxBetBtn.addEventListener('click', setMaxBet);
+    maxBetBtn.addEventListener('click', () => { playClickSound(); setMaxBet(); });
   }
 
   if (autoSpinBtn) {
-    autoSpinBtn.addEventListener('click', toggleAutoSpin);
+    autoSpinBtn.addEventListener('click', () => { playClickSound(); toggleAutoSpin(); });
   }
 
   if (paytableBtn) {
     paytableBtn.addEventListener('click', () => {
+      playClickSound();
       openPaytable(gameState.currentBet);
     });
   }
 
   if (paytableCloseBtn) {
-    paytableCloseBtn.addEventListener('click', closePaytable);
+    paytableCloseBtn.addEventListener('click', () => { playClickSound(); closePaytable(); });
+  }
+
+  if (muteBtn) {
+    muteBtn.addEventListener('click', () => {
+      const nowMuted = muteBtn.classList.toggle('is-muted');
+      setMuted(nowMuted);
+      muteBtn.textContent = nowMuted ? 'SFX: OFF' : 'SFX: ON';
+    });
   }
 
   // Render initial state
@@ -244,8 +270,10 @@ async function executeSpin() {
     // Step 4: Call RNG to generate symbol matrix
     const symbolMatrix = RNG.generateSymbolMatrix(REEL_STRIPS, 3);
 
-    // Step 5: Trigger reel spin animation
+    // Step 5: Start spin sound and trigger reel animation
+    playSpinSound();
     await animateReelSpin();
+    stopSpinSound();
 
     // Step 6: Render the resulting symbol matrix
     renderSymbolMatrix(symbolMatrix);
@@ -257,6 +285,12 @@ async function executeSpin() {
       gameState.currentBet,
     );
 
+    // Check for scatter bonus trigger
+    const scatterSpins = checkScatterTrigger(symbolMatrix);
+    if (scatterSpins > 0) {
+      playBonusSound();
+    }
+
     // Draw payline highlights if there are wins
     if (winningPaylines.length > 0) {
       renderPaylineHighlight(winningPaylines, PAYLINES);
@@ -265,8 +299,18 @@ async function executeSpin() {
     // Step 8: Record spin in state
     gameState = State.recordSpin(gameState, totalPayout);
 
-    // Step 9: If payout > 0, trigger win animation
+    // Step 9: If payout > 0, trigger win animation and win sound
     if (totalPayout > 0) {
+      const betPerLine = gameState.currentBet / 25;
+      let winLevel;
+      if (totalPayout >= betPerLine * 25) {
+        winLevel = 'big';
+      } else if (totalPayout >= betPerLine * 5) {
+        winLevel = 'medium';
+      } else {
+        winLevel = 'small';
+      }
+      playWinSound(winLevel);
       await celebrateWin(totalPayout, winningPaylines, gameState.currentBet);
     }
 
