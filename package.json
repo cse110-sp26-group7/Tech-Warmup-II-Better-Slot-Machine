@@ -1,0 +1,32 @@
+{
+  "name": "data-heist",
+  "version": "1.0.0",
+  "description": "Data Heist - A web-based slot machine game",
+  "main": "src/js/main.js",
+  "type": "module",
+  "scripts": {
+    "start": "npx http-server src -p 8080 -o",
+    "lint": "eslint src/js/**/*.js tests/**/*.js",
+    "lint:fix": "eslint src/js/**/*.js tests/**/*.js --fix",
+    "lint:html": "htmlhint src/**/*.html",
+    "lint:all": "npm run lint && npm run lint:html",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
+  },
+  "keywords": [
+    "slot-machine",
+    "game",
+    "web"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/preset-env": "^7.24.0",
+    "eslint": "^8.57.0",
+    "htmlhint": "^1.1.4",
+    "http-server": "^14.1.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  }
+}
