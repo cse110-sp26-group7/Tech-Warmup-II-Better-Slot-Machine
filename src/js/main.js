@@ -27,14 +27,96 @@ import {
 let gameState = State.INITIAL_STATE;
 
 /**
+ * Increases the bet by 1 (up to 100 per line)
+ * @returns {void}
+ */
+function increaseBet() {
+  const currentBetPerLine = gameState.currentBet / 25;
+  if (currentBetPerLine < 100) {
+    gameState = State.setBet(gameState, currentBetPerLine + 1);
+    renderBet(gameState.currentBet);
+    updateBetButtonStates();
+  }
+}
+
+/**
+ * Decreases the bet by 1 (minimum 1 per line)
+ * @returns {void}
+ */
+function decreaseBet() {
+  const currentBetPerLine = gameState.currentBet / 25;
+  if (currentBetPerLine > 1) {
+    gameState = State.setBet(gameState, currentBetPerLine - 1);
+    renderBet(gameState.currentBet);
+    updateBetButtonStates();
+  }
+}
+
+/**
+ * Sets the bet to maximum (100 per line)
+ * @returns {void}
+ */
+function setMaxBet() {
+  gameState = State.setBet(gameState, 100);
+  renderBet(gameState.currentBet);
+  updateBetButtonStates();
+}
+
+/**
+ * Updates the disabled state of bet control buttons
+ * Buttons are disabled when spinning or at limits
+ * @returns {void}
+ */
+function updateBetButtonStates() {
+  const betMinusBtn = document.getElementById('bet-minus-btn');
+  const betPlusBtn = document.getElementById('bet-plus-btn');
+  const maxBetBtn = document.getElementById('max-bet-btn');
+  const currentBetPerLine = gameState.currentBet / 25;
+
+  // Disable when spinning
+  const shouldDisableAll = gameState.isSpinning;
+
+  // Disable minus at minimum
+  if (betMinusBtn) {
+    betMinusBtn.disabled = shouldDisableAll || currentBetPerLine <= 1;
+  }
+
+  // Disable plus at maximum
+  if (betPlusBtn) {
+    betPlusBtn.disabled = shouldDisableAll || currentBetPerLine >= 100;
+  }
+
+  // Disable max bet button when spinning or already at max
+  if (maxBetBtn) {
+    maxBetBtn.disabled = shouldDisableAll || currentBetPerLine >= 100;
+  }
+}
+
+/**
  * Initializes the game when the page loads
  * Sets up event listeners and renders initial UI
  * @returns {void}
  */
 function initializeGame() {
   const spinBtn = document.getElementById('spin-btn');
+  const betMinusBtn = document.getElementById('bet-minus-btn');
+  const betPlusBtn = document.getElementById('bet-plus-btn');
+  const maxBetBtn = document.getElementById('max-bet-btn');
+
   if (spinBtn) {
     spinBtn.addEventListener('click', executeSpin);
+  }
+
+  if (betMinusBtn) {
+    betMinusBtn.addEventListener('click', decreaseBet);
+  }
+
+  if (betPlusBtn) {
+    betPlusBtn.addEventListener('click', increaseBet);
+  }
+
+  if (maxBetBtn) {
+    maxBetBtn.addEventListener('click', setMaxBet);
   }
 
   // Render initial state
@@ -42,6 +124,7 @@ function initializeGame() {
   renderBet(gameState.currentBet);
   renderWin(0);
   renderFreeSpinsCounter(0);
+  updateBetButtonStates();
 }
 
 /**
@@ -68,6 +151,7 @@ async function executeSpin() {
     );
     gameState = { ...gameState, isSpinning: true };
     setSpinButtonState(true);
+    updateBetButtonStates();
 
     // Step 4: Call RNG to generate symbol matrix
     const symbolMatrix = RNG.generateSymbolMatrix(REEL_STRIPS, 3);
@@ -106,6 +190,7 @@ async function executeSpin() {
     // Step 11: Set isSpinning = false and re-enable spin button
     gameState = { ...gameState, isSpinning: false };
     setSpinButtonState(false);
+    updateBetButtonStates();
 
     // Step 12: If auto-spin is active, decrement and recurse
     if (gameState.autoSpinCount > 0) {

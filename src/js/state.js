@@ -40,6 +40,28 @@ function updateState(state, updates) {
 }
 
 /**
+ * Sets the bet amount without deducting from balance
+ * Used for adjusting the bet display before spinning
+ * @param {GameState} state - Current game state
+ * @param {number} amount - Bet amount to set (per line, will be multiplied by 25 paylines)
+ * @returns {GameState} New state with updated currentBet
+ * @throws {Error} If bet amount is invalid
+ */
+export function setBet(state, amount) {
+  if (typeof amount !== 'number') {
+    throw new Error('Bet amount must be a positive number');
+  }
+
+  if (amount < 1 || amount > 100) {
+    throw new Error('Bet per line must be between 1 and 100');
+  }
+
+  return updateState(state, {
+    currentBet: amount * 25,
+  });
+}
+
+/**
  * Places a bet and deducts it from the balance
  * @param {GameState} state - Current game state
  * @param {number} amount - Bet amount to place

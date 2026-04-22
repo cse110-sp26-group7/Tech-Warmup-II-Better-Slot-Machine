@@ -737,6 +737,61 @@ Integration:
 
 **Commit message:** feat: phase 3C - implement tiered win celebration animations
 
+## Entry 18 — April 22, 2026 2:45PM
+
+**Phase:** 4A
+
+**Prompt used:**
+
+> Implement bet adjustment controls. Add + and − buttons that adjust the bet per line in increments of 1, with a minimum of 1 CC and maximum of 100 CC per line (total bet = line bet × 25 paylines). Add a "MAX BET" button that sets line bet to 100. All three buttons must:
+>
+> - Update state via `placeBet()`
+> - Re-render the bet display showing both line bet and total bet
+> - Be disabled appropriately (− disabled at min, + disabled at max, all disabled while spinning)
+>
+> Write a unit test in a new `tests/state.test.js` covering the boundary conditions. Full JSDoc.
+
+**Outcome:**
+
+Implemented complete bet control system:
+
+State Module (state.js):
+- Added `setBet(state, amount)` function to adjust bet per line (1-100) without deducting balance
+- Multiplies per-line bet by 25 paylines for total bet amount
+- Full validation and error handling
+
+Main Module (main.js):
+- Implemented `increaseBet()` - increments bet per line up to 100
+- Implemented `decreaseBet()` - decrements bet per line down to 1
+- Implemented `setMaxBet()` - sets bet per line to maximum (100)
+- Implemented `updateBetButtonStates()` - manages button disabled states
+  - Disables − when bet = 1
+  - Disables + when bet = 100
+  - Disables all three buttons while spinning
+- Wired event listeners to all three buttons during initialization
+- Calls updateBetButtonStates during spin start/end
+
+Unit Tests (tests/state.test.js):
+- 14 new tests covering setBet() boundary conditions
+- Tests for minimum (1), maximum (100), and intermediate values
+- Tests for invalid inputs (0, 101, negative, non-numeric)
+- Tests that balance remains unchanged when adjusting bet
+- Tests sequential bet adjustments
+- Tests for placeBet() and recordSpin() functions
+- 39 total tests, all passing
+
+**Linter result:** Passed
+
+**Tests result:** 39 passed, all pass (4 test suites)
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/state.js, src/js/main.js, tests/state.test.js
+
+**Commit message:** feat: phase 4A - implement bet controls with full state management and tests
+
 ## Entry # — April 22, 2026 12:35PM
 
 **Phase:**
