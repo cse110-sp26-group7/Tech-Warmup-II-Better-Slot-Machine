@@ -43,9 +43,33 @@ A phased prompt plan for building a web-based cyberpunk slot machine, scoped so 
 > GitHub initialization. Update them if needed rather than
 > overwriting them.
 
+**Outcome:** Claude generated full project scaffold with all folders (assets, src, test), package.json, eslintrc, updated gitignore
+
+**Linter Result:** can't run npm run lint:all because it's missing from package.json
+
+**Tests Result:** All 3 test failed (tests will be written in prompt 1D)
+
+**Issues Encountered:** missing lint:all script, all tests failed
+
+**Hand-Edit Required?** No
+
+**Files Changed:** assets, package.json, .eslintrc.json, .gitignore, jest.config.js, src/index.html, tests (paylines.test.js, payout.test.js, rng.test.js)
+
 ### Prompt 0B — ESLint + HTML Validation
 
 > Add `htmlhint` to the project for HTML validation and configure it in `.htmlhintrc`. Add a `lint:html` script to `package.json`. Also add a `lint:all` script that runs both ESLint and htmlhint together. Make sure the base `index.html` passes both linters cleanly before we write any game code.
+
+**Outcome:** Claude added lint:all script to package.json
+
+**Linter Result:** passed
+
+**Tests Result:** N/A
+
+**Issues Encountered:** N/A
+
+**Hand-Edit Required?** No
+
+**Files Changed:** package.json
 
 ---
 
@@ -60,6 +84,18 @@ A phased prompt plan for building a web-based cyberpunk slot machine, scoped so 
 > - `generateSymbolMatrix(reelStrips, rows)` — returns a 2D array of symbols based on random reel stops
 >
 > Use meaningful names throughout. Write zero UI code here. After writing the module, run ESLint and fix any issues before showing me the result.
+
+**Outcome:** Implements all the functions I asked for in rng.js
+
+**Linter Result:** Passed
+
+**Tests Result:** N/A
+
+**Issues Encountered:** N/A
+
+**Hand-Edit Required?** No
+
+**Files Changed:** src/js/rng.js
 
 ### Prompt 1B — Symbol Definitions
 
@@ -336,9 +372,9 @@ Copy this block for every prompt executed:
 
 **Phase:** [0–7]
 **Prompt used:** [paste prompt]
-**Outcome:** [what Claude produced]
-**Linter result:** [clean / N errors fixed]
-**Tests result:** [passing / failing — details]
+**Outcome:** [what Claude produced or Did it match what you asked for?]
+**Linter result:** [Passed / Failed]
+**Tests result:** [Passed / Failed — details]
 **Issues encountered:** [anything unexpected]
 **Hand-edit required?** Yes / No
 → If yes: [what failed, what you changed manually]
