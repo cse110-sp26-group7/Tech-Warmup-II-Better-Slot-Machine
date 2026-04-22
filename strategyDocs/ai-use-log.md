@@ -1376,6 +1376,43 @@ Updated Playwright scenario 3 in `tests/e2e/slot.spec.js`:
 
 **Commit message:** fix: phase 9A - seed the reel grid with a decorative matrix on load
 
+## Entry 32 — April 22, 2026 4:28PM
+
+**Phase:** 9B
+
+**Prompt used:**
+
+> `toggleAutoSpin()` in `src/js/main.js` cycles the auto-spin count through `[0, 10, 25, 50, 100]`. Once auto-spin is running, the only way to stop it is to click the button four more times to wrap back around to 0. The button label never changes either, so there is no visual cue that it can be cancelled.
+>
+> Fix: change the click handler so that when `gameState.autoSpinCount > 0`, clicking the auto-spin button immediately sets the count to 0 (cancelling the loop) regardless of cycle position. When auto-spin is active, change the button label to `STOP`; restore it to `AUTO SPIN` when inactive. The cycle behaviour should only apply when auto-spin is currently off. Ensure the recursion inside `executeSpin()` honours the cancellation — once the count is 0, no further spin should fire. Add an e2e test that starts auto-spin, clicks the button once, and asserts the count returns to 0 within the next spin boundary.
+
+**Outcome:**
+
+Three changes in `src/js/main.js`:
+
+1. `toggleAutoSpin()` now has an early-return cancel branch: if `gameState.autoSpinCount > 0`, the count is set to 0 immediately and the cycle logic is skipped. The cycle path (OFF → 10 → 25 → 50 → 100 → OFF) only runs when auto-spin is currently off. This means a single click always cancels, regardless of the current count being a preset or a mid-countdown value like 7.
+
+2. `updateAutoSpinDisplay()` now also updates the button label. The label becomes `STOP` whenever `gameState.autoSpinCount > 0`, and `AUTO SPIN` otherwise. The counter display logic is unchanged.
+
+3. The auto-spin recursion tail inside `executeSpin()` now re-checks `gameState.autoSpinCount > 0` after the 500 ms pause. If the player clicks STOP during that pause, the re-check prevents the next recursive `executeSpin()` call from firing. Without this guard, an auto-spin cancellation during the inter-spin pause would still burn one extra spin.
+
+Two changes in `tests/e2e/slot.spec.js`:
+
+- Scenario 5 (auto-spin balance updates): the STOP click now locates the button by `#auto-spin-btn` instead of by accessible name `AUTO SPIN`, because during active auto-spin the label is now `STOP`. Same behaviour, selector robust to the label change.
+- Added scenario 8: starts auto-spin, asserts the label flips to `STOP` and the counter shows `(N)`; clicks once more to cancel; after the in-flight spin ends, asserts the label is restored to `AUTO SPIN` and the counter is empty.
+
+**Linter result:** Passed
+
+**Tests result:** 71 Jest tests pass (no unit-test changes). Playwright e2e not re-run locally (same environment limitation as 9A — `@playwright/test` not installed in `node_modules`). The updated and new spec cases are syntactically valid.
+
+**Issues encountered:** None in the change itself. The recursion re-check is narrow — there's still a vanishingly small window between "autoSpinCount > 0" check passing and `executeSpin()` actually starting where a concurrent STOP click could sneak an extra spin through. Not worth more machinery given clicks are serialised through the main event loop.
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/main.js, tests/e2e/slot.spec.js
+
+**Commit message:** fix: phase 9B - make auto-spin cancellable in a single click and label the button STOP when active
+
 ## Entry # — [date] [time]
 
 **Phase:**

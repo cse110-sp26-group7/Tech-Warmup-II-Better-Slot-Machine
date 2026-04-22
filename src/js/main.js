@@ -155,42 +155,57 @@ function updateBetButtonStates() {
 const AUTO_SPIN_OPTIONS = [0, 10, 25, 50, 100];
 
 /**
- * Toggles auto-spin to the next option in the cycle
- * OFF → 10 → 25 → 50 → 100 → OFF
+ * Handles clicks on the auto-spin / stop button.
+ *
+ * If auto-spin is currently running, a click cancels the loop immediately
+ * regardless of cycle position. Otherwise a click advances through the cycle
+ * OFF → 10 → 25 → 50 → 100 → OFF.
  * @returns {void}
  */
 function toggleAutoSpin() {
-  const currentCount = gameState.autoSpinCount;
-  const currentIndex = AUTO_SPIN_OPTIONS.indexOf(currentCount);
+  // Active → cancel immediately
+  if (gameState.autoSpinCount > 0) {
+    gameState = State.setAutoSpin(gameState, 0);
+    updateAutoSpinDisplay();
+    return;
+  }
+
+  // Inactive → cycle to the next preset count
+  const currentIndex = AUTO_SPIN_OPTIONS.indexOf(gameState.autoSpinCount);
   const nextIndex = (currentIndex + 1) % AUTO_SPIN_OPTIONS.length;
   const nextCount = AUTO_SPIN_OPTIONS[nextIndex];
 
   gameState = State.setAutoSpin(gameState, nextCount);
   updateAutoSpinDisplay();
 
-  // If turning on auto-spin, start the spin loop
   if (nextCount > 0 && !gameState.isSpinning) {
     executeSpin();
   }
 }
 
 /**
- * Updates the auto-spin counter display
- * Shows remaining spins if active, empty if off
+ * Updates the auto-spin counter display and the auto-spin button label.
+ * Shows remaining spins and labels the button "STOP" while auto-spin is
+ * active; clears the counter and restores "AUTO SPIN" when inactive.
  * @returns {void}
  */
 function updateAutoSpinDisplay() {
   const counter = document.getElementById('auto-spin-counter');
-  if (!counter) {
-    return;
+  const autoBtn = document.getElementById('auto-spin-btn');
+  const isActive = gameState.autoSpinCount > 0;
+
+  if (counter) {
+    if (isActive) {
+      counter.textContent = `(${gameState.autoSpinCount})`;
+      counter.style.display = 'inline-block';
+    } else {
+      counter.textContent = '';
+      counter.style.display = 'none';
+    }
   }
 
-  if (gameState.autoSpinCount > 0) {
-    counter.textContent = `(${gameState.autoSpinCount})`;
-    counter.style.display = 'inline-block';
-  } else {
-    counter.textContent = '';
-    counter.style.display = 'none';
+  if (autoBtn) {
+    autoBtn.textContent = isActive ? 'STOP' : 'AUTO SPIN';
   }
 }
 
@@ -384,8 +399,11 @@ async function executeSpin() {
         // Wait before next auto-spin
         await new Promise((resolve) => setTimeout(resolve, AUTO_SPIN_DELAY_MS));
 
-        // Recursively call executeSpin for next auto-spin
-        await executeSpin();
+        // Re-check cancellation: the user may have clicked STOP during
+        // the pause, which sets autoSpinCount back to 0.
+        if (gameState.autoSpinCount > 0) {
+          await executeSpin();
+        }
       }
     }
   } catch (_error) {
