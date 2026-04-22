@@ -300,10 +300,36 @@ function initializeGame() {
   updateBetButtonStates();
   updateAutoSpinDisplay();
 
+  // Populate the left-side payline number panel from PAYLINES.length
+  // so the display always matches the real payline count.
+  populatePaylineNumbers();
+
   // Seed the reel grid with a decorative starting matrix so the 5×3
   // grid is never blank on page load. Not stored in state — the first
   // real spin replaces it.
   renderSymbolMatrix(RNG.generateSymbolMatrix(REEL_STRIPS, 3));
+}
+
+/**
+ * Builds one .payline-number div per payline inside #payline-numbers.
+ * Each div carries data-line="N" (1-indexed) so renderPaylineHighlight
+ * can locate and mark the winning numbers.
+ * @returns {void}
+ */
+function populatePaylineNumbers() {
+  const container = document.getElementById('payline-numbers');
+  if (!container) {
+    return;
+  }
+
+  container.innerHTML = '';
+  for (let i = 1; i <= PAYLINES.length; i++) {
+    const div = document.createElement('div');
+    div.className = 'payline-number';
+    div.dataset.line = String(i);
+    div.textContent = String(i);
+    container.appendChild(div);
+  }
 }
 
 /**
@@ -352,10 +378,10 @@ async function executeSpin() {
       playBonusSound();
     }
 
-    // Draw payline highlights if there are wins
-    if (winningPaylines.length > 0) {
-      renderPaylineHighlight(winningPaylines, PAYLINES);
-    }
+    // Render payline highlights unconditionally. On losing spins the
+    // empty array clears the side-panel active state and removes any
+    // leftover SVG overlay from the previous winning spin.
+    renderPaylineHighlight(winningPaylines, PAYLINES);
 
     // Step 8: Record spin in state
     gameState = State.recordSpin(gameState, totalPayout);

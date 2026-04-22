@@ -1413,6 +1413,50 @@ Two changes in `tests/e2e/slot.spec.js`:
 
 **Commit message:** fix: phase 9B - make auto-spin cancellable in a single click and label the button STOP when active
 
+## Entry 33 — April 22, 2026 4:48PM
+
+**Phase:** 9C
+
+**Prompt used:**
+
+> The left side panel in `src/index.html` hardcodes only payline numbers 1–13 as static divs. The game has 25 paylines, and these numbers are inert — `renderPaylineHighlight` only draws SVG polylines over the reels and never touches the side-panel numbers.
+>
+> Fix:
+> 1. Replace the hardcoded 1–13 list. Generate 25 `.payline-number` divs in JS inside `initializeGame()` (source of truth: `PAYLINES.length`), or hardcode all 25 consistently.
+> 2. Extend `renderPaylineHighlight(winningPaylineIndices, paylines)` in `src/js/ui.js` so that for each winning index it adds an `is-active` class to the matching `[data-line="N"]` div, and clears the class on all divs before redrawing.
+> 3. Add a CSS rule that makes `.payline-number.is-active` glow in neon pink (`var(--color-neon-pink)`).
+> 4. Clear the active state at the start of every new spin, not only on wins — so the previous win's highlights don't linger through a losing spin.
+
+**Outcome:**
+
+All four fix points addressed.
+
+1. `src/index.html` — replaced the 13 hardcoded `.payline-number` divs with a single `<div class="payline-numbers" id="payline-numbers">` container. Added an HTML comment noting that `initializeGame()` populates it.
+
+2. `src/js/main.js` — added `populatePaylineNumbers()` helper that, on load, clears the container and appends one `.payline-number` div per entry in `PAYLINES` (1-indexed `data-line` plus matching textContent). Wired into `initializeGame()` just before the decorative-matrix seed from 9A.
+
+3. `src/js/ui.js` — extended `renderPaylineHighlight`:
+   - **Before** the early-return for zero winners, clears `is-active` from every `.payline-number` in the DOM. This ensures losing spins wipe the prior winning spin's highlights.
+   - **After** the early-return, adds `is-active` to each `.payline-number[data-line="N"]` where N = winning index + 1 (winning indices are 0-based; data-line is 1-based).
+
+4. `src/css/styles.css` — added `.payline-number.is-active { color: var(--color-neon-pink); border-color: var(--color-neon-pink); text-shadow / box-shadow: 0 0 8px var(--color-neon-pink); font-weight: 700; }` immediately after the base `.payline-number` rule. Reused the existing `--color-neon-pink` variable.
+
+5. `src/js/main.js` (caller) — removed the `if (winningPaylines.length > 0)` guard around the `renderPaylineHighlight` call in `executeSpin()`. The function now gets called on every spin with the actual `winningPaylines` array (possibly empty), so the side-panel cleanup happens unconditionally.
+
+Side-effect bonus: always calling `renderPaylineHighlight` also means the SVG overlay (`#payline-highlight-overlay`) is removed on losing spins, partially pre-empting Phase 10A part 2. Phase 10A still needs to address match-count truncation (polyline drawn through all 5 cells even on 3-/4-of-a-kind) and formalise a dedicated `clearPaylineHighlight()` helper if we want the abstraction.
+
+**Linter result:** Passed (ESLint + htmlhint both clean)
+
+**Tests result:** 71 Jest tests pass (no change in unit count — this was a rendering/DOM behaviour change). Playwright e2e not re-run locally (same `@playwright/test` environment gap as 9A/9B).
+
+**Issues encountered:** First CSS `Edit` attempt returned "file has not been read yet". Resolved with a quick targeted `Read` of the relevant range before retrying.
+
+**Hand-edit required?** No
+
+**Files changed:** src/index.html, src/js/main.js, src/js/ui.js, src/css/styles.css
+
+**Commit message:** fix: phase 9C - populate all 25 payline numbers from PAYLINES and wire them to win highlights
+
 ## Entry # — [date] [time]
 
 **Phase:**
