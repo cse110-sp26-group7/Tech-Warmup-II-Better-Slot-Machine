@@ -327,7 +327,7 @@ async function executeSpin() {
     const { totalPayout, winningPaylines } = evaluateAllPaylines(
       symbolMatrix,
       PAYLINES,
-      gameState.currentBet,
+      getBetPerLine(),
     );
 
     // Check for scatter bonus trigger

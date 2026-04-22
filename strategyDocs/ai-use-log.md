@@ -1235,7 +1235,42 @@ Rewrote `README.md` from the minimal scaffold into a full project README. Sectio
 **Commit message:** “Phase 7D Complete”
 
 
-## Entry # — April 22, 2026 10:43AM
+## Entry 28 — April 22, 2026 4:14PM
+
+**Phase:** 8A
+
+**Prompt used:**
+
+> In `src/js/main.js` inside `executeSpin()`, the call to `evaluateAllPaylines` passes `gameState.currentBet` — which is the **total** bet (per-line × 25) — as the third argument. That value is forwarded straight to `calculatePayout`, whose contract (proven by `tests/payout.test.js`) is that `betAmount` is the **per-line** bet. Every winning line is therefore scaled by the full 25-payline multiplier a second time, making every payout 25× too large.
+>
+> Fix: pass `getBetPerLine()` instead of `gameState.currentBet`. Do not change `evaluateAllPaylines`, `calculatePayout`, or their existing tests — only the caller is wrong. Run the unit tests after to confirm nothing regresses. Then add a new test in `tests/payout.test.js` that exercises `evaluateAllPaylines` directly with a realistic per-line bet so this regression can't silently return.
+
+**Outcome:**
+
+Located and fixed the 25× payout inflation bug in `src/js/main.js` at step 7 of `executeSpin()`. The call to `evaluateAllPaylines` was passing `gameState.currentBet` (the total bet, per-line × 25) instead of the per-line bet that `calculatePayout` expects. The existing `getBetPerLine()` helper at `main.js:65` already computed the correct value — swapped the argument to use it. No changes to `payout.js` or its existing tests were required.
+
+Added a new `describe('evaluateAllPaylines - per-line bet contract')` block to `tests/payout.test.js` with 5 regression tests:
+- Non-winning matrix returns `{ totalPayout: 0, winningPaylines: [] }`
+- 5 Cherries on middle row at bet=1 pays exactly 50 (previously would have been 1250 with the bug)
+- Doubling the per-line bet exactly doubles the total payout
+- Multi-line wins sum payouts and list correct indices
+- Cross-check: single-payline `evaluateAllPaylines` result matches `calculatePayout` directly
+
+Imported `evaluateAllPaylines` into the test file alongside `calculatePayout` and `checkScatterTrigger`.
+
+**Linter result:** Passed
+
+**Tests result:** 62 passed, all pass (4 unit test suites) — 57 previous + 5 new regression tests
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/main.js, tests/payout.test.js
+
+**Commit message:** fix: phase 8A - correct 25x payout inflation by passing per-line bet to evaluateAllPaylines
+
+## Entry # — [date] [time]
 
 **Phase:**
 
