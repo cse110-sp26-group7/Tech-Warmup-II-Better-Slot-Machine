@@ -23,8 +23,8 @@ const MIN_WIN_MATCH = 3;
 const PAYOUT_DIVISOR = 5;
 
 /** Free-spin awards for scatter counts of 5, 4, or 3 */
-const FREE_SPINS_FOR_FIVE_SCATTERS  = 25;
-const FREE_SPINS_FOR_FOUR_SCATTERS  = 15;
+const FREE_SPINS_FOR_FIVE_SCATTERS = 25;
+const FREE_SPINS_FOR_FOUR_SCATTERS = 15;
 const FREE_SPINS_FOR_THREE_SCATTERS = 10;
 
 /** Minimum scatter count required to trigger the free-spin bonus */

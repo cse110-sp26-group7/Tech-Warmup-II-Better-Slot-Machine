@@ -72,7 +72,7 @@ export function initAudio() {
  * @returns {AudioContext}
  * @private
  */
-function _ctx() {
+function getCtx() {
   return initAudio();
 }
 
@@ -83,8 +83,8 @@ function _ctx() {
  * @returns {GainNode}
  * @private
  */
-function _makeGain(initialGain = 0) {
-  const gainNode = _ctx().createGain();
+function makeGain(initialGain = 0) {
+  const gainNode = getCtx().createGain();
   gainNode.gain.value = initialGain;
   gainNode.connect(masterGain);
   return gainNode;
@@ -101,8 +101,8 @@ function _makeGain(initialGain = 0) {
  * @returns {OscillatorNode}
  * @private
  */
-function _osc(type, freq, dest, start, stop) {
-  const audioCtx = _ctx();
+function startOsc(type, freq, dest, start, stop) {
+  const audioCtx = getCtx();
   const oscillator = audioCtx.createOscillator();
   oscillator.type = type;
   oscillator.frequency.value = freq;
@@ -133,9 +133,9 @@ function _osc(type, freq, dest, start, stop) {
 export function playSpinSound() {
   if (spinNodes) return;
 
-  const audioCtx = _ctx();
+  const audioCtx = getCtx();
   const now = audioCtx.currentTime;
-  const busGain = _makeGain(0);
+  const busGain = makeGain(0);
 
   // ── Buzz layer (sawtooth + LFO frequency modulation) ─────────────────
   const buzz = audioCtx.createOscillator();
@@ -182,7 +182,7 @@ export function playSpinSound() {
 export function stopSpinSound() {
   if (!spinNodes) return;
 
-  const audioCtx = _ctx();
+  const audioCtx = getCtx();
   const now = audioCtx.currentTime;
   const fadeMs = 0.08;
 
@@ -213,15 +213,15 @@ export function stopSpinSound() {
  * @returns {void}
  */
 export function playWinSound(winLevel) {
-  const audioCtx = _ctx();
+  const audioCtx = getCtx();
   const now = audioCtx.currentTime;
 
   if (winLevel === 'small') {
-    _smallWin(now);
+    smallWin(now);
   } else if (winLevel === 'medium') {
-    _mediumWin(audioCtx, now);
+    mediumWin(audioCtx, now);
   } else {
-    _bigWin(audioCtx, now);
+    bigWin(audioCtx, now);
   }
 }
 
@@ -230,14 +230,14 @@ export function playWinSound(winLevel) {
  * @param {number} now AudioContext timestamp
  * @private
  */
-function _smallWin(now) {
+function smallWin(now) {
   const notes = [440, 660]; // A4 → E5
   const dur = 0.1;
 
   notes.forEach((freq, noteIndex) => {
     const noteStart = now + noteIndex * dur;
-    const gainNode = _makeGain(0);
-    _osc('sawtooth', freq, gainNode, noteStart, noteStart + dur);
+    const gainNode = makeGain(0);
+    startOsc('sawtooth', freq, gainNode, noteStart, noteStart + dur);
     gainNode.gain.setValueAtTime(0.22, noteStart);
     gainNode.gain.exponentialRampToValueAtTime(0.001, noteStart + dur * 0.9);
   });
@@ -249,22 +249,22 @@ function _smallWin(now) {
  * @param {number} now AudioContext timestamp
  * @private
  */
-function _mediumWin(audioCtx, now) {
+function mediumWin(audioCtx, now) {
   const notes = [330, 440, 660, 880]; // E4 → A4 → E5 → A5
   const dur = 0.13;
 
   notes.forEach((freq, noteIndex) => {
     const noteStart = now + noteIndex * dur;
-    const gainNode = _makeGain(0);
+    const gainNode = makeGain(0);
 
     // Square wave fundamental
-    _osc('square', freq, gainNode, noteStart, noteStart + dur);
+    startOsc('square', freq, gainNode, noteStart, noteStart + dur);
 
     // Sawtooth octave-up shimmer at 30% relative volume
     const shimAtten = audioCtx.createGain();
     shimAtten.gain.value = 0.3;
     shimAtten.connect(gainNode);
-    _osc('sawtooth', freq * 2, shimAtten, noteStart, noteStart + dur);
+    startOsc('sawtooth', freq * 2, shimAtten, noteStart, noteStart + dur);
 
     gainNode.gain.setValueAtTime(0.2, noteStart);
     gainNode.gain.exponentialRampToValueAtTime(0.001, noteStart + dur * 0.95);
@@ -279,14 +279,14 @@ function _mediumWin(audioCtx, now) {
  * @param {number} now AudioContext timestamp
  * @private
  */
-function _bigWin(audioCtx, now) {
+function bigWin(audioCtx, now) {
   const notes = [261.63, 329.63, 392.00, 523.25, 659.25]; // C4 → E4 → G4 → C5 → E5
   const dur = 0.16;
   const step = 0.10; // notes overlap slightly for a driving feel
 
   notes.forEach((freq, noteIndex) => {
     const noteStart = now + noteIndex * step;
-    const gainNode = _makeGain(0);
+    const gainNode = makeGain(0);
 
     // Detuned triad for thick synth texture
     [-4, 0, 4].forEach((cents) => {
@@ -305,9 +305,9 @@ function _bigWin(audioCtx, now) {
 
   // Finale: full C-major chord power hit after the arpeggio
   const finaleStart = now + notes.length * step + 0.06;
-  const finaleGain = _makeGain(0);
+  const finaleGain = makeGain(0);
   [261.63, 329.63, 392.00, 523.25].forEach((freq) => {
-    _osc('sawtooth', freq, finaleGain, finaleStart, finaleStart + 0.75);
+    startOsc('sawtooth', freq, finaleGain, finaleStart, finaleStart + 0.75);
   });
   finaleGain.gain.setValueAtTime(0.28, finaleStart);
   finaleGain.gain.exponentialRampToValueAtTime(0.001, finaleStart + 0.70);
@@ -322,11 +322,11 @@ function _bigWin(audioCtx, now) {
  * @returns {void}
  */
 export function playClickSound() {
-  const audioCtx = _ctx();
+  const audioCtx = getCtx();
   const now = audioCtx.currentTime;
-  const gainNode = _makeGain(0);
+  const gainNode = makeGain(0);
 
-  _osc('square', 1050, gainNode, now, now + 0.05);
+  startOsc('square', 1050, gainNode, now, now + 0.05);
   gainNode.gain.setValueAtTime(0.28, now);
   gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
 }
@@ -348,7 +348,7 @@ export function playClickSound() {
  * @returns {void}
  */
 export function playBonusSound() {
-  const audioCtx = _ctx();
+  const audioCtx = getCtx();
   const now = audioCtx.currentTime;
 
   // ── Phase 1: Glitch burst ─────────────────────────────────────────────
@@ -357,15 +357,15 @@ export function playBonusSound() {
 
   glitchFreqs.forEach((freq, blipIndex) => {
     const blipStart = now + blipIndex * blipDur;
-    const gainNode = _makeGain(0);
-    _osc('square', freq, gainNode, blipStart, blipStart + blipDur);
+    const gainNode = makeGain(0);
+    startOsc('square', freq, gainNode, blipStart, blipStart + blipDur);
     gainNode.gain.setValueAtTime(0.2, blipStart);
     gainNode.gain.exponentialRampToValueAtTime(0.001, blipStart + blipDur * 0.9);
   });
 
   // ── Phase 2: Siren sweep ──────────────────────────────────────────────
   const sweepStart = now + glitchFreqs.length * blipDur;
-  const sweepGain = _makeGain(0);
+  const sweepGain = makeGain(0);
   const sweep = audioCtx.createOscillator();
   sweep.type = 'sawtooth';
   sweep.frequency.setValueAtTime(200, sweepStart);
@@ -378,9 +378,9 @@ export function playBonusSound() {
 
   // ── Phase 3: Power chord resolution ──────────────────────────────────
   const chordStart = sweepStart + 0.42;
-  const chordGain = _makeGain(0);
+  const chordGain = makeGain(0);
   [110, 165, 220, 330].forEach((freq) => {          // A2 power chord
-    _osc('sawtooth', freq, chordGain, chordStart, chordStart + 0.75);
+    startOsc('sawtooth', freq, chordGain, chordStart, chordStart + 0.75);
   });
   chordGain.gain.setValueAtTime(0.30, chordStart);
   chordGain.gain.exponentialRampToValueAtTime(0.001, chordStart + 0.70);
@@ -404,7 +404,7 @@ export function setMuted(shouldMute) {
   if (masterGain) {
     masterGain.gain.setTargetAtTime(
       muted ? 0 : 1,
-      _ctx().currentTime,
+      getCtx().currentTime,
       0.02,
     );
   }
