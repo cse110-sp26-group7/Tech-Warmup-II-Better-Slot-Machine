@@ -386,7 +386,7 @@ Passed all 3 tests now
 
 **Commit message:** N/A
 
-## Entry 10 — April 22, 2026 1:00PM
+## Entry 10 — April 22, 2026 1:00AM
 
 **Phase:** 1F
 
@@ -418,7 +418,7 @@ Export pure functions to update state: placeBet(amount), recordSpin(payout), set
 
 **Commit message:** Finished Phase 1, passed all lint test and tests
 
-## Entry 11 — April 22, 2026 1:08PM
+## Entry 11 — April 22, 2026 9:46AM
 
 **Phase:** 2A
 
@@ -449,6 +449,51 @@ Defined CSS custom properties system in `:root` with all required color variable
 **Files changed:** src/css/styles.css
 
 **Commit message:** feat: phase 2A - add cyberpunk color system CSS variables
+
+## Entry 12 — April 22, 2026 1:18PM
+
+**Phase:** 2B
+
+**Prompt used:**
+
+> Using the CSS variables defined, build the base layout in `index.html` and `styles.css`. The layout should have:
+>
+> - A full-viewport dark background (`#0D0B1A`) with a subtle scanline or grid texture overlay using CSS only
+> - A centered game container (max-width 1100px on desktop, full-width on mobile)
+> - A top bar with: game title "DATA_HEIST // VOL.01" on the left using the Google Font "Share Tech Mono" or "Orbitron", balance display on the right
+> - A main reel area placeholder (5 columns × 3 rows grid)
+> - A controls bar below the reels with placeholders for: balance display, bet controls, spin button, auto-spin button, max bet button
+> - A win display area and free-spins counter below the controls
+> - A side panel on the left showing payline numbers
+> - A side panel on the right showing last spins history
+>
+> Mobile-first responsive CSS. No JavaScript yet. Validate HTML with htmlhint and lint CSS — show me clean output.
+
+**Outcome:**
+
+Implemented complete base layout with:
+- Full-viewport scanline texture overlay using CSS repeating-linear-gradient
+- 3-column grid layout (left panel | center content | right panel)
+- Top bar with neon-styled title and balance display using Orbitron font
+- 5×3 reel grid with placeholder cells
+- Win display section
+- Controls bar with bet controls, spin button, auto-spin, and max bet buttons
+- Free spins counter (hidden by default)
+- Side panels for payline numbers (left) and spin history (right)
+- Mobile-first responsive design that stacks on tablets/phones
+- Comprehensive CSS styling using all defined color variables
+
+**Linter result:** Passed (ESLint and htmlhint clean)
+
+**Tests result:** 23 passed, all pass
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/index.html, src/css/styles.css
+
+**Commit message:** feat: phase 2B - build base layout with responsive design
 
 ## Entry # — April 22, 2026 12:35PM
 
