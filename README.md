@@ -154,18 +154,3 @@ data-heist/
 | `ui.js` | Every DOM side-effect: `renderSymbolMatrix`, `renderBalance`, `renderBet`, `renderWin`, `renderPaylineHighlight` (SVG overlay), `renderFreeSpinsCounter`, `setSpinButtonState`, `animateReelSpin`, `celebrateWin` (three-tier animations), `openPaytable` / `closePaytable`. |
 | `audio.js` | Lazy `AudioContext` initialisation on first user gesture. Exports `playSpinSound` / `stopSpinSound` (sawtooth + LFO loop), `playWinSound` (three-tier fanfare), `playClickSound`, `playBonusSound` (glitch burst + siren sweep + power chord), `setMuted`. |
 
----
-
-## Credits
-
-Built by **CSE 110 Group 7** as part of the Tech Warmup II assignment.
-
-| Contributor | Role |
-|---|---|
-| Ethan Carter | UX research, UI design |
-| Gabrielle Wang | Frontend development |
-| Lumen Nabulsi | Frontend development, state & payout logic |
-| Michael Marras | User research, game design |
-| Nhan Tri Danh | Frontend development |
-| Theo Lee | Game design, reel mechanics, audio |
-| Thy Doan | Visual identity, CSS, audio assets |
