@@ -20,6 +20,7 @@ const SYMBOL_UNICODE = {
   BELL: '♦',
   BAR: '▬',
   CHERRY: '●',
+  NEURAL_CHIP: '⚡',
 };
 
 /**
@@ -38,6 +39,7 @@ const SYMBOL_COLOR_VARS = {
   BELL: '--color-neon-yellow-green',
   BAR: '--color-text-win',
   CHERRY: '--color-text-loss',
+  NEURAL_CHIP: '--color-neon-yellow-green',
 };
 
 /**
@@ -565,6 +567,178 @@ export function animateReelSpin() {
     // Resolve main promise when all reels are done
     Promise.all(reelPromises).then(resolve);
   });
+}
+
+/**
+ * Opens the paytable modal
+ * Populates symbol payouts and payline diagrams
+ * @param {number} currentBet - Current bet amount for payout calculations
+ * @returns {void}
+ */
+export function openPaytable(currentBet) {
+  const modal = document.getElementById('paytable-modal');
+  const symbolPayoutsContainer = document.getElementById('symbol-payouts');
+  const paylineGridContainer = document.getElementById('paylines-grid');
+
+  if (!modal || !symbolPayoutsContainer || !paylineGridContainer) {
+    throw new Error('Paytable modal elements not found in DOM');
+  }
+
+  // Generate symbol payouts
+  symbolPayoutsContainer.innerHTML = generateSymbolPayouts(currentBet);
+
+  // Generate payline diagrams
+  paylineGridContainer.innerHTML = generatePaylineDiagrams();
+
+  // Show modal
+  modal.style.display = 'flex';
+
+  // Add event listener to close on outside click
+  const handleOutsideClick = (e) => {
+    if (e.target === modal) {
+      closePaytable();
+      modal.removeEventListener('click', handleOutsideClick);
+    }
+  };
+  modal.addEventListener('click', handleOutsideClick);
+}
+
+/**
+ * Closes the paytable modal
+ * @returns {void}
+ */
+export function closePaytable() {
+  const modal = document.getElementById('paytable-modal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+/**
+ * Generates HTML for symbol payouts
+ * @private
+ * @param {number} currentBet - Current bet amount
+ * @returns {string} HTML string with symbol payout items
+ */
+function generateSymbolPayouts(currentBet) {
+  const betPerLine = currentBet / 25;
+  const symbolData = [
+    { id: 'GOLD_KANJI', display: '金', name: 'Gold Kanji', label: 'Megacorp Vault', value: 1000 },
+    { id: 'CHROME_SKULL', display: '☠', name: 'Chrome Skull', label: 'Black-ICE Node', value: 1000 },
+    { id: 'CYBER_IRIS', display: '◎', name: 'Cyber Iris', label: 'Ocular Implant', value: 500 },
+    { id: 'KATANA', display: '⚔', name: 'Katana', label: 'Ronin\'s Blade', value: 500 },
+    { id: 'NEON_7', display: '7', name: 'Neon 7', label: 'Lucky 777', value: 500 },
+    { id: 'DIAMOND', display: '◆', name: 'Diamond', label: 'Encrypted Gem', value: 250 },
+    { id: 'BELL', display: '♦', name: 'Bell', label: 'Intrusion Alert', value: 250 },
+    { id: 'BAR', display: '▬', name: 'BAR', label: 'Data Bar', value: 100 },
+    { id: 'CHERRY', display: '●', name: 'Cherry', label: 'Red Data Node', value: 50 },
+    { id: 'WILD', display: 'W', name: 'Wild', label: 'Glitch W', value: 0 },
+  ];
+
+  return symbolData.map((symbol) => {
+    const payout3 = Math.floor((symbol.value / 5) * 3 * betPerLine);
+    const payout4 = Math.floor((symbol.value / 5) * 4 * betPerLine);
+    const payout5 = Math.floor((symbol.value / 5) * 5 * betPerLine);
+
+    return `
+      <div class="symbol-payout-item">
+        <div class="symbol-payout-item-header">
+          <div class="symbol-payout-char" style="color: var(--color-neon-${getSymbolColor(symbol.id)})">${symbol.display}</div>
+          <div class="symbol-payout-info">
+            <h3>${symbol.name}</h3>
+            <p>${symbol.label}</p>
+          </div>
+        </div>
+        <div class="symbol-payout-payouts">
+          <div class="payout-line">
+            <div class="payout-label">3 Kind</div>
+            <div class="payout-value">${payout3}</div>
+          </div>
+          <div class="payout-line">
+            <div class="payout-label">4 Kind</div>
+            <div class="payout-value">${payout4}</div>
+          </div>
+          <div class="payout-line">
+            <div class="payout-label">5 Kind</div>
+            <div class="payout-value">${payout5}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/**
+ * Gets the color class for a symbol
+ * @private
+ * @param {string} symbolId - Symbol ID
+ * @returns {string} Color name for CSS
+ */
+function getSymbolColor(symbolId) {
+  const colorMap = {
+    WILD: 'pink',
+    GOLD_KANJI: 'gold',
+    CHROME_SKULL: 'purple',
+    CYBER_IRIS: 'cyan',
+    KATANA: 'cyan',
+    NEON_7: 'yellow-green',
+    DIAMOND: 'cyan',
+    BELL: 'yellow-green',
+    BAR: 'win',
+    CHERRY: 'loss',
+  };
+  return colorMap[symbolId] || 'cyan';
+}
+
+/**
+ * Generates HTML for payline diagrams
+ * @private
+ * @returns {string} HTML string with payline items
+ */
+function generatePaylineDiagrams() {
+  const paylines = [
+    [1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0],
+    [2, 2, 2, 2, 2],
+    [0, 1, 2, 1, 0],
+    [2, 1, 0, 1, 2],
+    [0, 1, 0, 1, 0],
+    [1, 0, 1, 0, 1],
+    [2, 1, 2, 1, 2],
+    [1, 2, 1, 2, 1],
+    [0, 0, 1, 2, 2],
+    [2, 2, 1, 0, 0],
+    [1, 0, 0, 0, 1],
+    [1, 2, 2, 2, 1],
+    [0, 1, 0, 1, 0],
+    [2, 1, 2, 1, 2],
+    [0, 2, 0, 2, 0],
+    [2, 0, 2, 0, 2],
+    [0, 0, 0, 1, 2],
+    [2, 2, 2, 1, 0],
+    [0, 1, 2, 2, 2],
+    [2, 1, 0, 0, 0],
+    [1, 0, 2, 0, 1],
+    [1, 2, 0, 2, 1],
+    [0, 2, 1, 2, 0],
+    [2, 0, 1, 0, 2],
+  ];
+
+  return paylines.map((payline, index) => {
+    const diagram = payline.map((row) => {
+      const top = row === 0 ? '█' : '░';
+      const mid = row === 1 ? '█' : '░';
+      const bot = row === 2 ? '█' : '░';
+      return `${top}${mid}${bot}`;
+    }).join('');
+
+    return `
+      <div class="payline-item">
+        <div class="payline-number">Line ${index + 1}</div>
+        <div class="payline-diagram">${diagram}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 /**

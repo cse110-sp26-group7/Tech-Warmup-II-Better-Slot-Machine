@@ -144,6 +144,19 @@ export const CHERRY = {
 };
 
 /**
+ * Neural Chip symbol (Scatter)
+ * Bonus trigger - Grants free spins when 3+ land anywhere
+ * @type {Symbol}
+ */
+export const NEURAL_CHIP = {
+  id: 'NEURAL_CHIP',
+  displayName: 'Neural Chip',
+  cyberpunkLabel: 'Neural Access Chip',
+  value: 0,
+  isWild: false,
+};
+
+/**
  * Array of all symbols in the game
  * @type {Symbol[]}
  */
@@ -158,6 +171,7 @@ export const SYMBOLS = [
   BELL,
   BAR,
   CHERRY,
+  NEURAL_CHIP,
 ];
 
 /**
@@ -168,9 +182,9 @@ export const SYMBOLS = [
 const REEL_1 = [
   'CHERRY', 'BAR', 'CHERRY', 'DIAMOND', 'BAR', 'CHERRY',
   'BELL', 'BAR', 'DIAMOND', 'CHERRY', 'BAR', 'NEON_7',
-  'CHERRY', 'BAR', 'DIAMOND', 'BELL', 'BAR', 'CHERRY',
+  'CHERRY', 'BAR', 'DIAMOND', 'BELL', 'BAR', 'NEURAL_CHIP',
   'KATANA', 'BAR', 'CHERRY', 'DIAMOND', 'BELL', 'CHERRY',
-  'BAR', 'CYBER_IRIS', 'CHERRY', 'BAR', 'DIAMOND', 'CHERRY',
+  'BAR', 'CYBER_IRIS', 'CHERRY', 'BAR', 'NEURAL_CHIP', 'CHERRY',
   'CHROME_SKULL', 'CHERRY', 'BAR', 'DIAMOND', 'CHERRY', 'BAR',
   'GOLD_KANJI', 'CHERRY', 'BAR', 'BELL',
 ];
@@ -181,10 +195,10 @@ const REEL_1 = [
  * @type {string[]}
  */
 const REEL_2 = [
-  'CHERRY', 'BAR', 'DIAMOND', 'CHERRY', 'BAR', 'WILD',
+  'CHERRY', 'BAR', 'DIAMOND', 'CHERRY', 'NEURAL_CHIP', 'WILD',
   'CHERRY', 'BELL', 'BAR', 'CHERRY', 'DIAMOND', 'BAR',
   'CHERRY', 'NEON_7', 'BAR', 'CHERRY', 'DIAMOND', 'WILD',
-  'BAR', 'CHERRY', 'BELL', 'DIAMOND', 'CHERRY', 'BAR',
+  'BAR', 'CHERRY', 'BELL', 'DIAMOND', 'NEURAL_CHIP', 'BAR',
   'KATANA', 'CHERRY', 'BAR', 'DIAMOND', 'CHERRY', 'WILD',
   'BAR', 'CHERRY', 'CYBER_IRIS', 'DIAMOND', 'CHERRY', 'BAR',
   'CHROME_SKULL', 'CHERRY', 'BAR', 'DIAMOND', 'CHERRY', 'WILD',
@@ -197,10 +211,10 @@ const REEL_2 = [
  * @type {string[]}
  */
 const REEL_3 = [
-  'BAR', 'CHERRY', 'DIAMOND', 'BAR', 'WILD', 'CHERRY',
+  'BAR', 'CHERRY', 'DIAMOND', 'BAR', 'WILD', 'NEURAL_CHIP',
   'BELL', 'BAR', 'CHERRY', 'DIAMOND', 'CHERRY', 'BAR',
   'NEON_7', 'CHERRY', 'BAR', 'DIAMOND', 'WILD', 'CHERRY',
-  'BAR', 'BELL', 'CHERRY', 'DIAMOND', 'BAR', 'CHERRY',
+  'BAR', 'BELL', 'CHERRY', 'NEURAL_CHIP', 'BAR', 'CHERRY',
   'KATANA', 'BAR', 'CHERRY', 'DIAMOND', 'WILD', 'CHERRY',
   'BAR', 'CYBER_IRIS', 'CHERRY', 'DIAMOND', 'BAR', 'CHERRY',
   'CHROME_SKULL', 'BAR', 'CHERRY', 'DIAMOND', 'WILD', 'CHERRY',
@@ -213,10 +227,10 @@ const REEL_3 = [
  * @type {string[]}
  */
 const REEL_4 = [
-  'CHERRY', 'BAR', 'DIAMOND', 'CHERRY', 'WILD', 'BAR',
+  'CHERRY', 'BAR', 'DIAMOND', 'CHERRY', 'NEURAL_CHIP', 'BAR',
   'CHERRY', 'BELL', 'DIAMOND', 'CHERRY', 'BAR', 'DIAMOND',
   'CHERRY', 'NEON_7', 'BAR', 'CHERRY', 'WILD', 'DIAMOND',
-  'CHERRY', 'BAR', 'BELL', 'CHERRY', 'DIAMOND', 'BAR',
+  'CHERRY', 'BAR', 'BELL', 'CHERRY', 'NEURAL_CHIP', 'BAR',
   'KATANA', 'CHERRY', 'DIAMOND', 'BAR', 'CHERRY', 'WILD',
   'CYBER_IRIS', 'CHERRY', 'BAR', 'DIAMOND', 'CHERRY', 'BAR',
   'CHROME_SKULL', 'CHERRY', 'DIAMOND', 'BAR', 'CHERRY', 'WILD',
@@ -230,9 +244,9 @@ const REEL_4 = [
  */
 const REEL_5 = [
   'CHERRY', 'BAR', 'CHERRY', 'DIAMOND', 'BAR', 'CHERRY',
-  'BELL', 'BAR', 'DIAMOND', 'CHERRY', 'BAR', 'NEON_7',
+  'BELL', 'BAR', 'DIAMOND', 'CHERRY', 'NEURAL_CHIP', 'NEON_7',
   'CHERRY', 'DIAMOND', 'BAR', 'CHERRY', 'BELL', 'DIAMOND',
-  'CHERRY', 'BAR', 'KATANA', 'CHERRY', 'DIAMOND', 'BAR',
+  'CHERRY', 'BAR', 'KATANA', 'CHERRY', 'NEURAL_CHIP', 'BAR',
   'CHERRY', 'BELL', 'BAR', 'CHERRY', 'DIAMOND', 'CYBER_IRIS',
   'CHERRY', 'BAR', 'DIAMOND', 'CHERRY', 'BAR', 'CHROME_SKULL',
   'CHERRY', 'DIAMOND', 'BAR', 'CHERRY', 'GOLD_KANJI', 'BAR',

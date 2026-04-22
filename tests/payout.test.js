@@ -3,7 +3,7 @@
  * Test-driven development for the payout calculation logic
  */
 
-import { calculatePayout } from '../src/js/payout.js';
+import { calculatePayout, checkScatterTrigger } from '../src/js/payout.js';
 
 describe('Payout Module - calculatePayout', () => {
   describe('5 of a kind payouts', () => {
@@ -214,6 +214,95 @@ describe('Payout Module - calculatePayout', () => {
       const betAmount = 1;
 
       expect(() => calculatePayout(paylineSymbols, betAmount)).toThrow();
+    });
+  });
+
+  describe('checkScatterTrigger', () => {
+    test('should not trigger bonus with 2 Neural Chips', () => {
+      const matrix = [
+        ['CHERRY', 'NEURAL_CHIP', 'BAR'],
+        ['BAR', 'CHERRY', 'BELL'],
+        ['DIAMOND', 'BAR', 'NEURAL_CHIP'],
+        ['CHERRY', 'BELL', 'DIAMOND'],
+        ['BAR', 'CHERRY', 'CHERRY'],
+      ];
+
+      const freeSpins = checkScatterTrigger(matrix);
+      expect(freeSpins).toBe(0);
+    });
+
+    test('should trigger 10 free spins with exactly 3 Neural Chips', () => {
+      const matrix = [
+        ['CHERRY', 'NEURAL_CHIP', 'BAR'],
+        ['BAR', 'CHERRY', 'BELL'],
+        ['DIAMOND', 'BAR', 'NEURAL_CHIP'],
+        ['CHERRY', 'BELL', 'NEURAL_CHIP'],
+        ['BAR', 'CHERRY', 'CHERRY'],
+      ];
+
+      const freeSpins = checkScatterTrigger(matrix);
+      expect(freeSpins).toBe(10);
+    });
+
+    test('should trigger 15 free spins with exactly 4 Neural Chips', () => {
+      const matrix = [
+        ['NEURAL_CHIP', 'NEURAL_CHIP', 'BAR'],
+        ['BAR', 'CHERRY', 'BELL'],
+        ['DIAMOND', 'BAR', 'NEURAL_CHIP'],
+        ['CHERRY', 'BELL', 'NEURAL_CHIP'],
+        ['BAR', 'CHERRY', 'CHERRY'],
+      ];
+
+      const freeSpins = checkScatterTrigger(matrix);
+      expect(freeSpins).toBe(15);
+    });
+
+    test('should trigger 25 free spins with 5 Neural Chips', () => {
+      const matrix = [
+        ['NEURAL_CHIP', 'NEURAL_CHIP', 'BAR'],
+        ['BAR', 'CHERRY', 'NEURAL_CHIP'],
+        ['DIAMOND', 'BAR', 'NEURAL_CHIP'],
+        ['CHERRY', 'BELL', 'NEURAL_CHIP'],
+        ['BAR', 'CHERRY', 'CHERRY'],
+      ];
+
+      const freeSpins = checkScatterTrigger(matrix);
+      expect(freeSpins).toBe(25);
+    });
+
+    test('should return 25 free spins when scatter count exceeds 5', () => {
+      const matrix = [
+        ['NEURAL_CHIP', 'NEURAL_CHIP', 'NEURAL_CHIP'],
+        ['BAR', 'NEURAL_CHIP', 'NEURAL_CHIP'],
+        ['DIAMOND', 'BAR', 'NEURAL_CHIP'],
+        ['CHERRY', 'BELL', 'CHERRY'],
+        ['BAR', 'CHERRY', 'CHERRY'],
+      ];
+
+      const freeSpins = checkScatterTrigger(matrix);
+      expect(freeSpins).toBe(25);
+    });
+
+    test('should validate matrix structure', () => {
+      const invalidMatrix = [
+        ['CHERRY', 'BAR'],
+        ['BAR', 'CHERRY'],
+      ];
+
+      expect(() => checkScatterTrigger(invalidMatrix)).toThrow();
+    });
+
+    test('should count scatters anywhere on the reels', () => {
+      const matrix = [
+        ['NEURAL_CHIP', 'CHERRY', 'BAR'],
+        ['BAR', 'NEURAL_CHIP', 'BELL'],
+        ['DIAMOND', 'BAR', 'CHERRY'],
+        ['CHERRY', 'BELL', 'DIAMOND'],
+        ['NEURAL_CHIP', 'CHERRY', 'CHERRY'],
+      ];
+
+      const freeSpins = checkScatterTrigger(matrix);
+      expect(freeSpins).toBe(10); // 3 scatters = 10 free spins
     });
   });
 });

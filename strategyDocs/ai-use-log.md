@@ -737,6 +737,266 @@ Integration:
 
 **Commit message:** feat: phase 3C - implement tiered win celebration animations
 
+## Entry 18 — April 22, 2026 2:45PM
+
+**Phase:** 4A
+
+**Prompt used:**
+
+> Implement bet adjustment controls. Add + and − buttons that adjust the bet per line in increments of 1, with a minimum of 1 CC and maximum of 100 CC per line (total bet = line bet × 25 paylines). Add a "MAX BET" button that sets line bet to 100. All three buttons must:
+>
+> - Update state via `placeBet()`
+> - Re-render the bet display showing both line bet and total bet
+> - Be disabled appropriately (− disabled at min, + disabled at max, all disabled while spinning)
+>
+> Write a unit test in a new `tests/state.test.js` covering the boundary conditions. Full JSDoc.
+
+**Outcome:**
+
+Implemented complete bet control system:
+
+State Module (state.js):
+- Added `setBet(state, amount)` function to adjust bet per line (1-100) without deducting balance
+- Multiplies per-line bet by 25 paylines for total bet amount
+- Full validation and error handling
+
+Main Module (main.js):
+- Implemented `increaseBet()` - increments bet per line up to 100
+- Implemented `decreaseBet()` - decrements bet per line down to 1
+- Implemented `setMaxBet()` - sets bet per line to maximum (100)
+- Implemented `updateBetButtonStates()` - manages button disabled states
+  - Disables − when bet = 1
+  - Disables + when bet = 100
+  - Disables all three buttons while spinning
+- Wired event listeners to all three buttons during initialization
+- Calls updateBetButtonStates during spin start/end
+
+Unit Tests (tests/state.test.js):
+- 14 new tests covering setBet() boundary conditions
+- Tests for minimum (1), maximum (100), and intermediate values
+- Tests for invalid inputs (0, 101, negative, non-numeric)
+- Tests that balance remains unchanged when adjusting bet
+- Tests sequential bet adjustments
+- Tests for placeBet() and recordSpin() functions
+- 39 total tests, all passing
+
+**Linter result:** Passed
+
+**Tests result:** 39 passed, all pass (4 test suites)
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/state.js, src/js/main.js, tests/state.test.js
+
+**Commit message:** feat: phase 4A - implement bet controls with full state management and tests
+
+## Entry 19 — April 22, 2026 3:10PM
+
+**Phase:** 4B
+
+**Prompt used:**
+
+> Implement auto-spin. Add an auto-spin button that cycles through options: OFF → 10 → 25 → 50 → 100 → OFF. When active:
+>
+> - Show a countdown indicator next to the button
+> - Continue spinning automatically after each result
+> - Stop immediately if: balance drops below current bet, balance reaches zero, a bonus round triggers, or the player clicks the button again
+> - Add a 500ms pause between auto-spins so the player can see results
+>
+> Auto-spin must use the existing `executeSpin()` loop — no duplicate spin logic. Full JSDoc. Add a unit test for the stop conditions.
+
+**Outcome:**
+
+Implemented complete auto-spin system:
+
+UI Updates (index.html & styles.css):
+- Added auto-spin counter display element next to button
+- CSS styling for countdown indicator (neon yellow-green, glowing text)
+
+Main Module (main.js):
+- Added `toggleAutoSpin()` function that cycles through: OFF → 10 → 25 → 50 → 100 → OFF
+- Added `updateAutoSpinDisplay()` to show/hide countdown with remaining spins
+- Added `shouldStopAutoSpin()` to check all stop conditions:
+  - Balance reaches zero
+  - Balance drops below current bet
+  - Bonus round triggered (placeholder for future implementation)
+- Updated `executeSpin()` to:
+  - Check stop conditions before each auto-spin recursion
+  - Automatically disable auto-spin and show message if stopped
+  - Decrement counter and update display after each spin
+  - Maintain 500ms pause between spins (already implemented)
+- Wired auto-spin button event listener in initialization
+
+Unit Tests (state.test.js):
+- Added 11 new tests covering:
+  - `setAutoSpin()` - setting/clearing auto-spin count
+  - `decrementAutoSpin()` - decrementing counter with bounds checking
+  - Stop conditions:
+    - Balance = 0
+    - Balance < currentBet
+    - Balance ≥ currentBet (allowed to spin)
+  - Multiple sequential operations
+  - Invalid inputs (negative, non-integer)
+- 50 total tests, all passing
+
+Features:
+- Cycles through 5 options: OFF (0), 10, 25, 50, 100 spins
+- Shows remaining spin count as (N) next to button
+- Automatically starts spinning when enabled
+- Stops and shows error message if balance conditions fail
+- Reuses existing executeSpin() logic - no code duplication
+- 500ms pause between spins for result visibility
+- Full JSDoc documentation
+
+**Linter result:** Passed
+
+**Tests result:** 50 passed, all pass (4 test suites)
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/index.html, src/css/styles.css, src/js/main.js, tests/state.test.js
+
+**Commit message:** feat: phase 4B - implement auto-spin with cycle options and stop conditions
+
+## Entry 20 — April 22, 2026 3:35PM
+
+**Phase:** 4C (Partial - Core Scatter Logic)
+
+**Prompt used:**
+
+> Implement a free-spins bonus round triggered when 3 or more Neural Chip (scatter) symbols land anywhere on the reels. When triggered:
+>
+> - Show a modal overlay styled as a terminal screen: "ACCESS GRANTED — SYSTEM BREACH — 10 FREE SPINS" with a scrolling green text animation
+> - Run 10 free spins automatically (3 scatters = 10, 4 scatters = 15, 5 scatters = 25), using the current bet but not deducting from balance
+> - During free spins, all wins are multiplied by 2×. Wilds become expanding wilds (fill the full reel column)
+> - Display a free-spin counter in the UI at all times during the bonus
+> - After all free spins complete, show total bonus winnings and return to normal play
+>
+> Implement `checkScatterTrigger(matrix)` in `src/js/payout.js` and `runFreeSpinsRound(bet, spinCount)` in `src/js/main.js`. Full JSDoc. Write a unit test for `checkScatterTrigger` covering 2 scatters (no trigger), 3 scatters (trigger, 10 spins), 4 scatters (trigger, 15 spins), and 5 scatters (trigger, 25 spins).
+
+**Outcome (Core Logic Complete):**
+
+Added NEURAL_CHIP Scatter Symbol:
+- Created NEURAL_CHIP symbol definition in reels.js
+- Added to all 5 reel strips (2-3 instances per reel for appropriate rarity)
+- Added Unicode rendering (⚡) and neon color (yellow-green) in ui.js
+
+Implemented `checkScatterTrigger(matrix)` in payout.js:
+- Counts NEURAL_CHIP symbols anywhere on the 5×3 matrix
+- Returns free spins based on count:
+  - 0 if < 3 scatters
+  - 10 if exactly 3 scatters
+  - 15 if exactly 4 scatters
+  - 25 if 5+ scatters
+- Full validation and error handling
+- Complete JSDoc documentation
+
+Unit Tests for checkScatterTrigger (7 new tests):
+- ✅ No trigger with 2 scatters
+- ✅ 10 free spins with 3 scatters
+- ✅ 15 free spins with 4 scatters
+- ✅ 25 free spins with 5 scatters
+- ✅ 25 free spins when exceeds 5 scatters
+- ✅ Matrix validation
+- ✅ Scatter counting anywhere on reels
+
+**Remaining Phase 4C Tasks (Not Yet Implemented):**
+- ⏳ Bonus modal UI with "ACCESS GRANTED" animation
+- ⏳ runFreeSpinsRound() function in main.js
+- ⏳ 2x win multiplier during free spins
+- ⏳ Expanding wilds implementation
+- ⏳ Free spins counter display
+- ⏳ Total bonus winnings summary
+
+**Linter result:** Passed
+
+**Tests result:** 57 passed, all pass (4 test suites)
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/reels.js, src/js/ui.js, src/js/payout.js, tests/payout.test.js
+
+**Commit message:** feat: phase 4C partial - add scatter symbol and implement scatter trigger detection
+
+## Entry 21 — April 22, 2026 3:50PM
+
+**Phase:** 4D
+
+**Prompt used:**
+
+> Add a "PAYTABLE" button that opens a modal showing:
+>
+> - Each symbol with its Unicode placeholder, cyberpunk name, and payout for 3, 4, and 5 of a kind at the current bet level
+> - A note that Wild (Glitch W) substitutes for all symbols except Scatter and Bonus, appears on reels 2–4 only
+> - A note that 3+ Neural Chip scatters anywhere triggers free spins with 2× multiplier
+> - Payline diagrams showing all 25 paylines numbered and color-coded in neon pink
+>
+> The modal should be styled as a dark terminal/HUD panel with neon borders. Dismissible by clicking outside it or an X button. No new JS modules needed — add to `ui.js`. Full JSDoc.
+
+**Outcome:**
+
+Implemented comprehensive paytable modal system:
+
+HTML Structure:
+- Added PAYTABLE button to game controls
+- Added modal container with header, scrollable content, and close button
+- Sections for symbol payouts, bonus rules, and paylines
+
+CSS Styling:
+- Dark terminal/HUD panel styling with neon cyan borders
+- Responsive modal (90% width, max 900px, max 85vh height)
+- Symbol payout cards in responsive grid (250px min-width)
+- Payline diagrams in auto-fit grid
+- Neon borders and glowing effects
+- Scrollable content area for long tables
+- Backdrop blur for overlay effect
+
+JavaScript Functions in ui.js:
+- `openPaytable(currentBet)` - Opens modal, populates content with current bet
+- `closePaytable()` - Closes modal
+- `generateSymbolPayouts(currentBet)` - Creates payout table for all 10 symbols
+  - Shows 3/4/5-of-a-kind payouts calculated at current bet level
+  - Color-coded by symbol type
+- `generatePaylineDiagrams()` - Creates visual diagrams for all 25 paylines
+  - Uses █ and ░ characters to show win paths
+  - Numbered and color-coded in neon pink
+- `getSymbolColor(symbolId)` - Maps symbols to CSS color classes
+
+Features:
+- ✅ All 10 symbols with Unicode, cyberpunk names, and payouts
+- ✅ Dynamic payout calculations based on current bet
+- ✅ Wild symbol notes (substitution rules, reel locations)
+- ✅ Neural Chip scatter notes (free spins, 2x multiplier)
+- ✅ All 25 payline diagrams with visual representation
+- ✅ Dark terminal styling with neon borders (cyan, pink highlights)
+- ✅ Dismissible by X button or clicking outside
+- ✅ Scrollable content for large tables
+- ✅ Full JSDoc annotations
+
+Integration (main.js):
+- Wired paytable button to open modal
+- Wired close button to dismiss modal
+- Modal receives current bet for payout calculations
+- Event listeners handle outside-click dismiss
+
+**Linter result:** Passed
+
+**Tests result:** 57 passed, all pass (4 test suites)
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/index.html, src/css/styles.css, src/js/ui.js, src/js/main.js
+
+**Commit message:** feat: phase 4D - implement comprehensive paytable modal with symbol payouts and payline diagrams
+
 ## Entry # — April 22, 2026 12:35PM
 
 **Phase:**
