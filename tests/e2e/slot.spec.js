@@ -95,20 +95,28 @@ test.describe('Data Heist slot machine', () => {
   });
 
   // ── 3 ───────────────────────────────────────────────────────────────────
-  test('after a spin the 5×3 symbol grid is fully populated with 15 symbols', async ({ page }) => {
+  test('the 5×3 symbol grid is fully populated on load and after a spin', async ({ page }) => {
     await gotoGame(page);
 
-    await page.getByRole('button', { name: 'SPIN', exact: true }).click();
-    await waitForSpinEnd(page);
-
-    // Every reel-cell should contain exactly one .symbol div
+    // Before any spin: initializeGame() seeds the grid with a decorative
+    // starting matrix so the player never sees a blank reel area.
     await page.waitForFunction(
       () => document.querySelectorAll('.reel-cell .symbol').length === 15,
       { timeout: 10_000 },
     );
+    const symbolsOnLoad = await page.locator('.reel-cell .symbol').count();
+    expect(symbolsOnLoad).toBe(15);
 
-    const symbolCount = await page.locator('.reel-cell .symbol').count();
-    expect(symbolCount).toBe(15);
+    // After a spin the grid must still be fully populated.
+    await page.getByRole('button', { name: 'SPIN', exact: true }).click();
+    await waitForSpinEnd(page);
+
+    await page.waitForFunction(
+      () => document.querySelectorAll('.reel-cell .symbol').length === 15,
+      { timeout: 10_000 },
+    );
+    const symbolsAfterSpin = await page.locator('.reel-cell .symbol').count();
+    expect(symbolsAfterSpin).toBe(15);
   });
 
   // ── 4 ───────────────────────────────────────────────────────────────────

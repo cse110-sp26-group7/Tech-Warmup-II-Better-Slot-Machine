@@ -1341,6 +1341,41 @@ Rewrote `tests/paylines.test.js` (previously just a placeholder) with a proper s
 
 **Commit message:** fix: phase 8C - replace duplicate paylines 14 and 15 with unique patterns
 
+## Entry 31 — April 22, 2026 4:10PM
+
+**Phase:** 9A
+
+**Prompt used:**
+
+> The reel cells in `src/index.html` start empty. `initializeGame()` in `src/js/main.js` renders the balance, bet, win amount, and counters on load, but never calls `renderSymbolMatrix`. The player sees a blank 5×3 grid until the first spin completes.
+>
+> Fix: at the end of `initializeGame()`, generate a starting matrix via `RNG.generateSymbolMatrix(REEL_STRIPS, 3)` and pass it through `renderSymbolMatrix()`. Treat this matrix as purely decorative — the real spin result replaces it on first click, and it should not be recorded in state. Update the e2e test in `tests/e2e/slot.spec.js` (scenario 3) to assert that all 15 cells are populated *before* any spin is initiated, not only after.
+
+**Outcome:**
+
+Added a decorative seed matrix at the end of `initializeGame()` in `src/js/main.js`:
+```js
+renderSymbolMatrix(RNG.generateSymbolMatrix(REEL_STRIPS, 3));
+```
+All required imports (`RNG`, `REEL_STRIPS`, `renderSymbolMatrix`) were already present, so the change is a single added line (plus a short comment explaining the intent). The starting matrix is not recorded in `gameState`; the first real spin replaces it via the existing `renderSymbolMatrix(symbolMatrix)` call inside `executeSpin()`.
+
+Updated Playwright scenario 3 in `tests/e2e/slot.spec.js`:
+- Renamed the test to reflect the new coverage: "the 5×3 symbol grid is fully populated on load and after a spin".
+- Added a pre-spin assertion that waits until `document.querySelectorAll('.reel-cell .symbol').length === 15` before any SPIN click.
+- Kept the post-spin assertion so we still verify the grid stays populated through a spin cycle.
+
+**Linter result:** Passed
+
+**Tests result:** 71 Jest tests pass (no change in unit count — this was a rendering-time behaviour change covered by the e2e layer). Playwright e2e not re-run locally: `@playwright/test` is not installed in `node_modules` on this machine — the project's README step `npx playwright install chromium` was not completed locally. This is unrelated to the 9A change; the updated spec file is syntactically valid.
+
+**Issues encountered:** Playwright binary missing locally; unable to verify scenario 3 end-to-end from this session. No code-side regression though.
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/main.js, tests/e2e/slot.spec.js
+
+**Commit message:** fix: phase 9A - seed the reel grid with a decorative matrix on load
+
 ## Entry # — [date] [time]
 
 **Phase:**

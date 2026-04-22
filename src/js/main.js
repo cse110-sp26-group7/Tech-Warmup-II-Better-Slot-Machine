@@ -284,6 +284,11 @@ function initializeGame() {
   renderFreeSpinsCounter(0);
   updateBetButtonStates();
   updateAutoSpinDisplay();
+
+  // Seed the reel grid with a decorative starting matrix so the 5×3
+  // grid is never blank on page load. Not stored in state — the first
+  // real spin replaces it.
+  renderSymbolMatrix(RNG.generateSymbolMatrix(REEL_STRIPS, 3));
 }
 
 /**
