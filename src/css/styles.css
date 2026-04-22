@@ -416,6 +416,223 @@ body {
 }
 
 /* ====================================
+   Paytable Button & Modal
+   ==================================== */
+
+.btn--paytable {
+    background-color: var(--color-bg-panel);
+    border-color: var(--color-neon-cyan);
+    color: var(--color-neon-cyan);
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.btn--paytable:hover:not(:disabled) {
+    background-color: var(--color-border-card);
+    border-color: var(--color-neon-cyan);
+    color: var(--color-neon-cyan);
+    box-shadow: 0 0 15px var(--color-neon-cyan);
+}
+
+.paytable-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(4px);
+}
+
+.paytable-content {
+    background-color: var(--color-bg-card);
+    border: 3px solid var(--color-neon-cyan);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 30px var(--color-neon-cyan);
+}
+
+.paytable-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 2px solid var(--color-border-card);
+}
+
+.paytable-header h1 {
+    font-size: 1.8rem;
+    color: var(--color-neon-cyan);
+    text-shadow: 0 0 10px var(--color-neon-cyan);
+    margin: 0;
+    letter-spacing: 0.1em;
+}
+
+.paytable-close {
+    background: none;
+    border: none;
+    color: var(--color-neon-cyan);
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 0 0 10px var(--color-neon-cyan);
+    transition: all 0.2s ease;
+}
+
+.paytable-close:hover {
+    color: var(--color-neon-yellow-green);
+    text-shadow: 0 0 15px var(--color-neon-yellow-green);
+    transform: scale(1.2);
+}
+
+.paytable-scroll {
+    overflow-y: auto;
+    padding: 1.5rem;
+    flex: 1;
+}
+
+.paytable-section {
+    margin-bottom: 2rem;
+}
+
+.paytable-section h2 {
+    font-size: 1.3rem;
+    color: var(--color-neon-yellow-green);
+    text-shadow: 0 0 10px var(--color-neon-yellow-green);
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--color-border-card);
+    padding-bottom: 0.5rem;
+}
+
+.symbol-payouts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.symbol-payout-item {
+    background-color: var(--color-bg-panel);
+    border: 1px solid var(--color-border-card);
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+.symbol-payout-item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.symbol-payout-char {
+    font-size: 2rem;
+    font-weight: 700;
+    min-width: 40px;
+    text-align: center;
+}
+
+.symbol-payout-info h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--color-text-primary);
+}
+
+.symbol-payout-info p {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.8rem;
+    color: var(--color-text-inactive);
+}
+
+.symbol-payout-payouts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.payout-line {
+    background-color: var(--color-bg-main);
+    padding: 0.5rem;
+    border-radius: 3px;
+    text-align: center;
+}
+
+.payout-label {
+    color: var(--color-text-inactive);
+    font-size: 0.75rem;
+}
+
+.payout-value {
+    color: var(--color-neon-yellow-green);
+    font-weight: 700;
+    text-shadow: 0 0 5px var(--color-neon-yellow-green);
+}
+
+.paytable-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.rule {
+    background-color: var(--color-bg-panel);
+    border-left: 3px solid var(--color-neon-pink);
+    padding: 1rem;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.rule strong {
+    color: var(--color-neon-pink);
+    text-shadow: 0 0 5px var(--color-neon-pink);
+}
+
+.paylines-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+}
+
+.payline-item {
+    background-color: var(--color-bg-panel);
+    border: 1px solid var(--color-border-card);
+    border-radius: 4px;
+    padding: 0.75rem;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.payline-number {
+    color: var(--color-neon-pink);
+    font-weight: 700;
+    text-shadow: 0 0 5px var(--color-neon-pink);
+    margin-bottom: 0.5rem;
+}
+
+.payline-diagram {
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: var(--color-text-inactive);
+    line-height: 1.2;
+}
+
+/* ====================================
    Win Celebration Animations
    ==================================== */
 

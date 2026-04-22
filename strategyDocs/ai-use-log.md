@@ -924,6 +924,79 @@ Unit Tests for checkScatterTrigger (7 new tests):
 
 **Commit message:** feat: phase 4C partial - add scatter symbol and implement scatter trigger detection
 
+## Entry 21 — April 22, 2026 3:50PM
+
+**Phase:** 4D
+
+**Prompt used:**
+
+> Add a "PAYTABLE" button that opens a modal showing:
+>
+> - Each symbol with its Unicode placeholder, cyberpunk name, and payout for 3, 4, and 5 of a kind at the current bet level
+> - A note that Wild (Glitch W) substitutes for all symbols except Scatter and Bonus, appears on reels 2–4 only
+> - A note that 3+ Neural Chip scatters anywhere triggers free spins with 2× multiplier
+> - Payline diagrams showing all 25 paylines numbered and color-coded in neon pink
+>
+> The modal should be styled as a dark terminal/HUD panel with neon borders. Dismissible by clicking outside it or an X button. No new JS modules needed — add to `ui.js`. Full JSDoc.
+
+**Outcome:**
+
+Implemented comprehensive paytable modal system:
+
+HTML Structure:
+- Added PAYTABLE button to game controls
+- Added modal container with header, scrollable content, and close button
+- Sections for symbol payouts, bonus rules, and paylines
+
+CSS Styling:
+- Dark terminal/HUD panel styling with neon cyan borders
+- Responsive modal (90% width, max 900px, max 85vh height)
+- Symbol payout cards in responsive grid (250px min-width)
+- Payline diagrams in auto-fit grid
+- Neon borders and glowing effects
+- Scrollable content area for long tables
+- Backdrop blur for overlay effect
+
+JavaScript Functions in ui.js:
+- `openPaytable(currentBet)` - Opens modal, populates content with current bet
+- `closePaytable()` - Closes modal
+- `generateSymbolPayouts(currentBet)` - Creates payout table for all 10 symbols
+  - Shows 3/4/5-of-a-kind payouts calculated at current bet level
+  - Color-coded by symbol type
+- `generatePaylineDiagrams()` - Creates visual diagrams for all 25 paylines
+  - Uses █ and ░ characters to show win paths
+  - Numbered and color-coded in neon pink
+- `getSymbolColor(symbolId)` - Maps symbols to CSS color classes
+
+Features:
+- ✅ All 10 symbols with Unicode, cyberpunk names, and payouts
+- ✅ Dynamic payout calculations based on current bet
+- ✅ Wild symbol notes (substitution rules, reel locations)
+- ✅ Neural Chip scatter notes (free spins, 2x multiplier)
+- ✅ All 25 payline diagrams with visual representation
+- ✅ Dark terminal styling with neon borders (cyan, pink highlights)
+- ✅ Dismissible by X button or clicking outside
+- ✅ Scrollable content for large tables
+- ✅ Full JSDoc annotations
+
+Integration (main.js):
+- Wired paytable button to open modal
+- Wired close button to dismiss modal
+- Modal receives current bet for payout calculations
+- Event listeners handle outside-click dismiss
+
+**Linter result:** Passed
+
+**Tests result:** 57 passed, all pass (4 test suites)
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/index.html, src/css/styles.css, src/js/ui.js, src/js/main.js
+
+**Commit message:** feat: phase 4D - implement comprehensive paytable modal with symbol payouts and payline diagrams
+
 ## Entry # — April 22, 2026 12:35PM
 
 **Phase:**

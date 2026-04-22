@@ -11,6 +11,8 @@ import { evaluateAllPaylines } from './payout.js';
 import {
   animateReelSpin,
   celebrateWin,
+  openPaytable,
+  closePaytable,
   renderSymbolMatrix,
   renderBalance,
   renderBet,
@@ -171,6 +173,8 @@ function initializeGame() {
   const betPlusBtn = document.getElementById('bet-plus-btn');
   const maxBetBtn = document.getElementById('max-bet-btn');
   const autoSpinBtn = document.getElementById('auto-spin-btn');
+  const paytableBtn = document.getElementById('paytable-btn');
+  const paytableCloseBtn = document.getElementById('paytable-close-btn');
 
   if (spinBtn) {
     spinBtn.addEventListener('click', executeSpin);
@@ -190,6 +194,16 @@ function initializeGame() {
 
   if (autoSpinBtn) {
     autoSpinBtn.addEventListener('click', toggleAutoSpin);
+  }
+
+  if (paytableBtn) {
+    paytableBtn.addEventListener('click', () => {
+      openPaytable(gameState.currentBet);
+    });
+  }
+
+  if (paytableCloseBtn) {
+    paytableCloseBtn.addEventListener('click', closePaytable);
   }
 
   // Render initial state
