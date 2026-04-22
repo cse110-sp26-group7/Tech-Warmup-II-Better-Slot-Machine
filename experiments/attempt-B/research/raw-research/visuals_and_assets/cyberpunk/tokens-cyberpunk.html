@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SLOT.77 · Design Tokens (Cyberpunk)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#030208;
+    --bg-2:#0B0615;
+    --bg-3:#120820;
+    --panel:#0A0414;
+    --line:#1A0E30;
+    --line-2:#2A1850;
+    --fg:#E8E0FF;
+    --dim:#8A7AB0;
+    --dim-2:#5A4A80;
+    --acid:#C8FF00;
+    --magenta:#FF1493;
+    --cyan:#00F0FF;
+    --amber:#FFB020;
+    --red:#FF0030;
+    --gold:#FFEE00;
+    --purple:#B026FF;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:'Chakra Petch',sans-serif;min-height:100%}
+  body{
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,20,147,0.06), transparent 50%),
+      radial-gradient(ellipse at 85% 90%, rgba(0,240,255,0.05), transparent 50%),
+      var(--bg);
+    padding:48px 40px 80px;
+  }
+  .page{max-width:1200px;margin:0 auto}
+
+  .page-hdr{
+    padding-bottom:20px;margin-bottom:36px;
+    border-bottom:1px solid var(--line-2);
+  }
+  .page-hdr h1{
+    font-size:24px;letter-spacing:0.2em;font-weight:700;margin:0 0 6px;
+    color:var(--acid);
+  }
+  .page-hdr .sub{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--dim);
+  }
+
+  .section{margin-bottom:52px}
+  .section-hdr{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding-bottom:10px;margin-bottom:18px;
+    border-bottom:1px dashed var(--line-2);
+  }
+  .section-hdr .name{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:0.28em;text-transform:uppercase;
+    color:var(--dim);
+  }
+  .section-hdr .name .role{color:var(--acid);margin-left:10px}
+  .section-hdr .count{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;color:var(--dim-2);letter-spacing:0.1em;
+  }
+
+  /* ============ COLOR SWATCHES ============ */
+  .sw-group{margin-bottom:28px}
+  .sw-group .label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--dim);margin-bottom:12px;
+  }
+  .sw-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;
+  }
+  .sw{
+    border:1px solid var(--line-2);background:var(--panel);
+    display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  .sw .chip{height:64px;position:relative}
+  .sw .meta{
+    padding:10px 12px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:0.12em;
+    display:flex;flex-direction:column;gap:3px;
+  }
+  .sw .meta .var{color:var(--fg);font-weight:700;letter-spacing:0.15em;text-transform:uppercase}
+  .sw .meta .hex{color:var(--dim)}
+
+  /* ============ TYPOGRAPHY ============ */
+  .type-row{
+    display:grid;grid-template-columns:180px 1fr;
+    gap:24px;align-items:baseline;
+    padding:18px 0;border-bottom:1px dashed var(--line);
+  }
+  .type-row .meta{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;color:var(--dim);letter-spacing:0.18em;
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .type-row .meta .token{color:var(--fg);font-weight:700;letter-spacing:0.22em;text-transform:uppercase}
+  .type-row .sample{color:var(--fg);line-height:1}
+
+  /* ============ SPACING ============ */
+  .space-row{
+    display:grid;grid-template-columns:180px 1fr;
+    gap:24px;align-items:center;
+    padding:10px 0;border-bottom:1px dashed var(--line);
+  }
+  .space-row .meta{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;color:var(--dim);letter-spacing:0.18em;
+    display:flex;gap:12px;
+  }
+  .space-row .meta .token{color:var(--fg);font-weight:700;letter-spacing:0.22em;text-transform:uppercase}
+  .space-row .meta .px{color:var(--acid)}
+  .space-row .bar{height:16px;background:var(--acid);display:block;opacity:0.9}
+
+  /* ============ EFFECTS ============ */
+  .fx-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;
+  }
+  .fx{
+    border:1px solid var(--line-2);background:var(--bg-2);
+    padding:24px;
+    display:flex;flex-direction:column;gap:14px;align-items:center;
+  }
+  .fx .demo{
+    width:100%;height:60px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--panel);border:1px solid var(--line-2);
+    color:var(--fg);font-family:'Chakra Petch',sans-serif;
+    font-size:13px;letter-spacing:0.2em;text-transform:uppercase;
+  }
+  .fx .demo.glow-acid{box-shadow:0 0 0 1px var(--acid), 0 0 32px rgba(200,255,0,0.5)}
+  .fx .demo.glow-magenta{box-shadow:0 0 0 1px var(--magenta), 0 0 32px rgba(255,20,147,0.5)}
+  .fx .demo.inset{box-shadow:inset 0 0 60px rgba(0,0,0,0.9)}
+  .fx .demo.drop{box-shadow:0 20px 40px -15px rgba(0,0,0,0.9)}
+  .fx .lbl{
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:var(--dim);letter-spacing:0.18em;text-transform:uppercase;
+  }
+  .fx .lbl b{color:var(--fg);font-weight:700}
+
+  .note{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--dim);letter-spacing:0.05em;line-height:1.7;
+    padding:16px 20px;margin-top:12px;
+    border:1px dashed var(--line-2);
+    background:rgba(10,4,20,0.4);
+  }
+  .note b{color:var(--acid);letter-spacing:0.15em}
+  code{color:var(--acid);font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-hdr">
+    <h1>DESIGN TOKENS</h1>
+    <div class="sub">SLOT.77 · cyberpunk theme · color · type · space · fx</div>
+  </div>
+
+  <!-- ========== 01 · COLOR ========== -->
+  <section class="section">
+    <div class="section-hdr">
+      <span class="name">01 · Color<span class="role">// palette</span></span>
+      <span class="count">16 tokens</span>
+    </div>
+
+    <div class="sw-group">
+      <div class="label">Accents — brand identity, CTAs, highlights</div>
+      <div class="sw-grid">
+        <div class="sw"><div class="chip" style="background:#C8FF00"></div><div class="meta"><span class="var">--acid</span><span class="hex">#C8FF00</span></div></div>
+        <div class="sw"><div class="chip" style="background:#FF1493"></div><div class="meta"><span class="var">--magenta</span><span class="hex">#FF1493</span></div></div>
+        <div class="sw"><div class="chip" style="background:#00F0FF"></div><div class="meta"><span class="var">--cyan</span><span class="hex">#00F0FF</span></div></div>
+      </div>
+    </div>
+
+    <div class="sw-group">
+      <div class="label">Backgrounds — canvas and panel surfaces</div>
+      <div class="sw-grid">
+        <div class="sw"><div class="chip" style="background:#030208"></div><div class="meta"><span class="var">--bg</span><span class="hex">#030208</span></div></div>
+        <div class="sw"><div class="chip" style="background:#0B0615"></div><div class="meta"><span class="var">--bg-2</span><span class="hex">#0B0615</span></div></div>
+        <div class="sw"><div class="chip" style="background:#120820"></div><div class="meta"><span class="var">--bg-3</span><span class="hex">#120820</span></div></div>
+        <div class="sw"><div class="chip" style="background:#0A0414"></div><div class="meta"><span class="var">--panel</span><span class="hex">#0A0414</span></div></div>
+      </div>
+    </div>
+
+    <div class="sw-group">
+      <div class="label">Text — foreground text on dark</div>
+      <div class="sw-grid">
+        <div class="sw"><div class="chip" style="background:#E8E0FF"></div><div class="meta"><span class="var">--fg</span><span class="hex">#E8E0FF</span></div></div>
+        <div class="sw"><div class="chip" style="background:#8A7AB0"></div><div class="meta"><span class="var">--dim</span><span class="hex">#8A7AB0</span></div></div>
+        <div class="sw"><div class="chip" style="background:#5A4A80"></div><div class="meta"><span class="var">--dim-2</span><span class="hex">#5A4A80</span></div></div>
+      </div>
+    </div>
+
+    <div class="sw-group">
+      <div class="label">Lines — borders, dividers</div>
+      <div class="sw-grid">
+        <div class="sw"><div class="chip" style="background:#1A0E30"></div><div class="meta"><span class="var">--line</span><span class="hex">#1A0E30</span></div></div>
+        <div class="sw"><div class="chip" style="background:#2A1850"></div><div class="meta"><span class="var">--line-2</span><span class="hex">#2A1850</span></div></div>
+      </div>
+    </div>
+
+    <div class="sw-group">
+      <div class="label">Semantic — status, warnings, rewards</div>
+      <div class="sw-grid">
+        <div class="sw"><div class="chip" style="background:#FFB020"></div><div class="meta"><span class="var">--amber</span><span class="hex">#FFB020</span></div></div>
+        <div class="sw"><div class="chip" style="background:#FF0030"></div><div class="meta"><span class="var">--red</span><span class="hex">#FF0030</span></div></div>
+        <div class="sw"><div class="chip" style="background:#FFEE00"></div><div class="meta"><span class="var">--gold</span><span class="hex">#FFEE00</span></div></div>
+        <div class="sw"><div class="chip" style="background:#B026FF"></div><div class="meta"><span class="var">--purple</span><span class="hex">#B026FF</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 02 · TYPOGRAPHY ========== -->
+  <section class="section">
+    <div class="section-hdr">
+      <span class="name">02 · Typography<span class="role">// font scale</span></span>
+      <span class="count">2 families · 9 sizes</span>
+    </div>
+
+    <div class="type-row">
+      <div class="meta"><span class="token">display / xxl</span><span>Chakra Petch · 84 · 700</span></div>
+      <div class="sample" style="font-family:'Chakra Petch';font-size:84px;font-weight:700;letter-spacing:0.04em">READY_</div>
+    </div>
+    <div class="type-row">
+      <div class="meta"><span class="token">display / xl</span><span>Chakra Petch · 40 · 700</span></div>
+      <div class="sample" style="font-family:'Chakra Petch';font-size:40px;font-weight:700;letter-spacing:0.04em">44,902</div>
+    </div>
+    <div class="type-row">
+      <div class="meta"><span class="token">display / lg</span><span>Chakra Petch · 28 · 600</span></div>
+      <div class="sample" style="font-family:'Chakra Petch';font-size:28px;font-weight:600;letter-spacing:0.02em">12,430 ¢R</div>
+    </div>
+    <div class="type-row">
+      <div class="meta"><span class="token">display / md</span><span>Chakra Petch · 22 · 600</span></div>
+      <div class="sample" style="font-family:'Chakra Petch';font-size:22px;font-weight:600">BRONZE TIER</div>
+    </div>
+    <div class="type-row">
+      <div class="meta"><span class="token">display / sm</span><span>Chakra Petch · 16 · 700</span></div>
+      <div class="sample" style="font-family:'Chakra Petch';font-size:16px;font-weight:700;letter-spacing:0.2em">▶ SPIN</div>
+    </div>
+    <div class="type-row">
+      <div class="meta"><span class="token">mono / md</span><span>JetBrains Mono · 14 · 400</span></div>
+      <div class="sample" style="font-family:'JetBrains Mono';font-size:14px">[ 0.042 ] loading kernel ...... OK</div>
+    </div>
+    <div class="type-row">
+      <div class="meta"><span class="token">mono / sm</span><span>JetBrains Mono · 12 · 500</span></div>
+      <div class="sample" style="font-family:'JetBrains Mono';font-size:12px;letter-spacing:0.2em">RESUME · 03:12</div>
+    </div>
+    <div class="type-row">
+      <div class="meta"><span class="token">mono / xs</span><span>JetBrains Mono · 11 · 500</span></div>
+      <div class="sample" style="font-family:'JetBrains Mono';font-size:11px;letter-spacing:0.22em;text-transform:uppercase">◈ user_0091 · bronze tier</div>
+    </div>
+    <div class="type-row">
+      <div class="meta"><span class="token">mono / 2xs</span><span>JetBrains Mono · 10 · 500</span></div>
+      <div class="sample" style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--dim)">progressive jackpot</div>
+    </div>
+  </section>
+
+  <!-- ========== 03 · SPACING ========== -->
+  <section class="section">
+    <div class="section-hdr">
+      <span class="name">03 · Spacing<span class="role">// multiplicative scale</span></span>
+      <span class="count">8 steps</span>
+    </div>
+
+    <div class="space-row">
+      <div class="meta"><span class="token">space-1</span><span class="px">4px</span></div>
+      <span class="bar" style="width:4px"></span>
+    </div>
+    <div class="space-row">
+      <div class="meta"><span class="token">space-2</span><span class="px">8px</span></div>
+      <span class="bar" style="width:8px"></span>
+    </div>
+    <div class="space-row">
+      <div class="meta"><span class="token">space-3</span><span class="px">12px</span></div>
+      <span class="bar" style="width:12px"></span>
+    </div>
+    <div class="space-row">
+      <div class="meta"><span class="token">space-4</span><span class="px">16px</span></div>
+      <span class="bar" style="width:16px"></span>
+    </div>
+    <div class="space-row">
+      <div class="meta"><span class="token">space-5</span><span class="px">24px</span></div>
+      <span class="bar" style="width:24px"></span>
+    </div>
+    <div class="space-row">
+      <div class="meta"><span class="token">space-6</span><span class="px">32px</span></div>
+      <span class="bar" style="width:32px"></span>
+    </div>
+    <div class="space-row">
+      <div class="meta"><span class="token">space-7</span><span class="px">48px</span></div>
+      <span class="bar" style="width:48px"></span>
+    </div>
+    <div class="space-row">
+      <div class="meta"><span class="token">space-8</span><span class="px">64px</span></div>
+      <span class="bar" style="width:64px"></span>
+    </div>
+  </section>
+
+  <!-- ========== 04 · EFFECTS ========== -->
+  <section class="section">
+    <div class="section-hdr">
+      <span class="name">04 · Effects<span class="role">// shadows &amp; glow</span></span>
+      <span class="count">4 tokens</span>
+    </div>
+
+    <div class="fx-grid">
+      <div class="fx">
+        <div class="demo glow-acid">ACID GLOW</div>
+        <div class="lbl"><b>fx-glow-acid</b><br>0 0 32px rgba(200,255,0,.5)</div>
+      </div>
+      <div class="fx">
+        <div class="demo glow-magenta">MAGENTA GLOW</div>
+        <div class="lbl"><b>fx-glow-magenta</b><br>0 0 32px rgba(255,20,147,.5)</div>
+      </div>
+      <div class="fx">
+        <div class="demo inset">INSET VIGNETTE</div>
+        <div class="lbl"><b>fx-inset</b><br>inset 0 0 60px rgba(0,0,0,.9)</div>
+      </div>
+      <div class="fx">
+        <div class="demo drop">DROP SHADOW</div>
+        <div class="lbl"><b>fx-drop</b><br>0 20px 40px -15px rgba(0,0,0,.9)</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="note">
+    <b>HOW TO USE</b><br>
+    · Reference tokens by CSS variable: <code>color:var(--acid)</code> instead of hard-coding <code>#C8FF00</code>.<br>
+    · Typography: pair display (Chakra Petch) for headlines / CTAs, mono (JetBrains Mono) for data, terminal text, small labels.<br>
+    · Spacing: use the 1.5× scale (<code>space-1</code>..<code>space-8</code>) for padding, gap, margin. Avoid one-off pixel values.<br>
+    · Effects: <code>--acid</code> glow signals interactive / winning; <code>--magenta</code> glow signals alert / jackpot.
+  </div>
+
+</div>
+</body>
+</html>
