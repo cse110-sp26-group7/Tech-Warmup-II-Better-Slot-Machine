@@ -1,5 +1,35 @@
 /* Data Heist - Slot Machine Styles */
 
+/* ====================================
+   CSS Custom Properties - Cyberpunk Theme
+   ==================================== */
+
+:root {
+  /* Backgrounds */
+  --color-bg-main: #0D0B1A;
+  --color-bg-card: #1A1528;
+  --color-bg-panel: #12101F;
+
+  /* Neon Accents */
+  --color-neon-yellow-green: #C8FF00;
+  --color-neon-pink: #FF2D78;
+  --color-neon-cyan: #00FFD4;
+  --color-neon-purple: #B44FFF;
+
+  /* Symbol Accents */
+  --color-symbol-gold: #FFD700;
+
+  /* UI Text */
+  --color-text-primary: #FFFFFF;
+  --color-text-inactive: #6B6480;
+  --color-text-win: #00FF88;
+  --color-text-loss: #FF4444;
+
+  /* Border & Glow */
+  --color-border-active: #C8FF00;
+  --color-border-card: #2A2040;
+}
+
 * {
     margin: 0;
     padding: 0;
