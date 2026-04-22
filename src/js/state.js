@@ -14,13 +14,25 @@
  * @property {number} freeSpinsRemaining - Number of free spins remaining (0 = not in bonus)
  */
 
+/** Number of active paylines — used to convert a per-line bet to a total bet */
+export const PAYLINE_COUNT = 25;
+
+/** Minimum allowed bet amount per payline */
+export const MIN_BET_PER_LINE = 1;
+
+/** Maximum allowed bet amount per payline */
+export const MAX_BET_PER_LINE = 100;
+
+/** Starting balance awarded to every new player */
+export const INITIAL_BALANCE = 10000;
+
 /**
  * Initial game state
  * @type {GameState}
  */
 export const INITIAL_STATE = {
-  balance: 10000,
-  currentBet: 25,
+  balance: INITIAL_BALANCE,
+  currentBet: MIN_BET_PER_LINE * PAYLINE_COUNT,
   isSpinning: false,
   lastWin: 0,
   totalSpins: 0,
@@ -52,12 +64,12 @@ export function setBet(state, amount) {
     throw new Error('Bet amount must be a positive number');
   }
 
-  if (amount < 1 || amount > 100) {
+  if (amount < MIN_BET_PER_LINE || amount > MAX_BET_PER_LINE) {
     throw new Error('Bet per line must be between 1 and 100');
   }
 
   return updateState(state, {
-    currentBet: amount * 25,
+    currentBet: amount * PAYLINE_COUNT,
   });
 }
 
