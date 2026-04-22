@@ -581,6 +581,55 @@ All functions:
 
 **Commit message:** feat: phase 2D - implement control bar update functions
 
+## Entry 15 — April 22, 2026 1:48PM
+
+**Phase:** 3A
+
+**Prompt used:**
+
+> In `src/js/main.js`, implement the core spin loop as an async function `executeSpin()`. The sequence must be:
+>
+> 1. Validate the player can afford the bet (check state)
+> 2. Deduct bet from balance, update state
+> 3. Set `isSpinning = true`, disable spin button
+> 4. Call RNG to generate a symbol matrix
+> 5. Trigger reel spin animation (stubbed for now — just a 1s delay)
+> 6. Render the resulting symbol matrix
+> 7. Evaluate all paylines, calculate total payout
+> 8. Record spin in state
+> 9. If payout > 0, trigger win animation (stubbed)
+> 10. Update balance display, win display, last spins panel
+> 11. Set `isSpinning = false`, re-enable spin button
+> 12. If auto-spin is active, decrement counter and recurse after a short delay
+>
+> Wire the spin button's click event to `executeSpin()`. Full JSDoc. Handle the insufficient-balance case with a visible UI message styled in neon red (`#FF4444`).
+
+**Outcome:**
+
+Implemented complete spin orchestration system:
+- `executeSpin()` async function implementing all 12 steps
+- Global gameState variable tracking game state
+- `initializeGame()` - initializes UI on page load
+- `showErrorMessage()` - displays neon red error messages with fade animation
+- `updateLastSpinsPanel()` - tracks last 10 spins in history panel
+- Spin button wired to executeSpin() via DOMContentLoaded event listener
+- Full error handling with try/catch
+- Auto-spin recursion with 500ms delay between spins
+- Comprehensive JSDoc annotations
+- Imported all necessary modules: state, RNG, reels, paylines, payout, ui
+
+**Linter result:** Passed (clean, no warnings)
+
+**Tests result:** 23 passed, all pass
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/main.js, src/css/styles.css
+
+**Commit message:** feat: phase 3A - implement core spin orchestration loop
+
 ## Entry # — April 22, 2026 12:35PM
 
 **Phase:**

@@ -276,6 +276,37 @@ body {
 }
 
 /* ====================================
+   Animations
+   ==================================== */
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    10% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    90% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+}
+
+/* ====================================
+   Spin History
+   ==================================== */
+
+.spin-history__item {
+    font-weight: 600;
+}
+
+/* ====================================
    Win Display
    ==================================== */
 
