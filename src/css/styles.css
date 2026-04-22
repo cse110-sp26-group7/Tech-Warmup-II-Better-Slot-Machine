@@ -200,6 +200,14 @@ body {
     border-radius: 3px;
 }
 
+.payline-number.is-active {
+    color: var(--color-neon-pink);
+    border-color: var(--color-neon-pink);
+    text-shadow: 0 0 8px var(--color-neon-pink);
+    box-shadow: 0 0 8px var(--color-neon-pink);
+    font-weight: 700;
+}
+
 /* ====================================
    Game Center Section
    ==================================== */

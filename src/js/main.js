@@ -155,42 +155,57 @@ function updateBetButtonStates() {
 const AUTO_SPIN_OPTIONS = [0, 10, 25, 50, 100];
 
 /**
- * Toggles auto-spin to the next option in the cycle
- * OFF → 10 → 25 → 50 → 100 → OFF
+ * Handles clicks on the auto-spin / stop button.
+ *
+ * If auto-spin is currently running, a click cancels the loop immediately
+ * regardless of cycle position. Otherwise a click advances through the cycle
+ * OFF → 10 → 25 → 50 → 100 → OFF.
  * @returns {void}
  */
 function toggleAutoSpin() {
-  const currentCount = gameState.autoSpinCount;
-  const currentIndex = AUTO_SPIN_OPTIONS.indexOf(currentCount);
+  // Active → cancel immediately
+  if (gameState.autoSpinCount > 0) {
+    gameState = State.setAutoSpin(gameState, 0);
+    updateAutoSpinDisplay();
+    return;
+  }
+
+  // Inactive → cycle to the next preset count
+  const currentIndex = AUTO_SPIN_OPTIONS.indexOf(gameState.autoSpinCount);
   const nextIndex = (currentIndex + 1) % AUTO_SPIN_OPTIONS.length;
   const nextCount = AUTO_SPIN_OPTIONS[nextIndex];
 
   gameState = State.setAutoSpin(gameState, nextCount);
   updateAutoSpinDisplay();
 
-  // If turning on auto-spin, start the spin loop
   if (nextCount > 0 && !gameState.isSpinning) {
     executeSpin();
   }
 }
 
 /**
- * Updates the auto-spin counter display
- * Shows remaining spins if active, empty if off
+ * Updates the auto-spin counter display and the auto-spin button label.
+ * Shows remaining spins and labels the button "STOP" while auto-spin is
+ * active; clears the counter and restores "AUTO SPIN" when inactive.
  * @returns {void}
  */
 function updateAutoSpinDisplay() {
   const counter = document.getElementById('auto-spin-counter');
-  if (!counter) {
-    return;
+  const autoBtn = document.getElementById('auto-spin-btn');
+  const isActive = gameState.autoSpinCount > 0;
+
+  if (counter) {
+    if (isActive) {
+      counter.textContent = `(${gameState.autoSpinCount})`;
+      counter.style.display = 'inline-block';
+    } else {
+      counter.textContent = '';
+      counter.style.display = 'none';
+    }
   }
 
-  if (gameState.autoSpinCount > 0) {
-    counter.textContent = `(${gameState.autoSpinCount})`;
-    counter.style.display = 'inline-block';
-  } else {
-    counter.textContent = '';
-    counter.style.display = 'none';
+  if (autoBtn) {
+    autoBtn.textContent = isActive ? 'STOP' : 'AUTO SPIN';
   }
 }
 
@@ -284,6 +299,37 @@ function initializeGame() {
   renderFreeSpinsCounter(0);
   updateBetButtonStates();
   updateAutoSpinDisplay();
+
+  // Populate the left-side payline number panel from PAYLINES.length
+  // so the display always matches the real payline count.
+  populatePaylineNumbers();
+
+  // Seed the reel grid with a decorative starting matrix so the 5×3
+  // grid is never blank on page load. Not stored in state — the first
+  // real spin replaces it.
+  renderSymbolMatrix(RNG.generateSymbolMatrix(REEL_STRIPS, 3));
+}
+
+/**
+ * Builds one .payline-number div per payline inside #payline-numbers.
+ * Each div carries data-line="N" (1-indexed) so renderPaylineHighlight
+ * can locate and mark the winning numbers.
+ * @returns {void}
+ */
+function populatePaylineNumbers() {
+  const container = document.getElementById('payline-numbers');
+  if (!container) {
+    return;
+  }
+
+  container.innerHTML = '';
+  for (let i = 1; i <= PAYLINES.length; i++) {
+    const div = document.createElement('div');
+    div.className = 'payline-number';
+    div.dataset.line = String(i);
+    div.textContent = String(i);
+    container.appendChild(div);
+  }
 }
 
 /**
@@ -332,10 +378,10 @@ async function executeSpin() {
       playBonusSound();
     }
 
-    // Draw payline highlights if there are wins
-    if (winningPaylines.length > 0) {
-      renderPaylineHighlight(winningPaylines, PAYLINES);
-    }
+    // Render payline highlights unconditionally. On losing spins the
+    // empty array clears the side-panel active state and removes any
+    // leftover SVG overlay from the previous winning spin.
+    renderPaylineHighlight(winningPaylines, PAYLINES);
 
     // Step 8: Record spin in state
     gameState = State.recordSpin(gameState, totalPayout);
@@ -379,8 +425,11 @@ async function executeSpin() {
         // Wait before next auto-spin
         await new Promise((resolve) => setTimeout(resolve, AUTO_SPIN_DELAY_MS));
 
-        // Recursively call executeSpin for next auto-spin
-        await executeSpin();
+        // Re-check cancellation: the user may have clicked STOP during
+        // the pause, which sets autoSpinCount back to 0.
+        if (gameState.autoSpinCount > 0) {
+          await executeSpin();
+        }
       }
     }
   } catch (_error) {

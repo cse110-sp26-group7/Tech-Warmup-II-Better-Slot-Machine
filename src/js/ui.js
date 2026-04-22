@@ -128,16 +128,33 @@ export function renderPaylineHighlight(winningPaylineIndices, paylines) {
     throw new Error('Paylines must be an array of 25 paylines');
   }
 
+  // Clear previous side-panel highlights so a losing spin wipes the
+  // marks from the prior winning spin.
+  document.querySelectorAll('.payline-number.is-active').forEach((el) => {
+    el.classList.remove('is-active');
+  });
+
   // Remove existing highlight overlay if present
   const existingOverlay = document.getElementById('payline-highlight-overlay');
   if (existingOverlay) {
     existingOverlay.remove();
   }
 
-  // If no winning paylines, return early
+  // If no winning paylines, the clear above is all we needed.
   if (winningPaylineIndices.length === 0) {
     return;
   }
+
+  // Mark the corresponding side-panel numbers as active. data-line is
+  // 1-indexed; winningPaylineIndices is 0-indexed.
+  winningPaylineIndices.forEach((paylineIndex) => {
+    const numberDiv = document.querySelector(
+      `.payline-number[data-line="${paylineIndex + 1}"]`,
+    );
+    if (numberDiv) {
+      numberDiv.classList.add('is-active');
+    }
+  });
 
   // Get the reel area to determine dimensions for SVG
   const reelArea = document.querySelector('.reel-area');

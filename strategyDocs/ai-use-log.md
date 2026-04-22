@@ -1341,6 +1341,122 @@ Rewrote `tests/paylines.test.js` (previously just a placeholder) with a proper s
 
 **Commit message:** fix: phase 8C - replace duplicate paylines 14 and 15 with unique patterns
 
+## Entry 31 — April 22, 2026 4:10PM
+
+**Phase:** 9A
+
+**Prompt used:**
+
+> The reel cells in `src/index.html` start empty. `initializeGame()` in `src/js/main.js` renders the balance, bet, win amount, and counters on load, but never calls `renderSymbolMatrix`. The player sees a blank 5×3 grid until the first spin completes.
+>
+> Fix: at the end of `initializeGame()`, generate a starting matrix via `RNG.generateSymbolMatrix(REEL_STRIPS, 3)` and pass it through `renderSymbolMatrix()`. Treat this matrix as purely decorative — the real spin result replaces it on first click, and it should not be recorded in state. Update the e2e test in `tests/e2e/slot.spec.js` (scenario 3) to assert that all 15 cells are populated *before* any spin is initiated, not only after.
+
+**Outcome:**
+
+Added a decorative seed matrix at the end of `initializeGame()` in `src/js/main.js`:
+```js
+renderSymbolMatrix(RNG.generateSymbolMatrix(REEL_STRIPS, 3));
+```
+All required imports (`RNG`, `REEL_STRIPS`, `renderSymbolMatrix`) were already present, so the change is a single added line (plus a short comment explaining the intent). The starting matrix is not recorded in `gameState`; the first real spin replaces it via the existing `renderSymbolMatrix(symbolMatrix)` call inside `executeSpin()`.
+
+Updated Playwright scenario 3 in `tests/e2e/slot.spec.js`:
+- Renamed the test to reflect the new coverage: "the 5×3 symbol grid is fully populated on load and after a spin".
+- Added a pre-spin assertion that waits until `document.querySelectorAll('.reel-cell .symbol').length === 15` before any SPIN click.
+- Kept the post-spin assertion so we still verify the grid stays populated through a spin cycle.
+
+**Linter result:** Passed
+
+**Tests result:** 71 Jest tests pass (no change in unit count — this was a rendering-time behaviour change covered by the e2e layer). Playwright e2e not re-run locally: `@playwright/test` is not installed in `node_modules` on this machine — the project's README step `npx playwright install chromium` was not completed locally. This is unrelated to the 9A change; the updated spec file is syntactically valid.
+
+**Issues encountered:** Playwright binary missing locally; unable to verify scenario 3 end-to-end from this session. No code-side regression though.
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/main.js, tests/e2e/slot.spec.js
+
+**Commit message:** fix: phase 9A - seed the reel grid with a decorative matrix on load
+
+## Entry 32 — April 22, 2026 4:28PM
+
+**Phase:** 9B
+
+**Prompt used:**
+
+> `toggleAutoSpin()` in `src/js/main.js` cycles the auto-spin count through `[0, 10, 25, 50, 100]`. Once auto-spin is running, the only way to stop it is to click the button four more times to wrap back around to 0. The button label never changes either, so there is no visual cue that it can be cancelled.
+>
+> Fix: change the click handler so that when `gameState.autoSpinCount > 0`, clicking the auto-spin button immediately sets the count to 0 (cancelling the loop) regardless of cycle position. When auto-spin is active, change the button label to `STOP`; restore it to `AUTO SPIN` when inactive. The cycle behaviour should only apply when auto-spin is currently off. Ensure the recursion inside `executeSpin()` honours the cancellation — once the count is 0, no further spin should fire. Add an e2e test that starts auto-spin, clicks the button once, and asserts the count returns to 0 within the next spin boundary.
+
+**Outcome:**
+
+Three changes in `src/js/main.js`:
+
+1. `toggleAutoSpin()` now has an early-return cancel branch: if `gameState.autoSpinCount > 0`, the count is set to 0 immediately and the cycle logic is skipped. The cycle path (OFF → 10 → 25 → 50 → 100 → OFF) only runs when auto-spin is currently off. This means a single click always cancels, regardless of the current count being a preset or a mid-countdown value like 7.
+
+2. `updateAutoSpinDisplay()` now also updates the button label. The label becomes `STOP` whenever `gameState.autoSpinCount > 0`, and `AUTO SPIN` otherwise. The counter display logic is unchanged.
+
+3. The auto-spin recursion tail inside `executeSpin()` now re-checks `gameState.autoSpinCount > 0` after the 500 ms pause. If the player clicks STOP during that pause, the re-check prevents the next recursive `executeSpin()` call from firing. Without this guard, an auto-spin cancellation during the inter-spin pause would still burn one extra spin.
+
+Two changes in `tests/e2e/slot.spec.js`:
+
+- Scenario 5 (auto-spin balance updates): the STOP click now locates the button by `#auto-spin-btn` instead of by accessible name `AUTO SPIN`, because during active auto-spin the label is now `STOP`. Same behaviour, selector robust to the label change.
+- Added scenario 8: starts auto-spin, asserts the label flips to `STOP` and the counter shows `(N)`; clicks once more to cancel; after the in-flight spin ends, asserts the label is restored to `AUTO SPIN` and the counter is empty.
+
+**Linter result:** Passed
+
+**Tests result:** 71 Jest tests pass (no unit-test changes). Playwright e2e not re-run locally (same environment limitation as 9A — `@playwright/test` not installed in `node_modules`). The updated and new spec cases are syntactically valid.
+
+**Issues encountered:** None in the change itself. The recursion re-check is narrow — there's still a vanishingly small window between "autoSpinCount > 0" check passing and `executeSpin()` actually starting where a concurrent STOP click could sneak an extra spin through. Not worth more machinery given clicks are serialised through the main event loop.
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/main.js, tests/e2e/slot.spec.js
+
+**Commit message:** fix: phase 9B - make auto-spin cancellable in a single click and label the button STOP when active
+
+## Entry 33 — April 22, 2026 4:48PM
+
+**Phase:** 9C
+
+**Prompt used:**
+
+> The left side panel in `src/index.html` hardcodes only payline numbers 1–13 as static divs. The game has 25 paylines, and these numbers are inert — `renderPaylineHighlight` only draws SVG polylines over the reels and never touches the side-panel numbers.
+>
+> Fix:
+> 1. Replace the hardcoded 1–13 list. Generate 25 `.payline-number` divs in JS inside `initializeGame()` (source of truth: `PAYLINES.length`), or hardcode all 25 consistently.
+> 2. Extend `renderPaylineHighlight(winningPaylineIndices, paylines)` in `src/js/ui.js` so that for each winning index it adds an `is-active` class to the matching `[data-line="N"]` div, and clears the class on all divs before redrawing.
+> 3. Add a CSS rule that makes `.payline-number.is-active` glow in neon pink (`var(--color-neon-pink)`).
+> 4. Clear the active state at the start of every new spin, not only on wins — so the previous win's highlights don't linger through a losing spin.
+
+**Outcome:**
+
+All four fix points addressed.
+
+1. `src/index.html` — replaced the 13 hardcoded `.payline-number` divs with a single `<div class="payline-numbers" id="payline-numbers">` container. Added an HTML comment noting that `initializeGame()` populates it.
+
+2. `src/js/main.js` — added `populatePaylineNumbers()` helper that, on load, clears the container and appends one `.payline-number` div per entry in `PAYLINES` (1-indexed `data-line` plus matching textContent). Wired into `initializeGame()` just before the decorative-matrix seed from 9A.
+
+3. `src/js/ui.js` — extended `renderPaylineHighlight`:
+   - **Before** the early-return for zero winners, clears `is-active` from every `.payline-number` in the DOM. This ensures losing spins wipe the prior winning spin's highlights.
+   - **After** the early-return, adds `is-active` to each `.payline-number[data-line="N"]` where N = winning index + 1 (winning indices are 0-based; data-line is 1-based).
+
+4. `src/css/styles.css` — added `.payline-number.is-active { color: var(--color-neon-pink); border-color: var(--color-neon-pink); text-shadow / box-shadow: 0 0 8px var(--color-neon-pink); font-weight: 700; }` immediately after the base `.payline-number` rule. Reused the existing `--color-neon-pink` variable.
+
+5. `src/js/main.js` (caller) — removed the `if (winningPaylines.length > 0)` guard around the `renderPaylineHighlight` call in `executeSpin()`. The function now gets called on every spin with the actual `winningPaylines` array (possibly empty), so the side-panel cleanup happens unconditionally.
+
+Side-effect bonus: always calling `renderPaylineHighlight` also means the SVG overlay (`#payline-highlight-overlay`) is removed on losing spins, partially pre-empting Phase 10A part 2. Phase 10A still needs to address match-count truncation (polyline drawn through all 5 cells even on 3-/4-of-a-kind) and formalise a dedicated `clearPaylineHighlight()` helper if we want the abstraction.
+
+**Linter result:** Passed (ESLint + htmlhint both clean)
+
+**Tests result:** 71 Jest tests pass (no change in unit count — this was a rendering/DOM behaviour change). Playwright e2e not re-run locally (same `@playwright/test` environment gap as 9A/9B).
+
+**Issues encountered:** First CSS `Edit` attempt returned "file has not been read yet". Resolved with a quick targeted `Read` of the relevant range before retrying.
+
+**Hand-edit required?** No
+
+**Files changed:** src/index.html, src/js/main.js, src/js/ui.js, src/css/styles.css
+
+**Commit message:** fix: phase 9C - populate all 25 payline numbers from PAYLINES and wire them to win highlights
+
 ## Entry # — [date] [time]
 
 **Phase:**
