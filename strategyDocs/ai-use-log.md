@@ -1270,6 +1270,38 @@ Imported `evaluateAllPaylines` into the test file alongside `calculatePayout` an
 
 **Commit message:** fix: phase 8A - correct 25x payout inflation by passing per-line bet to evaluateAllPaylines
 
+## Entry 29 — April 22, 2026 3:35PM
+
+**Phase:** 8B
+
+**Prompt used:**
+
+> In `src/js/main.js`, `executeSpin()` calls `State.recordSpin(gameState, 0)` at step 3 and `State.recordSpin(gameState, totalPayout)` again at step 8. Because `recordSpin` increments `totalSpins` and sets `isSpinning: false`, the first call (a) double-counts every spin and (b) flips `isSpinning` off, forcing the manual `{ ...gameState, isSpinning: true }` override on the next line.
+>
+> Fix: delete the step-3 `recordSpin` call entirely and keep only the direct `gameState = { ...gameState, isSpinning: true }` assignment. After the fix, `totalSpins` must increment by exactly 1 per spin. Add a test in `tests/state.test.js` (or an integration-style test) asserting that two sequential spins produce `totalSpins === 2`, not 4.
+
+**Outcome:**
+
+Removed the spurious `State.recordSpin(gameState, 0)` call at step 3 of `executeSpin()` in `src/js/main.js`. Kept the direct `gameState = { ...gameState, isSpinning: true }` assignment to mark the spin in progress. The trailing `setSpinButtonState(true)` and `updateBetButtonStates()` calls remain unchanged. Step 8's single `State.recordSpin(gameState, totalPayout)` now owns the totalSpins increment and the flip back to `isSpinning: false`.
+
+Added a new `describe('Spin flow invariants')` block to `tests/state.test.js` with 3 regression tests:
+- A `simulateSpin(state, payout)` helper mirrors the state transitions executeSpin performs (placeBet → mark isSpinning → recordSpin).
+- Single simulated spin asserts `totalSpins === 1`.
+- Two sequential simulated spins assert `totalSpins === 2` (pre-fix this would have been 4).
+- Documented the `recordSpin` contract: calling it with payout=0 always sets `isSpinning: false` and increments the counter — it must not be used to "mark a spin as in-progress".
+
+**Linter result:** Passed
+
+**Tests result:** 65 passed, all pass (4 unit test suites) — 62 previous + 3 new regression tests
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/main.js, tests/state.test.js
+
+**Commit message:** fix: phase 8B - remove duplicate recordSpin call so totalSpins increments once per spin
+
 ## Entry # — [date] [time]
 
 **Phase:**

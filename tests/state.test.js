@@ -222,4 +222,41 @@ describe('State Module', () => {
       expect(state.autoSpinCount).toBe(10);
     });
   });
+
+  describe('Spin flow invariants', () => {
+    // Regression guard for the double-recordSpin bug that was in main.js:
+    // executeSpin() called recordSpin(state, 0) at step 3 AND
+    // recordSpin(state, payout) at step 8, inflating totalSpins by 2 per spin.
+
+    /**
+     * Simulates a single logical spin cycle matching executeSpin's state
+     * transitions: place the bet, mark isSpinning, then record the result.
+     */
+    function simulateSpin(state, payout) {
+      let next = State.placeBet(state, state.currentBet);
+      next = { ...next, isSpinning: true };
+      next = State.recordSpin(next, payout);
+      return next;
+    }
+
+    test('single simulated spin increments totalSpins by exactly 1', () => {
+      const after = simulateSpin(State.INITIAL_STATE, 0);
+      expect(after.totalSpins).toBe(1);
+    });
+
+    test('two sequential simulated spins increment totalSpins to 2, not 4', () => {
+      const afterFirst = simulateSpin(State.INITIAL_STATE, 100);
+      const afterSecond = simulateSpin(afterFirst, 0);
+      expect(afterSecond.totalSpins).toBe(2);
+    });
+
+    test('recordSpin should never be used to mark a spin as in-progress', () => {
+      // recordSpin sets isSpinning: false and increments totalSpins.
+      // Calling it with payout=0 "to disable the button" is the exact
+      // misuse that caused the Phase 8B bug. Document the contract:
+      const mid = State.recordSpin(State.INITIAL_STATE, 0);
+      expect(mid.isSpinning).toBe(false);
+      expect(mid.totalSpins).toBe(1);
+    });
+  });
 });

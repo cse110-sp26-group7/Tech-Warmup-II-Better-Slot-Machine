@@ -304,10 +304,6 @@ async function executeSpin() {
     gameState = State.placeBet(gameState, gameState.currentBet);
 
     // Step 3: Set isSpinning = true and disable spin button
-    gameState = State.recordSpin(
-      gameState,
-      0,
-    );
     gameState = { ...gameState, isSpinning: true };
     setSpinButtonState(true);
     updateBetButtonStates();
