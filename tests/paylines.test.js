@@ -3,5 +3,7 @@
  */
 
 describe('Paylines Module', () => {
-    // Tests will go here
+  test('placeholder test', () => {
+    expect(true).toBe(true);
+  });
 });
