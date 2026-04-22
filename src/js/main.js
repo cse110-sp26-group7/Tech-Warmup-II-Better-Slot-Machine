@@ -10,6 +10,7 @@ import { PAYLINES } from './paylines.js';
 import { evaluateAllPaylines } from './payout.js';
 import {
   animateReelSpin,
+  celebrateWin,
   renderSymbolMatrix,
   renderBalance,
   renderBet,
@@ -92,9 +93,9 @@ async function executeSpin() {
     // Step 8: Record spin in state
     gameState = State.recordSpin(gameState, totalPayout);
 
-    // Step 9: If payout > 0, trigger win animation (stubbed)
+    // Step 9: If payout > 0, trigger win animation
     if (totalPayout > 0) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await celebrateWin(totalPayout, winningPaylines, gameState.currentBet);
     }
 
     // Step 10: Update displays

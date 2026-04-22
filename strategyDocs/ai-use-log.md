@@ -678,6 +678,65 @@ Integration:
 
 **Commit message:** feat: phase 3B - implement CSS-based reel spin animations with staggered stops
 
+## Entry 17 — April 22, 2026 2:25PM
+
+**Phase:** 3C
+
+**Prompt used:**
+
+> Implement a `celebrateWin(amount, winningPaylineIndices)` function in `src/js/ui.js`. Behavior should scale with win size:
+>
+> - **Small win (1–2× bet):** winning symbols pulse neon yellow-green (`#C8FF00`), win amount counts up quickly
+> - **Medium win (3–9× bet):** neon pink payline traces flash, symbols pulse, dramatic count-up with synth sound
+> - **Big win (10×+ bet):** full-screen overlay with "SYSTEM BREACH — BIG WIN" text in neon green, animated glitch border effect, data-rain CSS animation in background
+>
+> Use CSS classes toggled by JS — no canvas. All animations must be purely CSS keyframes triggered by class addition. Remove animation classes after they complete using `animationend` event listeners. Full JSDoc.
+
+**Outcome:**
+
+Implemented comprehensive win celebration system with 3 celebration tiers:
+
+CSS Animations:
+- @keyframes symbolPulse: 0.5-0.6s scale animation for symbols
+- @keyframes paylineFlash: 0.8s opacity flash for paylines
+- @keyframes glitchBorder: 0.6s skew/translate glitch effect with color shifts
+- @keyframes dataRain: 2s falling animation for data characters
+- @keyframes countUp: Color/glow animation for count-up text
+
+JavaScript Functions:
+- `celebrateWin(amount, winningPaylineIndices, currentBet)`: Main function, calculates multiplier and routes to tier
+- `celebrateSmallWin()`: 700ms duration, symbol pulse + quick count-up (600ms)
+- `celebrateMediumWin()`: 1400ms duration, payline flash + symbol pulse + dramatic count-up (1200ms)
+- `celebrateBigWin()`: 3000ms duration, full-screen overlay with glitch border + data-rain + smooth count-up
+- `countUpWin()`: Animates win amount display using requestAnimationFrame
+
+Features:
+- Multiplier-based tier selection (1-2x: small, 3-9x: medium, 10x+: big)
+- CSS classes dynamically injected for animation control
+- animationend event listeners clean up animations
+- requestAnimationFrame for smooth number counting
+- Data-rain with randomized falling characters
+- Glitch effect with infinite animation loop
+- Overlay with backdrop blur
+- Proper Promise resolution for async flow
+
+Integration:
+- Imported celebrateWin in main.js
+- Replaced win animation stub with actual celebrateWin call
+- Passes amount, winningPaylines, and currentBet from gameState
+
+**Linter result:** Passed
+
+**Tests result:** 23 passed, all pass
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/css/styles.css, src/js/ui.js, src/js/main.js
+
+**Commit message:** feat: phase 3C - implement tiered win celebration animations
+
 ## Entry # — April 22, 2026 12:35PM
 
 **Phase:**
