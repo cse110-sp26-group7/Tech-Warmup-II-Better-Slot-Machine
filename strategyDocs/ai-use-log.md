@@ -536,6 +536,51 @@ Implemented complete symbol rendering system:
 
 **Commit message:** feat: phase 2C - implement symbol rendering with color-coded styling
 
+## Entry 14 — April 22, 2026 1:38PM
+
+**Phase:** 2D
+
+**Prompt used:**
+
+> In `src/js/ui.js`, add functions to render and update the controls bar. Implement:
+>
+> - `renderBalance(balance)` — updates the Crypto-Credits balance display
+> - `renderBet(bet)` — updates the bet display
+> - `renderWin(amount)` — shows win amount in neon green (`#00FF88`) if > 0, hides if 0
+> - `renderPaylineHighlight(winningPaylineIndices, matrix)` — draws neon pink (`#FF2D78`) highlights connecting winning symbols across the reels
+> - `renderFreeSpinsCounter(count)` — shows or hides the free spins remaining indicator
+> - `setSpinButtonState(isSpinning)` — disables/enables and changes label of spin button
+>
+> All functions must be pure DOM updates with no game logic. Full JSDoc.
+
+**Outcome:**
+
+Implemented 6 control bar update functions:
+- `renderBalance(balance)` - Updates balance display element, validates non-negative number
+- `renderBet(bet)` - Updates bet display element, validates positive number
+- `renderWin(amount)` - Shows/hides win display using .active class, displays in neon green
+- `renderPaylineHighlight(winningPaylineIndices, paylines)` - Draws SVG overlay with neon pink lines connecting winning payline symbols, dynamically calculates symbol center positions
+- `renderFreeSpinsCounter(count)` - Shows/hides free spins counter display
+- `setSpinButtonState(isSpinning)` - Disables/enables spin button, updates label to "SPINNING..." or "SPIN"
+
+All functions:
+- Are pure DOM updates with no game logic
+- Include full JSDoc with @param and @returns
+- Have comprehensive error handling
+- Validate input types and DOM element existence
+
+**Linter result:** Passed
+
+**Tests result:** 23 passed, all pass
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/ui.js, src/css/styles.css
+
+**Commit message:** feat: phase 2D - implement control bar update functions
+
 ## Entry # — April 22, 2026 12:35PM
 
 **Phase:**

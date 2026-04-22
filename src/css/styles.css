@@ -259,6 +259,23 @@ body {
 }
 
 /* ====================================
+   Payline Highlights
+   ==================================== */
+
+#payline-highlight-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+#payline-highlight-overlay polyline {
+    stroke: var(--color-neon-pink);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ====================================
    Win Display
    ==================================== */
 
