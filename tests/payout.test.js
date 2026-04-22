@@ -354,7 +354,7 @@ describe('Payout Module - calculatePayout', () => {
       );
 
       expect(totalPayout).toBe(50);
-      expect(winningPaylines).toEqual([0]);
+      expect(winningPaylines).toEqual([{ index: 0, matchCount: 5 }]);
     });
 
     test('scales proportionally when per-line bet doubles', () => {
@@ -395,7 +395,10 @@ describe('Payout Module - calculatePayout', () => {
       );
 
       expect(totalPayout).toBe(180);
-      expect(winningPaylines).toEqual([0, 1]);
+      expect(winningPaylines).toEqual([
+        { index: 0, matchCount: 3 },
+        { index: 1, matchCount: 3 },
+      ]);
     });
 
     test('agrees with calculatePayout on a single payline at the same per-line bet', () => {

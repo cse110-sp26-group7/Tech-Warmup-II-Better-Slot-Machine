@@ -28,6 +28,7 @@ import {
   renderBet,
   renderWin,
   renderPaylineHighlight,
+  clearPaylineHighlight,
   renderFreeSpinsCounter,
   setSpinButtonState,
 } from './ui.js';
@@ -353,6 +354,11 @@ async function executeSpin() {
     gameState = { ...gameState, isSpinning: true };
     setSpinButtonState(true);
     updateBetButtonStates();
+
+    // Clear any lingering payline highlights from the previous spin
+    // before we start animating the new one. A win later in this spin
+    // will redraw; a loss leaves the reels clean.
+    clearPaylineHighlight();
 
     // Step 4: Call RNG to generate symbol matrix
     const symbolMatrix = RNG.generateSymbolMatrix(REEL_STRIPS, 3);
