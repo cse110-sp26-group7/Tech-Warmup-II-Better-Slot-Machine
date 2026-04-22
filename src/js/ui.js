@@ -112,44 +112,57 @@ export function renderWin(amount) {
 }
 
 /**
- * Draws neon pink highlights connecting winning symbols across reels
- * Creates SVG lines from each winning payline
- * @param {number[]} winningPaylineIndices - Array of winning payline indices (0-24)
- * @param {number[]} paylines - Array of payline definitions (each is array of 5 row indices)
+ * Clears any leftover payline highlights — both the SVG polyline overlay
+ * and the `is-active` class on the left-side payline number panel.
+ * Safe to call when nothing is highlighted.
+ * @returns {void}
+ */
+export function clearPaylineHighlight() {
+  const existingOverlay = document.getElementById('payline-highlight-overlay');
+  if (existingOverlay) {
+    existingOverlay.remove();
+  }
+
+  document.querySelectorAll('.payline-number.is-active').forEach((el) => {
+    el.classList.remove('is-active');
+  });
+}
+
+/**
+ * Draws neon pink highlights connecting winning symbols across reels.
+ * Creates SVG polylines that terminate at the last matching symbol so a
+ * 3-of-a-kind win doesn't visually extend through the non-matching reels.
+ *
+ * @param {{index:number, matchCount:number}[]} winningPaylines
+ *   Array of winning payline descriptors produced by `evaluateAllPaylines`.
+ *   `index` is 0-based; `matchCount` is the number of consecutive matching
+ *   symbols from reel 0 (always ≥ 3 for a winner).
+ * @param {number[][]} paylines - Array of payline definitions (each is array of 5 row indices)
  * @returns {void}
  * @throws {Error} If parameters are invalid or DOM elements not found
  */
-export function renderPaylineHighlight(winningPaylineIndices, paylines) {
-  if (!Array.isArray(winningPaylineIndices)) {
-    throw new Error('Winning payline indices must be an array');
+export function renderPaylineHighlight(winningPaylines, paylines) {
+  if (!Array.isArray(winningPaylines)) {
+    throw new Error('winningPaylines must be an array');
   }
 
   if (!Array.isArray(paylines) || paylines.length !== PAYLINE_COUNT) {
     throw new Error('Paylines must be an array of 25 paylines');
   }
 
-  // Clear previous side-panel highlights so a losing spin wipes the
-  // marks from the prior winning spin.
-  document.querySelectorAll('.payline-number.is-active').forEach((el) => {
-    el.classList.remove('is-active');
-  });
-
-  // Remove existing highlight overlay if present
-  const existingOverlay = document.getElementById('payline-highlight-overlay');
-  if (existingOverlay) {
-    existingOverlay.remove();
-  }
+  // Always clear prior highlights first so a losing spin wipes the grid.
+  clearPaylineHighlight();
 
   // If no winning paylines, the clear above is all we needed.
-  if (winningPaylineIndices.length === 0) {
+  if (winningPaylines.length === 0) {
     return;
   }
 
   // Mark the corresponding side-panel numbers as active. data-line is
-  // 1-indexed; winningPaylineIndices is 0-indexed.
-  winningPaylineIndices.forEach((paylineIndex) => {
+  // 1-indexed; winningPaylines[].index is 0-indexed.
+  winningPaylines.forEach(({ index }) => {
     const numberDiv = document.querySelector(
-      `.payline-number[data-line="${paylineIndex + 1}"]`,
+      `.payline-number[data-line="${index + 1}"]`,
     );
     if (numberDiv) {
       numberDiv.classList.add('is-active');
@@ -188,18 +201,21 @@ export function renderPaylineHighlight(winningPaylineIndices, paylines) {
     }
   }
 
-  // Draw lines for each winning payline
-  winningPaylineIndices.forEach((paylineIndex) => {
-    if (paylineIndex < 0 || paylineIndex >= paylines.length) {
+  // Draw lines for each winning payline, terminating at the last matching
+  // symbol so a 3-of-a-kind win doesn't visually extend through the
+  // non-matching reels.
+  winningPaylines.forEach(({ index, matchCount }) => {
+    if (index < 0 || index >= paylines.length) {
       return;
     }
 
-    const payline = paylines[paylineIndex];
+    const payline = paylines[index];
     const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
     const points = [];
 
-    // Calculate center points for each reel on this payline
-    for (let reelIndex = 0; reelIndex < 5; reelIndex++) {
+    // Draw through only the first `matchCount` cells (bounded by reel count)
+    const endReel = Math.min(matchCount, payline.length);
+    for (let reelIndex = 0; reelIndex < endReel; reelIndex++) {
       const rowIndex = payline[reelIndex];
       const cell = cellsByReel[reelIndex][rowIndex];
 

@@ -31,13 +31,19 @@ const FREE_SPINS_FOR_THREE_SCATTERS = 10;
 const MIN_SCATTER_TO_TRIGGER = 3;
 
 /**
- * Calculates the payout for a single payline based on matching symbols
+ * Evaluates a single payline and returns both the payout and the number of
+ * consecutive matching symbols from the leftmost reel. Sibling to
+ * {@link calculatePayout} but surfaces the match count so callers
+ * (e.g. payline highlight rendering) don't have to recompute it.
+ *
  * @param {string[]} paylineSymbols - Array of 5 symbol IDs along the payline
- * @param {number} betAmount - The bet amount for this payline
- * @returns {number} The payout amount (0 if no win)
+ * @param {number} betAmount - The per-line bet amount
+ * @returns {{ payout: number, matchCount: number }}
+ *   `payout` is the payout amount (0 if no win). `matchCount` is the number
+ *   of consecutive matching symbols from reel 0 on winning lines, 0 otherwise.
  * @throws {Error} If parameters are invalid
  */
-export function calculatePayout(paylineSymbols, betAmount) {
+export function evaluatePayline(paylineSymbols, betAmount) {
   // Validate payline symbols array
   if (!Array.isArray(paylineSymbols) || paylineSymbols.length !== REEL_COUNT) {
     throw new Error('paylineSymbols must be an array of exactly 5 symbol IDs');
@@ -86,16 +92,28 @@ export function calculatePayout(paylineSymbols, betAmount) {
 
   // Need at least MIN_WIN_MATCH matching symbols for a win
   if (matchCount < MIN_WIN_MATCH) {
-    return 0;
+    return { payout: 0, matchCount: 0 };
   }
 
-  // Calculate payout based on match count
-  // Formula: (baseValue / PAYOUT_DIVISOR) × matchCount × betAmount
-  // This ensures 5-of-a-kind pays the full value, scaled proportionally
-  const baseValue = baseSymbol.value;
-  const payout = (baseValue / PAYOUT_DIVISOR) * matchCount * betAmount;
+  // Calculate payout: (baseValue / PAYOUT_DIVISOR) × matchCount × betAmount
+  // Ensures 5-of-a-kind pays the full value, scaled proportionally.
+  const payout = (baseSymbol.value / PAYOUT_DIVISOR) * matchCount * betAmount;
 
-  return payout;
+  return { payout, matchCount };
+}
+
+/**
+ * Calculates the payout for a single payline based on matching symbols.
+ * Thin wrapper over {@link evaluatePayline} preserved for backwards
+ * compatibility with tests and any caller that only needs the amount.
+ *
+ * @param {string[]} paylineSymbols - Array of 5 symbol IDs along the payline
+ * @param {number} betAmount - The bet amount for this payline
+ * @returns {number} The payout amount (0 if no win)
+ * @throws {Error} If parameters are invalid
+ */
+export function calculatePayout(paylineSymbols, betAmount) {
+  return evaluatePayline(paylineSymbols, betAmount).payout;
 }
 
 /**
@@ -143,11 +161,20 @@ export function checkScatterTrigger(matrix) {
 }
 
 /**
- * Evaluates all paylines and calculates total payout
+ * @typedef {Object} WinningPayline
+ * @property {number} index - 0-based payline index in the PAYLINES array
+ * @property {number} matchCount - Number of consecutive matching symbols from reel 0
+ */
+
+/**
+ * Evaluates all paylines and calculates total payout.
+ *
  * @param {string[][]} matrix - 2D symbol matrix where each inner array is a reel column
  * @param {number[][]} paylines - Array of paylines, each payline is 5 row indices
  * @param {number} betAmount - Bet amount per payline
- * @returns {{totalPayout: number, winningPaylines: number[]}} Object containing total payout and winning payline indices
+ * @returns {{ totalPayout: number, winningPaylines: WinningPayline[] }}
+ *   Winners carry their `index` and `matchCount` so callers (e.g.
+ *   payline highlight rendering) can truncate lines at the match boundary.
  * @throws {Error} If parameters are invalid
  */
 export function evaluateAllPaylines(matrix, paylines, betAmount) {
@@ -174,13 +201,12 @@ export function evaluateAllPaylines(matrix, paylines, betAmount) {
     // Get symbols along this payline
     const paylineSymbols = getPaylineSymbols(matrix, payline);
 
-    // Calculate payout for this payline
-    const payout = calculatePayout(paylineSymbols, betAmount);
+    // Evaluate this payline (single pass: match count + payout)
+    const { payout, matchCount } = evaluatePayline(paylineSymbols, betAmount);
 
-    // If this payline wins, add to total and track the index
     if (payout > 0) {
       totalPayout += payout;
-      winningPaylines.push(i);
+      winningPaylines.push({ index: i, matchCount });
     }
   }
 

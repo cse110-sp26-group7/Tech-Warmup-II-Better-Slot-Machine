@@ -1457,22 +1457,53 @@ Side-effect bonus: always calling `renderPaylineHighlight` also means the SVG ov
 
 **Commit message:** fix: phase 9C - populate all 25 payline numbers from PAYLINES and wire them to win highlights
 
-## Entry # — [date] [time]
+## Entry 34 — April 22, 2026 4:55PM
 
-**Phase:**
+**Phase:** 10A
 
 **Prompt used:**
 
-> **Outcome:**
+> Two problems live in `renderPaylineHighlight` in `src/js/ui.js` and the way it's called from `executeSpin()`:
+>
+> 1. The polyline is drawn through **all 5 cells** of a winning payline, even when the match was 3- or 4-of-a-kind. A win on reels 0/1/2 visually runs through reels 3 and 4 as well, misleading the player about what actually hit.
+> 2. `renderPaylineHighlight` is only invoked from `main.js` when `winningPaylines.length > 0`. On a zero-payout spin the previous overlay is never cleared — old lines linger across non-winning spins until the next win overwrites them.
+>
+> Fix part 1: change the winning-paylines contract so each entry carries its match count. Update `evaluateAllPaylines` in `src/js/payout.js` to return an array like `[{ index, matchCount }, ...]` alongside `totalPayout`, and update `calculatePayout` (or add a sibling) to surface the match count so the caller doesn't have to recompute it. In `renderPaylineHighlight`, draw the polyline through only the first `matchCount` cells.
+>
+> Fix part 2: extract a `clearPaylineHighlight()` helper in `src/js/ui.js` that removes `#payline-highlight-overlay`, and call it unconditionally at the top of `executeSpin()` (before the RNG step). On winning spins the subsequent `renderPaylineHighlight` call redraws; on losing spins the grid is left clean.
+>
+> Update any existing unit tests that pin the old `evaluateAllPaylines` return shape.
 
-**Linter result:**
+**Outcome:**
 
-**Tests result:** N/A
+Implemented complete Phase 10A solution addressing both payline highlight issues.
 
-**Issues encountered:**
+**Fix Part 1 — Highlight Only Matching Symbols:**
+- Modified `evaluatePayline()` in `src/js/payout.js` to return `{ payout, matchCount }` — the number of consecutive matching symbols from reel 0
+- Updated `evaluateAllPaylines()` in `src/js/payout.js` to return `{ totalPayout, winningPaylines: [{ index, matchCount }, ...] }` so callers have the match boundary
+- Modified `renderPaylineHighlight()` in `src/js/ui.js` to accept the new shape and draw polylines through only the first `matchCount` cells: `const endReel = Math.min(matchCount, payline.length); for (let reelIndex = 0; reelIndex < endReel; reelIndex++) { ... }`
+- Result: a 3-of-a-kind win on reels 0/1/2 now shows a polyline connecting only those 3 cells; a 4-of-a-kind connects 4 cells; 5-of-a-kind connects all 5
+
+**Fix Part 2 — Clear Highlights on Losing Spins:**
+- Extracted `clearPaylineHighlight()` helper in `src/js/ui.js` that removes `#payline-highlight-overlay` SVG and strips `is-active` class from all `.payline-number` divs
+- Imported and called `clearPaylineHighlight()` unconditionally at the start of `executeSpin()` in `src/js/main.js` before the RNG step
+- On winning spins: clears prior state, then `renderPaylineHighlight` redraws with the new winning paylines
+- On losing spins: grid is left clean — no lingering overlays or side-panel highlights from the previous win
+
+**Test Updates:**
+- Updated two test expectations in `tests/payout.test.js` that were asserting the old flat-index return shape
+- Line 357: changed from `[0]` to `[{ index: 0, matchCount: 5 }]`
+- Line 398: changed from `[0, 1]` to `[{ index: 0, matchCount: 3 }, { index: 1, matchCount: 3 }]`
+- All 71 existing tests continue to pass
+
+**Linter result:** Passed
+
+**Tests result:** 71 passed, all pass (4 unit test suites)
+
+**Issues encountered:** None
 
 **Hand-edit required?** No
 
-**Files changed:**
+**Files changed:** src/js/payout.js, src/js/ui.js, src/js/main.js, tests/payout.test.js
 
-**Commit message:**
+**Commit message:** feat: phase 10A - implement payline highlight fidelity (match-count truncation + loss cleanup)
