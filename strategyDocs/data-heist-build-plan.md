@@ -39,6 +39,9 @@ A phased prompt plan for building a web-based cyberpunk slot machine, scoped so 
 > ```
 >
 > Initialize `package.json` with scripts for lint, test, and start. Add ESLint with rules: single quotes, semicolons required, no unused variables, no `console.log` in production. Add Jest for unit testing. Do not write any game logic yet — scaffold only.
+> Note: the repo already has a .gitignore and README.md from
+> GitHub initialization. Update them if needed rather than
+> overwriting them.
 
 ### Prompt 0B — ESLint + HTML Validation
 
@@ -330,6 +333,7 @@ Copy this block for every prompt executed:
 
 ```markdown
 ## Entry [N] — [date] [time]
+
 **Phase:** [0–7]
 **Prompt used:** [paste prompt]
 **Outcome:** [what Claude produced]
@@ -337,11 +341,11 @@ Copy this block for every prompt executed:
 **Tests result:** [passing / failing — details]
 **Issues encountered:** [anything unexpected]
 **Hand-edit required?** Yes / No
-  → If yes: [what failed, what you changed manually]
+→ If yes: [what failed, what you changed manually]
 **Files changed:** [list]
 **Commit message:** feat/fix/test/docs: [description]
 ```
 
 ---
 
-*Work through these in order and you'll have a fully implemented, linted, tested, documented DATA HEIST cyberpunk slot machine by the deadline. Each prompt is scoped small enough that Claude Code can handle it in a single turn without going off the rails.*
+_Work through these in order and you'll have a fully implemented, linted, tested, documented DATA HEIST cyberpunk slot machine by the deadline. Each prompt is scoped small enough that Claude Code can handle it in a single turn without going off the rails._
