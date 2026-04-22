@@ -5,6 +5,9 @@
 
 import { getSymbolById } from './reels.js';
 
+/** Number of paylines — used to convert a total bet to a per-line bet */
+const PAYLINE_COUNT = 25;
+
 /**
  * Unicode character representations for each symbol
  * @type {Object<string, string>}
@@ -121,7 +124,7 @@ export function renderPaylineHighlight(winningPaylineIndices, paylines) {
     throw new Error('Winning payline indices must be an array');
   }
 
-  if (!Array.isArray(paylines) || paylines.length !== 25) {
+  if (!Array.isArray(paylines) || paylines.length !== PAYLINE_COUNT) {
     throw new Error('Paylines must be an array of 25 paylines');
   }
 
@@ -449,22 +452,9 @@ function celebrateBigWin(amount, resolve) {
   overlay.appendChild(content);
   document.body.appendChild(overlay);
 
-  // Count up the big win amount
-  const startTime = Date.now();
-  const duration = 2000;
-
-  const animateCount = () => {
-    const elapsed = Date.now() - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const currentAmount = Math.floor(amount * progress);
-    amountDisplay.textContent = currentAmount.toString();
-
-    if (progress < 1) {
-      requestAnimationFrame(animateCount);
-    }
-  };
-
-  animateCount();
+  // Count up the big win amount using the shared helper
+  const BIG_WIN_COUNT_UP_MS = 2000;
+  countUpDisplay(amountDisplay, amount, BIG_WIN_COUNT_UP_MS);
 
   // Remove overlay after celebration
   setTimeout(() => {
@@ -481,7 +471,32 @@ function celebrateBigWin(amount, resolve) {
 }
 
 /**
- * Animates count-up of win amount
+ * Drives a numeric count-up animation on any DOM element.
+ * Shared by countUpWin (win display) and celebrateBigWin (overlay display).
+ * @private
+ * @param {HTMLElement} element - Element whose textContent is updated each frame
+ * @param {number} amount - Target number to count up to
+ * @param {number} duration - Animation duration in ms
+ * @returns {void}
+ */
+function countUpDisplay(element, amount, duration) {
+  const startTime = Date.now();
+
+  const animate = () => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    element.textContent = Math.floor(amount * progress).toString();
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    }
+  };
+
+  animate();
+}
+
+/**
+ * Animates count-up of win amount on the main win display
  * @private
  * @param {number} amount - Final amount to count to
  * @param {number} duration - Animation duration in ms
@@ -492,21 +507,7 @@ function countUpWin(amount, duration) {
   if (!winAmount) {
     return;
   }
-
-  const startTime = Date.now();
-
-  const animate = () => {
-    const elapsed = Date.now() - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const currentAmount = Math.floor(amount * progress);
-    winAmount.textContent = currentAmount.toString();
-
-    if (progress < 1) {
-      requestAnimationFrame(animate);
-    }
-  };
-
-  animate();
+  countUpDisplay(winAmount, amount, duration);
 }
 
 /**
@@ -564,8 +565,11 @@ export function animateReelSpin() {
       });
     });
 
-    // Resolve main promise when all reels are done
-    Promise.all(reelPromises).then(resolve);
+    // Resolve main promise when all reels are done; resolve even on error
+    // so the spin flow is never permanently blocked by an animation failure
+    Promise.all(reelPromises)
+      .then(resolve)
+      .catch(() => resolve());
   });
 }
 
@@ -621,7 +625,7 @@ export function closePaytable() {
  * @returns {string} HTML string with symbol payout items
  */
 function generateSymbolPayouts(currentBet) {
-  const betPerLine = currentBet / 25;
+  const betPerLine = currentBet / PAYLINE_COUNT;
   const symbolData = [
     { id: 'GOLD_KANJI', display: '金', name: 'Gold Kanji', label: 'Megacorp Vault', value: 1000 },
     { id: 'CHROME_SKULL', display: '☠', name: 'Chrome Skull', label: 'Black-ICE Node', value: 1000 },
@@ -742,6 +746,49 @@ function generatePaylineDiagrams() {
 }
 
 /**
+ * Clears a single reel cell and renders the given symbol into it.
+ * Applies the symbol's Unicode character, neon colour, and ARIA label.
+ * @private
+ * @param {HTMLElement} cell - The .reel-cell element to populate
+ * @param {string} symbolId - Symbol identifier (e.g. 'NEON_7')
+ * @returns {void}
+ * @throws {Error} If the symbol ID is unknown or has no colour/unicode mapping
+ */
+function populateReelCell(cell, symbolId) {
+  const symbol = getSymbolById(symbolId);
+  if (!symbol) {
+    throw new Error(`Unknown symbol ID: ${symbolId}`);
+  }
+
+  const unicodeChar = SYMBOL_UNICODE[symbolId];
+  const colorVar = SYMBOL_COLOR_VARS[symbolId];
+
+  if (!unicodeChar || !colorVar) {
+    throw new Error(`Missing Unicode or color mapping for symbol: ${symbolId}`);
+  }
+
+  cell.innerHTML = '';
+  cell.className = 'reel-cell';
+  cell.classList.add(`symbol-${symbol.id.toLowerCase()}`);
+
+  const symbolDiv = document.createElement('div');
+  symbolDiv.className = 'symbol';
+  symbolDiv.setAttribute('aria-label', symbol.displayName);
+  symbolDiv.textContent = unicodeChar;
+
+  const colorValue = getComputedStyle(document.documentElement)
+    .getPropertyValue(colorVar)
+    .trim();
+
+  symbolDiv.style.color = colorValue;
+  symbolDiv.style.textShadow = `0 0 10px ${colorValue}`;
+  cell.style.borderColor = colorValue;
+  cell.style.boxShadow = `0 0 8px ${colorValue}`;
+
+  cell.appendChild(symbolDiv);
+}
+
+/**
  * Renders a symbol matrix to the DOM
  * Updates all cells in the 5×3 reel grid with styled symbol divs
  * @param {string[][]} matrix - 2D array of symbol IDs where matrix[reelIndex][rowIndex]
@@ -785,49 +832,7 @@ export function renderSymbolMatrix(matrix) {
 
     // Render each symbol in the reel
     for (let rowIndex = 0; rowIndex < reel.length; rowIndex++) {
-      const symbolId = reel[rowIndex];
-      const cell = cells[rowIndex];
-
-      // Get symbol metadata
-      const symbol = getSymbolById(symbolId);
-      if (!symbol) {
-        throw new Error(`Unknown symbol ID: ${symbolId}`);
-      }
-
-      // Clear the cell
-      cell.innerHTML = '';
-      cell.className = 'reel-cell';
-
-      // Add symbol-specific class for animation targeting
-      cell.classList.add(`symbol-${symbol.id.toLowerCase()}`);
-
-      // Get the Unicode character and color variable
-      const unicodeChar = SYMBOL_UNICODE[symbolId];
-      const colorVar = SYMBOL_COLOR_VARS[symbolId];
-
-      if (!unicodeChar || !colorVar) {
-        throw new Error(`Missing Unicode or color mapping for symbol: ${symbolId}`);
-      }
-
-      // Create the symbol element
-      const symbolDiv = document.createElement('div');
-      symbolDiv.className = 'symbol';
-      symbolDiv.setAttribute('aria-label', symbol.displayName);
-      symbolDiv.textContent = unicodeChar;
-
-      // Get the color value from CSS variable
-      const colorValue = getComputedStyle(document.documentElement)
-        .getPropertyValue(colorVar)
-        .trim();
-
-      // Apply color-specific styling
-      symbolDiv.style.color = colorValue;
-      symbolDiv.style.textShadow = `0 0 10px ${colorValue}`;
-      cell.style.borderColor = colorValue;
-      cell.style.boxShadow = `0 0 8px ${colorValue}`;
-
-      // Append symbol to cell
-      cell.appendChild(symbolDiv);
+      populateReelCell(cells[rowIndex], reel[rowIndex]);
     }
   }
 }

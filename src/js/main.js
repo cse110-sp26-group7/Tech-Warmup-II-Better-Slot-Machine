@@ -4,6 +4,7 @@
  */
 
 import * as State from './state.js';
+import { PAYLINE_COUNT, MIN_BET_PER_LINE, MAX_BET_PER_LINE } from './state.js';
 import * as RNG from './rng.js';
 import { REEL_STRIPS } from './reels.js';
 import { PAYLINES } from './paylines.js';
@@ -37,13 +38,57 @@ import {
  */
 let gameState = State.INITIAL_STATE;
 
+// ─── Module-level constants ───────────────────────────────────────────────────
+
+/** Milliseconds to pause between successive auto-spin rounds */
+const AUTO_SPIN_DELAY_MS = 500;
+
+/** Maximum number of spin results kept in the sidebar history panel */
+const SPIN_HISTORY_LIMIT = 10;
+
+/**
+ * Payout multiple of the per-line bet that classifies a win as "big".
+ * 25 × betPerLine equals the full total bet (25 paylines × 1 per line).
+ */
+const BIG_WIN_THRESHOLD = 25;
+
+/** Payout multiple of the per-line bet that classifies a win as "medium" */
+const MEDIUM_WIN_THRESHOLD = 5;
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/**
+ * Returns the current bet amount per payline.
+ * Centralises the repeated `currentBet / PAYLINE_COUNT` calculation.
+ * @returns {number} Bet amount per payline
+ */
+function getBetPerLine() {
+  return gameState.currentBet / PAYLINE_COUNT;
+}
+
+/**
+ * Classifies a spin payout into a win tier used for sound and animation.
+ * @param {number} totalPayout - Total payout from the spin
+ * @param {number} betPerLine - Current bet per payline
+ * @returns {'big'|'medium'|'small'} Win tier
+ */
+function classifyWinLevel(totalPayout, betPerLine) {
+  if (totalPayout >= betPerLine * BIG_WIN_THRESHOLD) {
+    return 'big';
+  }
+  if (totalPayout >= betPerLine * MEDIUM_WIN_THRESHOLD) {
+    return 'medium';
+  }
+  return 'small';
+}
+
 /**
  * Increases the bet by 1 (up to 100 per line)
  * @returns {void}
  */
 function increaseBet() {
-  const currentBetPerLine = gameState.currentBet / 25;
-  if (currentBetPerLine < 100) {
+  const currentBetPerLine = getBetPerLine();
+  if (currentBetPerLine < MAX_BET_PER_LINE) {
     gameState = State.setBet(gameState, currentBetPerLine + 1);
     renderBet(gameState.currentBet);
     updateBetButtonStates();
@@ -55,8 +100,8 @@ function increaseBet() {
  * @returns {void}
  */
 function decreaseBet() {
-  const currentBetPerLine = gameState.currentBet / 25;
-  if (currentBetPerLine > 1) {
+  const currentBetPerLine = getBetPerLine();
+  if (currentBetPerLine > MIN_BET_PER_LINE) {
     gameState = State.setBet(gameState, currentBetPerLine - 1);
     renderBet(gameState.currentBet);
     updateBetButtonStates();
@@ -82,24 +127,24 @@ function updateBetButtonStates() {
   const betMinusBtn = document.getElementById('bet-minus-btn');
   const betPlusBtn = document.getElementById('bet-plus-btn');
   const maxBetBtn = document.getElementById('max-bet-btn');
-  const currentBetPerLine = gameState.currentBet / 25;
+  const currentBetPerLine = getBetPerLine();
 
   // Disable when spinning
   const shouldDisableAll = gameState.isSpinning;
 
   // Disable minus at minimum
   if (betMinusBtn) {
-    betMinusBtn.disabled = shouldDisableAll || currentBetPerLine <= 1;
+    betMinusBtn.disabled = shouldDisableAll || currentBetPerLine <= MIN_BET_PER_LINE;
   }
 
   // Disable plus at maximum
   if (betPlusBtn) {
-    betPlusBtn.disabled = shouldDisableAll || currentBetPerLine >= 100;
+    betPlusBtn.disabled = shouldDisableAll || currentBetPerLine >= MAX_BET_PER_LINE;
   }
 
   // Disable max bet button when spinning or already at max
   if (maxBetBtn) {
-    maxBetBtn.disabled = shouldDisableAll || currentBetPerLine >= 100;
+    maxBetBtn.disabled = shouldDisableAll || currentBetPerLine >= MAX_BET_PER_LINE;
   }
 }
 
@@ -301,15 +346,7 @@ async function executeSpin() {
 
     // Step 9: If payout > 0, trigger win animation and win sound
     if (totalPayout > 0) {
-      const betPerLine = gameState.currentBet / 25;
-      let winLevel;
-      if (totalPayout >= betPerLine * 25) {
-        winLevel = 'big';
-      } else if (totalPayout >= betPerLine * 5) {
-        winLevel = 'medium';
-      } else {
-        winLevel = 'small';
-      }
+      const winLevel = classifyWinLevel(totalPayout, getBetPerLine());
       playWinSound(winLevel);
       await celebrateWin(totalPayout, winningPaylines, gameState.currentBet);
     }
@@ -343,8 +380,8 @@ async function executeSpin() {
         gameState = State.decrementAutoSpin(gameState);
         updateAutoSpinDisplay();
 
-        // Wait 500ms before next auto-spin
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        // Wait before next auto-spin
+        await new Promise((resolve) => setTimeout(resolve, AUTO_SPIN_DELAY_MS));
 
         // Recursively call executeSpin for next auto-spin
         await executeSpin();
@@ -423,8 +460,8 @@ function updateLastSpinsPanel(payout) {
   // Add to top of history
   historyList.insertBefore(item, historyList.firstChild);
 
-  // Keep only last 10 spins
-  while (historyList.children.length > 10) {
+  // Keep only the most recent spins
+  while (historyList.children.length > SPIN_HISTORY_LIMIT) {
     historyList.removeChild(historyList.lastChild);
   }
 }

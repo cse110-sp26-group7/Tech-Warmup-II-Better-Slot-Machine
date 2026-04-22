@@ -6,6 +6,30 @@
 import { getSymbolById } from './reels.js';
 import { getPaylineSymbols } from './paylines.js';
 
+/** Number of reels in the grid */
+const REEL_COUNT = 5;
+
+/** Number of visible rows per reel */
+const ROW_COUNT = 3;
+
+/** Minimum consecutive matching symbols required for a payout */
+const MIN_WIN_MATCH = 3;
+
+/**
+ * Divisor used in the payout formula — equal to REEL_COUNT so that
+ * a symbol's `value` represents the 5-of-a-kind payout and shorter
+ * matches are scaled proportionally.
+ */
+const PAYOUT_DIVISOR = 5;
+
+/** Free-spin awards for scatter counts of 5, 4, or 3 */
+const FREE_SPINS_FOR_FIVE_SCATTERS  = 25;
+const FREE_SPINS_FOR_FOUR_SCATTERS  = 15;
+const FREE_SPINS_FOR_THREE_SCATTERS = 10;
+
+/** Minimum scatter count required to trigger the free-spin bonus */
+const MIN_SCATTER_TO_TRIGGER = 3;
+
 /**
  * Calculates the payout for a single payline based on matching symbols
  * @param {string[]} paylineSymbols - Array of 5 symbol IDs along the payline
@@ -15,7 +39,7 @@ import { getPaylineSymbols } from './paylines.js';
  */
 export function calculatePayout(paylineSymbols, betAmount) {
   // Validate payline symbols array
-  if (!Array.isArray(paylineSymbols) || paylineSymbols.length !== 5) {
+  if (!Array.isArray(paylineSymbols) || paylineSymbols.length !== REEL_COUNT) {
     throw new Error('paylineSymbols must be an array of exactly 5 symbol IDs');
   }
 
@@ -60,16 +84,16 @@ export function calculatePayout(paylineSymbols, betAmount) {
     }
   }
 
-  // Need at least 3 matching symbols for a win
-  if (matchCount < 3) {
+  // Need at least MIN_WIN_MATCH matching symbols for a win
+  if (matchCount < MIN_WIN_MATCH) {
     return 0;
   }
 
   // Calculate payout based on match count
-  // Formula: (baseValue / 5) × matchCount × betAmount
+  // Formula: (baseValue / PAYOUT_DIVISOR) × matchCount × betAmount
   // This ensures 5-of-a-kind pays the full value, scaled proportionally
   const baseValue = baseSymbol.value;
-  const payout = (baseValue / 5) * matchCount * betAmount;
+  const payout = (baseValue / PAYOUT_DIVISOR) * matchCount * betAmount;
 
   return payout;
 }
@@ -83,12 +107,12 @@ export function calculatePayout(paylineSymbols, betAmount) {
  */
 export function checkScatterTrigger(matrix) {
   // Validate matrix
-  if (!Array.isArray(matrix) || matrix.length !== 5) {
+  if (!Array.isArray(matrix) || matrix.length !== REEL_COUNT) {
     throw new Error('Matrix must be an array of 5 reels');
   }
 
   for (let i = 0; i < matrix.length; i++) {
-    if (!Array.isArray(matrix[i]) || matrix[i].length < 3) {
+    if (!Array.isArray(matrix[i]) || matrix[i].length < ROW_COUNT) {
       throw new Error(`Reel ${i} must have at least 3 rows`);
     }
   }
@@ -104,14 +128,14 @@ export function checkScatterTrigger(matrix) {
   }
 
   // Return free spins based on scatter count
-  if (scatterCount >= 5) {
-    return 25;
+  if (scatterCount >= REEL_COUNT) {
+    return FREE_SPINS_FOR_FIVE_SCATTERS;
   }
-  if (scatterCount >= 4) {
-    return 15;
+  if (scatterCount >= MIN_SCATTER_TO_TRIGGER + 1) {
+    return FREE_SPINS_FOR_FOUR_SCATTERS;
   }
-  if (scatterCount >= 3) {
-    return 10;
+  if (scatterCount >= MIN_SCATTER_TO_TRIGGER) {
+    return FREE_SPINS_FOR_THREE_SCATTERS;
   }
 
   // No bonus if fewer than 3 scatters
