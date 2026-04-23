@@ -359,9 +359,9 @@ async function executeSpin() {
       getBetPerLine(),
     );
 
-    // Apply 2× multiplier during free spins
+    // Apply 1.5× multiplier during free spins
     if (isFreeSpinActive) {
-      totalPayout *= 2;
+      totalPayout *= 1.5;
     }
 
     // Check for scatter bonus trigger

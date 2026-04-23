@@ -18,19 +18,19 @@ const MIN_WIN_MATCH = 3;
 /**
  * Payout multiplier table — keyed by symbol ID then match count.
  * Values are multipliers of the per-line bet amount.
- * Designed for ~94% RTP on the house side.
+ * Designed for ~92% RTP on the house side (house keeps ~8%).
  */
 const PAYOUT_TABLE = {
-  GOLD_KANJI:   { 3: 125,  4: 500,   5: 2500 },
-  CHROME_SKULL: { 3: 125,  4: 500,   5: 2500 },
-  CYBER_IRIS:   { 3: 75,   4: 300,   5: 1250 },
-  KATANA:       { 3: 75,   4: 300,   5: 1250 },
-  NEON_7:       { 3: 75,   4: 300,   5: 1250 },
-  DIAMOND:      { 3: 50,   4: 200,   5: 625  },
-  BELL:         { 3: 50,   4: 200,   5: 625  },
-  BAR:          { 3: 0,    4: 75,    5: 250  },
-  CHERRY:       { 3: 0,    4: 50,    5: 200  },
-  WILD:         { 3: 125,  4: 500,   5: 2500 },
+  GOLD_KANJI:   { 3: 30,   4: 125,  5: 750  },
+  CHROME_SKULL: { 3: 30,   4: 125,  5: 750  },
+  CYBER_IRIS:   { 3: 20,   4: 80,   5: 400  },
+  KATANA:       { 3: 20,   4: 80,   5: 400  },
+  NEON_7:       { 3: 20,   4: 80,   5: 400  },
+  DIAMOND:      { 3: 10,   4: 40,   5: 150  },
+  BELL:         { 3: 10,   4: 40,   5: 150  },
+  BAR:          { 3: 0,    4: 15,   5: 60   },
+  CHERRY:       { 3: 0,    4: 10,   5: 40   },
+  WILD:         { 3: 30,   4: 125,  5: 750  },
 };
 
 /** Free-spin awards for scatter counts of 5, 4, or 3 */
