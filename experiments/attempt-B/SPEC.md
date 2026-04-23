@@ -8,6 +8,7 @@ This file is the single source of truth for WHAT the game does. The full rationa
 - Each of the 15 cells is an independent weighted draw; symbol weights are uniform across reels.
 - Wild substitutes for any symbol. A pure-wild run pays from the `wild` row of the paytable.
 - A line pays when ≥ 3 matching symbols (including wilds) extend from reel 0.
+- When a line has both a leading-wild run (3+ wilds from reel 0) AND a substituted-target run, the line pays whichever candidate yields the higher payout. Industry convention: player is paid the better of the two valid interpretations of the same path.
 
 ## 2. Symbols (8)
 

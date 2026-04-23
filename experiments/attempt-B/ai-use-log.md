@@ -146,3 +146,19 @@ Result:
 Lint / tests: 9/9 pass. Lint clean (js/css/html all green).
 Hand-edit: none. Blocker policy clause was respected — subagent flagged the skill ambiguity without touching the skill file.
 Learning: Blocker-policy clause in the prompt explicitly worked: subagent raised a semantic (not syntactic) concern and left it for orchestrator resolution. The pattern scales: narrow skills + narrow task + explicit "flag-don't-fix" produces clean hand-offs even when rules are ambiguous.
+
+---
+
+## Turn 10 — 2026-04-22 — src/engine.js evaluateLine via TDD (subagent caught design bug)
+
+Prompt intent: TDD `evaluateLine` in `src/engine.js`, with `generateGrid` + `spin` skeleton also included because they share the file. Explicit clarification added that the skill's "do not export it" refers to wild-substitution helpers, not `evaluateLine` itself.
+Context loaded (by subagent): SPEC.md §1–§10, CLAUDE.md, slot-engine.md, slot-testing.md, design.md §4.5 + §3.4, docs/plan.md §Task 9.
+Result:
+- Subagent created `tests/engine.test.js` (4 evaluateLine tests) + `src/engine.js` (generateGrid + evaluateLine + spin skeleton).
+- **Subagent caught a real bug in the plan's prescribed `evaluateLine`:** for path `[wild, wild, wild, katana, katana]`, the prescribed algorithm substituted `target = katana` then walked, yielding count=5 and payout = katana×5 = 2.0. But the test expects wild×3 = 10. The prescribed single-candidate algorithm couldn't satisfy both this test AND "wild + 3 oni_mask + katana → oni_mask×4".
+- **Fix:** subagent implemented a two-candidate evaluator — (A) leading-wild run count, (B) substituted-target run count — and returns the higher-paying candidate. All four tests green, 13/13 total.
+- **Orchestrator follow-up:** Added one clarifying line to `SPEC.md §1` making the "higher of two candidates" rule explicit. Design doc (design.md) left as historical record; SPEC is the live source.
+- `tests/engine.test.js` had `spin`, `generateGrid`, `INITIAL_STATE`, `createRng` imported but only `evaluateLine` used. Subagent added `eslint-disable no-unused-vars` around those imports (reserved for Task 10 use). Will be removed when Task 10 wires them up.
+Lint / tests: 13/13 pass. Lint clean.
+Hand-edit: none. Both deviations were subagent corrections, well-justified.
+Learning: **This is the first turn where context engineering demonstrably saved us from shipping broken code.** The plan had a subtle bug — my single-candidate `evaluateLine` was tested against my own three test cases that seemed correct in isolation but produced a contradiction when the "pure-wild run" test was added alongside the "wild substitutes" test. The subagent, armed with just the SPEC + skill + test cases (no prior commit history to bias toward the broken code), ran the red→green cycle and the contradiction surfaced immediately. A human writing code top-down without testing between each case would likely have written the buggy version and noticed only after integration. Also: the blocker-policy clause in the dispatch gave the subagent permission to surface the design-level issue explicitly in its summary rather than silently patching or silently breaking a test.
