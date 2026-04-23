@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SLOT.77 · START — Wireframe (Light)</title>
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --panel:#F5F5F5;
+    --line:#E0E0E0;
+    --line-2:#999999;
+    --fg:#111111;
+    --dim:#666666;
+    --dim-2:#999999;
+    --accent:#000000;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:-apple-system,system-ui,'Segoe UI',sans-serif;font-size:14px;line-height:1.45}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+
+  .page{display:flex;flex-direction:column;align-items:flex-start;gap:24px;padding:32px}
+  .vp-label{
+    font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--dim);padding:8px 14px;border:1px dashed var(--line-2);background:var(--panel);
+  }
+
+  .sec{position:relative}
+  .sec-label{
+    position:absolute;top:-9px;left:14px;
+    font-size:10px;font-weight:700;color:var(--dim);
+    letter-spacing:0.22em;text-transform:uppercase;
+    background:var(--bg);padding:0 8px;z-index:1;
+  }
+  .note{
+    font-size:10px;color:var(--dim);font-style:italic;letter-spacing:0.05em;
+  }
+
+  /* ========== DESKTOP ========== */
+  .desktop{
+    width:1440px;height:900px;
+    padding:32px 48px 48px;
+    display:flex;flex-direction:column;gap:22px;
+    border:1px solid var(--line-2);background:var(--bg);
+    transform-origin:top left;
+  }
+
+  /* top chrome */
+  .chrome{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 18px;border:1px solid var(--line);
+    font-size:11px;color:var(--dim);
+    letter-spacing:0.15em;text-transform:uppercase;
+  }
+  .chrome .left,.chrome .right{display:flex;gap:22px;align-items:center}
+  .chrome .brand{color:var(--fg);font-weight:700;letter-spacing:0.22em}
+
+  /* terminal card */
+  .term-card{
+    flex:1;
+    border:1px solid var(--line-2);
+    display:grid;grid-template-columns:1.4fr 1fr;
+    background:var(--panel);
+    min-height:0;
+  }
+
+  /* LEFT: boot */
+  .boot{
+    padding:32px 40px;
+    border-right:1px solid var(--line-2);
+    display:flex;flex-direction:column;gap:3px;
+    background:var(--bg);
+  }
+  .boot .hdr{
+    font-size:10px;color:var(--dim);letter-spacing:0.22em;text-transform:uppercase;
+    display:flex;justify-content:space-between;margin-bottom:14px;
+  }
+  .boot-line{
+    font-size:12px;color:var(--dim);
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    letter-spacing:0.01em;
+  }
+  .boot-line .tag{color:var(--fg);font-weight:700}
+  .boot-ready{
+    font-size:56px;font-weight:700;letter-spacing:0.02em;
+    margin:22px 0 4px;color:var(--fg);line-height:1;
+  }
+  .boot-ready .sub{
+    display:block;font-size:11px;font-weight:400;
+    color:var(--dim);letter-spacing:0.25em;text-transform:uppercase;
+    margin-top:10px;font-family:ui-monospace,Menlo,Consolas,monospace;
+  }
+  .boot-prompt{
+    margin-top:16px;font-size:12px;color:var(--dim);
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+  }
+
+  .cta-row{display:flex;gap:12px;margin-top:24px}
+  .btn{
+    font-family:inherit;cursor:pointer;
+    padding:14px 22px;
+    font-size:12px;letter-spacing:0.18em;text-transform:uppercase;
+    border:1px solid var(--line-2);background:var(--bg);color:var(--fg);
+  }
+  .btn.primary{
+    background:var(--accent);color:var(--bg);
+    border:2px solid var(--accent);font-weight:700;
+  }
+
+  /* RIGHT: stats */
+  .stats{
+    padding:28px 28px 24px;
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .stats .hdr{
+    font-size:10px;color:var(--dim);letter-spacing:0.22em;text-transform:uppercase;
+    display:flex;justify-content:space-between;
+    padding-bottom:12px;border-bottom:1px solid var(--line);
+    margin-bottom:6px;
+  }
+  .stat-row{
+    display:grid;grid-template-columns:1fr auto;align-items:baseline;
+    padding:11px 0;border-bottom:1px dashed var(--line);
+  }
+  .stat-label{font-size:10px;color:var(--dim);letter-spacing:0.2em;text-transform:uppercase}
+  .stat-val{font-size:22px;font-weight:700;color:var(--fg);letter-spacing:0.01em}
+  .stat-val .u{font-size:10px;color:var(--dim);margin-left:4px;letter-spacing:0.15em;text-transform:uppercase;font-weight:400}
+
+  .jackpot{
+    border:2px solid var(--fg);
+    padding:16px;text-align:center;margin-top:12px;
+  }
+  .jackpot .lbl{font-size:10px;color:var(--dim);letter-spacing:0.28em;text-transform:uppercase}
+  .jackpot .val{font-size:30px;font-weight:700;margin:6px 0 2px;color:var(--fg)}
+  .jackpot .tick{font-size:10px;color:var(--dim);letter-spacing:0.18em}
+
+  .mini-reel{
+    margin-top:auto;padding-top:16px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+  }
+  .mini-reel .cell{
+    aspect-ratio:1;border:1px solid var(--line-2);background:var(--bg);
+    position:relative;overflow:hidden;
+  }
+  .mini-reel .cell::before,
+  .mini-reel .cell::after{
+    content:'';position:absolute;inset:0;
+    border-top:1px solid var(--line-2);
+    top:50%;
+  }
+  .mini-reel .cell::before{transform:rotate(45deg)}
+  .mini-reel .cell::after{transform:rotate(-45deg)}
+  .mini-reel .cell span{
+    position:absolute;inset:0;margin:auto;
+    width:max-content;height:max-content;
+    background:var(--bg);padding:2px 6px;
+    font-size:9px;color:var(--dim);letter-spacing:0.15em;text-transform:uppercase;
+    z-index:1;
+  }
+
+  /* footer ticker */
+  .ticker{
+    border:1px solid var(--line);
+    padding:14px 18px;
+    font-size:11px;color:var(--dim);
+    letter-spacing:0.15em;text-transform:uppercase;
+    display:flex;gap:28px;overflow:hidden;white-space:nowrap;
+    align-items:center;
+  }
+  .ticker .more{margin-left:auto;font-style:italic;text-transform:none;letter-spacing:0.02em}
+
+  /* ========== MOBILE ========== */
+  .mobile{
+    width:390px;min-height:844px;
+    border:1px solid var(--line-2);background:var(--bg);
+    display:flex;flex-direction:column;
+  }
+  .m-status{
+    padding:14px 22px 6px;
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;
+    display:flex;justify-content:space-between;
+    border-bottom:1px solid var(--line);
+  }
+  .m-boot{
+    padding:20px 22px;flex:1;
+    display:flex;flex-direction:column;gap:3px;
+  }
+  .m-boot .h{
+    font-size:10px;color:var(--dim);letter-spacing:0.25em;text-transform:uppercase;
+    margin-bottom:10px;font-weight:700;
+  }
+  .m-boot .line{
+    font-size:11px;color:var(--dim);
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+  }
+  .m-boot .line .tag{color:var(--fg);font-weight:700}
+  .m-boot .ready{
+    font-size:36px;font-weight:700;margin:16px 0 8px;line-height:1;
+  }
+  .m-boot .meta{font-size:12px;color:var(--fg);margin-top:2px}
+  .m-boot .prompt{
+    margin-top:16px;font-size:11px;color:var(--dim);
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+  }
+  .m-cta{padding:12px 22px 24px;display:flex;flex-direction:column;gap:10px}
+  .m-cta .btn{padding:14px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ======================= DESKTOP ======================= -->
+  <div class="vp-label">Desktop · 1440 × 900 · home / start screen</div>
+  <div class="desktop sec" id="dw">
+    <span class="sec-label">[ SCREEN · desktop home ]</span>
+
+    <!-- TOP CHROME -->
+    <div class="chrome sec">
+      <span class="sec-label">[ top chrome bar ]</span>
+      <div class="left">
+        <span>● status</span>
+        <span class="brand">//SLOT.77</span>
+        <span>v2.04.3 · kernel 6.11</span>
+      </div>
+      <div class="right">
+        <span>◈ user_0091</span>
+        <span>◉ bronze tier</span>
+        <span>◎ 03:12:44 last session</span>
+      </div>
+    </div>
+
+    <!-- TERMINAL CARD -->
+    <div class="term-card">
+      <!-- LEFT: BOOT -->
+      <div class="boot sec">
+        <span class="sec-label">[ left · boot log + ready + CTAs ]</span>
+        <div class="hdr">
+          <span>// system.boot — verbose</span>
+          <span>stdout: /dev/tty0</span>
+        </div>
+        <div class="boot-line">[ 0.001 ] &gt; slot.77/boot --init --verbose</div>
+        <div class="boot-line">[ 0.042 ] loading kernel ........................ <span class="tag">OK</span></div>
+        <div class="boot-line">[ 0.088 ] mounting /wallet ...................... <span class="tag">OK</span></div>
+        <div class="boot-line">[ 0.112 ] auth user_0091@neon.net .............. <span class="tag">OK</span></div>
+        <div class="boot-line">[ 0.134 ] sync jackpot_pool .................... <span class="tag">OK</span> ({jackpot} ¢r)</div>
+        <div class="boot-line">[ 0.168 ] load assets/reels.pak ................ <span class="tag">OK</span></div>
+        <div class="boot-line">[ 0.201 ] load assets/symbols/cyberpunk ........ <span class="tag">OK</span></div>
+        <div class="boot-line">[ 0.244 ] haptics.device ....................... <span class="tag">WARN</span> (fallback:web)</div>
+        <div class="boot-line">[ 0.289 ] daily.missions {n}/{m} ............... <span class="tag">OK</span></div>
+        <div class="boot-line">[ 0.312 ] streak {n} days verified ............. <span class="tag">OK</span></div>
+        <div class="boot-line">[ 0.355 ] all subsystems nominal.</div>
+
+        <div class="boot-ready">
+          READY_
+          <span class="sub">// entropy pool seeded · rng primed</span>
+        </div>
+
+        <div class="boot-prompt">&gt; press █ to begin</div>
+
+        <div class="cta-row">
+          <button class="btn primary">▶ START GAME</button>
+          <button class="btn">RESUME · {time}</button>
+          <button class="btn">HOW TO PLAY</button>
+        </div>
+
+        <div class="note" style="margin-top:18px">
+          * boot sequence: sequential line reveal on load (~0.2s stagger per line)<br>
+          * RESUME button: shown conditionally when a prior session exists
+        </div>
+      </div>
+
+      <!-- RIGHT: STATS -->
+      <div class="stats sec">
+        <span class="sec-label">[ right · user session stats ]</span>
+        <div class="hdr">
+          <span>● user session</span>
+          <span>live</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Balance</span>
+          <span class="stat-val">{balance}<span class="u">¢R</span></span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Tier</span>
+          <span class="stat-val">{tier}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Rank</span>
+          <span class="stat-val">#{rank}<span class="u">of {total}</span></span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Streak</span>
+          <span class="stat-val">{n}<span class="u">days</span></span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Missions</span>
+          <span class="stat-val">{n} / {m}</span>
+        </div>
+
+        <div class="jackpot">
+          <div class="lbl">◈ Progressive Jackpot</div>
+          <div class="val">{jackpot}</div>
+          <div class="tick">+{delta} ¢r · last 60s</div>
+        </div>
+
+        <div class="mini-reel">
+          <div class="cell"><span>symbol</span></div>
+          <div class="cell"><span>symbol</span></div>
+          <div class="cell"><span>symbol</span></div>
+          <div class="cell"><span>symbol</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER TICKER -->
+    <div class="ticker sec">
+      <span class="sec-label">[ footer · live ticker ]</span>
+      <span>◈ JACKPOT {amount}</span>
+      <span>▲ user_xxx +{amt}</span>
+      <span>◎ next drop T−{time}</span>
+      <span>◈ LIVE {n} players</span>
+      <span>▲ daily leader_x +{amt}</span>
+      <span class="more">(right-to-left infinite scroll · 40s loop)</span>
+    </div>
+  </div>
+
+  <!-- ======================= MOBILE ======================= -->
+  <div class="vp-label">Mobile · 390 × 844 · home / start screen</div>
+  <div class="mobile sec" id="mw">
+    <span class="sec-label">[ SCREEN · mobile home ]</span>
+
+    <div class="m-status">
+      <span>9:41</span>
+      <span>◈ ◉ ▮▮▮</span>
+    </div>
+
+    <div class="m-boot sec">
+      <span class="sec-label">[ boot + meta ]</span>
+      <div class="h">// SLOT.77 BOOT</div>
+      <div class="line">&gt; slot.77/boot --init</div>
+      <div class="line">loading modules .............. <span class="tag">OK</span></div>
+      <div class="line">auth user_0091 ............... <span class="tag">OK</span></div>
+      <div class="line">wallet {balance} ¢r .......... <span class="tag">OK</span></div>
+      <div class="line">jackpot pool {amount} ........ <span class="tag">OK</span></div>
+
+      <div class="ready">READY_</div>
+
+      <div class="meta">▸ last session: {time}</div>
+      <div class="meta">▸ streak: {n} days</div>
+      <div class="meta">▸ rank: #{rank}</div>
+
+      <div class="prompt">&gt; press █ to start</div>
+    </div>
+
+    <div class="m-cta sec">
+      <span class="sec-label">[ CTAs ]</span>
+      <button class="btn primary">▶ START GAME</button>
+      <button class="btn">RESUME · {time}</button>
+    </div>
+  </div>
+
+  <div class="note" style="max-width:900px;margin-top:8px;line-height:1.7">
+    <b>Responsive mapping:</b><br>
+    · Desktop 2-column (boot | stats) → Mobile stack (boot only; stats compressed into meta lines)<br>
+    · Footer ticker → removed on mobile (space constraint)<br>
+    · Mini-reel 4 cells → removed (CTA prioritized)<br>
+    · Full Tier / Missions / Jackpot view → consider a separate dashboard tab after entry
+  </div>
+
+</div>
+
+<script>
+  // auto-scale to fit viewport width
+  function fit(){
+    document.querySelectorAll('#dw, #mw').forEach(el=>{
+      el.style.transform='none';
+      const w = el.offsetWidth;
+      const avail = window.innerWidth - 64;
+      if(w > avail){
+        const s = avail / w;
+        el.style.transformOrigin = 'top left';
+        el.style.transform = `scale(${s})`;
+        el.style.marginBottom = `${-(el.offsetHeight * (1-s)) + 24}px`;
+      } else {
+        el.style.marginBottom = '0';
+      }
+    });
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('load', fit);
+  fit();
+</script>
+</body>
+</html>

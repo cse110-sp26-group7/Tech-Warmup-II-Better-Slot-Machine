@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SLOT.77 · Button Catalog (Cyberpunk)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#030208;
+    --bg-2:#0B0615;
+    --panel:#0A0414;
+    --line:#1A0E30;
+    --line-2:#2A1850;
+    --fg:#E8E0FF;
+    --dim:#8A7AB0;
+    --dim-2:#5A4A80;
+    --acid:#C8FF00;
+    --magenta:#FF1493;
+    --cyan:#00F0FF;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:'Chakra Petch',sans-serif;min-height:100%}
+  body{
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,20,147,0.07), transparent 50%),
+      radial-gradient(ellipse at 85% 90%, rgba(0,240,255,0.05), transparent 50%),
+      var(--bg);
+    padding:48px 40px 80px;
+  }
+
+  .page{max-width:1100px;margin:0 auto}
+
+  .page-hdr{
+    padding-bottom:20px;margin-bottom:36px;
+    border-bottom:1px solid var(--line-2);
+  }
+  .page-hdr h1{
+    font-size:24px;letter-spacing:0.2em;font-weight:700;margin:0 0 6px;
+    color:var(--acid);
+  }
+  .page-hdr .sub{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--dim);
+  }
+
+  .section{margin-bottom:44px}
+  .section-hdr{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding-bottom:8px;margin-bottom:10px;
+    border-bottom:1px dashed var(--line-2);
+  }
+  .section-hdr .name{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:0.25em;text-transform:uppercase;
+    color:var(--dim);
+  }
+  .section-hdr .name .role{color:var(--acid);margin-left:10px}
+  .section-hdr .cls{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;color:var(--dim-2);letter-spacing:0.1em;
+  }
+  .desc{
+    font-size:13px;color:var(--dim);margin:0 0 16px;letter-spacing:0.01em;
+    max-width:720px;
+  }
+
+  .row{
+    display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+    padding:22px;border:1px solid var(--line-2);background:rgba(10,4,20,0.55);
+  }
+  .row + .row{margin-top:10px}
+  .row-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--dim-2);min-width:70px;
+  }
+
+  /* ============ 01 · CLIPPED-CORNER ============ */
+  .btn-clip{
+    font-family:'Chakra Petch',sans-serif;
+    background:var(--acid);color:var(--bg);
+    border:0;padding:16px 28px;
+    font-size:16px;font-weight:700;letter-spacing:0.2em;
+    cursor:pointer;
+    clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    box-shadow:0 0 0 1px var(--acid), 0 0 24px rgba(200,255,0,0.35);
+    transition:box-shadow 0.15s ease, transform 0.1s ease;
+  }
+  .btn-clip:hover{
+    box-shadow:0 0 0 1px var(--acid), 0 0 44px rgba(200,255,0,0.7);
+    transform:translateY(-2px);
+  }
+  .btn-clip.sm{padding:10px 18px;font-size:12px}
+  .btn-clip.lg{padding:22px 40px;font-size:20px;min-width:220px}
+
+  /* ============ 02 · RECT SOLID ============ */
+  .btn-solid{
+    font-family:'Chakra Petch',sans-serif;
+    background:var(--fg);color:var(--bg);
+    border:0;padding:14px 24px;
+    font-size:14px;font-weight:700;letter-spacing:0.2em;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .btn-solid:hover{background:var(--acid)}
+
+  /* ============ 03 · RECT OUTLINED ============ */
+  .btn-ghost{
+    font-family:'JetBrains Mono',monospace;
+    background:transparent;color:var(--fg);
+    border:1px solid var(--line-2);
+    padding:14px 22px;
+    font-size:12px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;
+    cursor:pointer;
+    transition:border-color 0.15s ease, color 0.15s ease;
+  }
+  .btn-ghost:hover{border-color:var(--acid);color:var(--acid)}
+
+  /* ============ 04 · TEXT ============ */
+  .btn-text{
+    font-family:'JetBrains Mono',monospace;
+    background:transparent;color:var(--fg);
+    border:0;padding:10px 14px;
+    font-size:11px;letter-spacing:0.22em;text-transform:uppercase;
+    cursor:pointer;
+    transition:color 0.15s ease;
+  }
+  .btn-text:hover{color:var(--acid)}
+
+  /* ============ INTRO NOTE ============ */
+  .note{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--dim);letter-spacing:0.05em;line-height:1.7;
+    padding:16px 20px;margin-top:8px;
+    border:1px dashed var(--line-2);
+    background:rgba(10,4,20,0.4);
+  }
+  .note b{color:var(--acid);letter-spacing:0.15em}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-hdr">
+    <h1>BUTTON CATALOG</h1>
+    <div class="sub">SLOT.77 · cyberpunk theme · 4 types · reusable</div>
+  </div>
+
+  <!-- 01 · CLIPPED-CORNER -->
+  <section class="section">
+    <div class="section-hdr">
+      <span class="name">01 · Clipped-Corner<span class="role">// primary CTA</span></span>
+      <span class="cls">.btn-clip</span>
+    </div>
+    <p class="desc">Signature button — angled cut corners + acid glow. Reserve for the main action on a screen (START, SPIN, CONFIRM). Use 1–2 per screen max.</p>
+    <div class="row">
+      <span class="row-label">Default</span>
+      <button class="btn-clip">▶ START GAME</button>
+      <button class="btn-clip">▸ SPIN</button>
+      <button class="btn-clip">CONFIRM</button>
+    </div>
+    <div class="row">
+      <span class="row-label">Sizes</span>
+      <button class="btn-clip sm">▶ sm</button>
+      <button class="btn-clip">▶ md</button>
+      <button class="btn-clip lg">▶ lg</button>
+    </div>
+  </section>
+
+  <!-- 02 · RECT SOLID -->
+  <section class="section">
+    <div class="section-hdr">
+      <span class="name">02 · Rect Solid<span class="role">// strong secondary</span></span>
+      <span class="cls">.btn-solid</span>
+    </div>
+    <p class="desc">Solid-fill rectangle. Prominent but not signature — use for assertive secondary actions (APPLY, NEXT, MAX BET).</p>
+    <div class="row">
+      <span class="row-label">Default</span>
+      <button class="btn-solid">MAX BET</button>
+      <button class="btn-solid">APPLY</button>
+      <button class="btn-solid">NEXT</button>
+    </div>
+  </section>
+
+  <!-- 03 · RECT OUTLINED -->
+  <section class="section">
+    <div class="section-hdr">
+      <span class="name">03 · Rect Outlined<span class="role">// ghost / tertiary</span></span>
+      <span class="cls">.btn-ghost</span>
+    </div>
+    <p class="desc">Transparent with thin border. For optional, supportive, or repeated actions — multiple per screen is fine (AUTO, HOW TO PLAY, CANCEL, RESUME).</p>
+    <div class="row">
+      <span class="row-label">Default</span>
+      <button class="btn-ghost">AUTO 10×</button>
+      <button class="btn-ghost">HOW TO PLAY</button>
+      <button class="btn-ghost">CANCEL</button>
+      <button class="btn-ghost">RESUME</button>
+    </div>
+  </section>
+
+  <!-- 04 · TEXT -->
+  <section class="section">
+    <div class="section-hdr">
+      <span class="name">04 · Text<span class="role">// link / inline</span></span>
+      <span class="cls">.btn-text</span>
+    </div>
+    <p class="desc">No border or background. For navigation, inline links, and tertiary toggles (← LOBBY, SETTINGS, VIEW MORE).</p>
+    <div class="row">
+      <span class="row-label">Default</span>
+      <button class="btn-text">← LOBBY</button>
+      <button class="btn-text">SETTINGS</button>
+      <button class="btn-text">VIEW MORE</button>
+    </div>
+  </section>
+
+  <div class="note">
+    <b>HOW TO USE</b><br>
+    · Pick 1 clipped-corner for the main CTA, then layer solid / ghost / text as hierarchy descends.<br>
+    · Mix sizes freely (sm / md / lg) — the clipped-corner scales cleanly; others use padding adjustments.<br>
+    · Hover to preview interactive state (glow intensifies / color shifts to acid).<br>
+    · Colors come from theme variables — swap <code style="color:var(--acid)">--acid</code> to change accent without touching component.
+  </div>
+
+</div>
+</body>
+</html>
