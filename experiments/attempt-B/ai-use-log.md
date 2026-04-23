@@ -102,3 +102,16 @@ Result:
 Lint / tests: N/A — no code to lint yet. Linters installed and configs parsed successfully during install.
 Hand-edit: none.
 Learning: Loosening `selector-class-pattern` proactively (based on the UI code we're about to write) beats waiting for stylelint to fail and then scrambling. SPEC §4.1 uses underscore-bearing symbol ids (`chrome_skull`, `gold_kanji`, `neon_7`), and those ids flow into CSS class names via `sym-${id}`. The rule has to accept what the design actually produces, not a generic kebab-case-only pattern.
+
+---
+
+## Turn 7 — 2026-04-22 — src/types.js (JSDoc typedefs) + lint script fix
+
+Prompt intent: Create the shared type declaration file so all core modules can reference consistent typedefs, and verify linters run clean on an empty-ish tree.
+Context loaded: design spec §3.3, plan Task 6.
+Result:
+- Created `src/types.js` with `@typedef` for Symbol, Grid, Payline, Win, SpinResult, GameState, Rng. Ended with `export {}` as a module marker (no runtime exports).
+- Fixed ESLint and stylelint scripts in `package.json`: `--no-error-on-unmatched-pattern` / `--allow-empty-input` so running lint before all src/tests files exist does not abort with a "no files matching" error.
+Lint / tests: `npm run lint:js` and `npm run lint:css` both pass.
+Hand-edit: none. The package.json edit was a Claude follow-up after observing the ESLint error, not a pre-planned change — logging for traceability.
+Learning: Running the linter immediately after the very first source file revealed the "no files matching pattern" failure mode. Catching it now, with one file, beats discovering it at Phase C when the patch would have to thread through more code. TDD discipline ("run the checker at every step") applies to tooling too, not just tests.

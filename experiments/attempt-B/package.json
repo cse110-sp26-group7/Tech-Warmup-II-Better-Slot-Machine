@@ -7,8 +7,8 @@
   "scripts": {
     "test": "node --test tests/",
     "lint": "npm run lint:js && npm run lint:css && npm run lint:html",
-    "lint:js": "eslint src/ tests/",
-    "lint:css": "stylelint \"src/**/*.css\"",
+    "lint:js": "eslint \"src/**/*.js\" \"tests/**/*.js\" --no-error-on-unmatched-pattern",
+    "lint:css": "stylelint \"src/**/*.css\" --allow-empty-input",
     "lint:html": "html-validate index.html",
     "serve": "python3 -m http.server 8000"
   },
