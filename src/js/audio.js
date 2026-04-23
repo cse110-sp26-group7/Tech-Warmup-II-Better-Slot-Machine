@@ -228,6 +228,7 @@ export function playWinSound(winLevel) {
 /**
  * Small win: 2-note ascending sawtooth blip.
  * @param {number} now AudioContext timestamp
+ * @returns {void}
  * @private
  */
 function smallWin(now) {
@@ -247,6 +248,7 @@ function smallWin(now) {
  * Medium win: 4-note square-wave arpeggio with a sawtooth octave shimmer.
  * @param {AudioContext} audioCtx
  * @param {number} now AudioContext timestamp
+ * @returns {void}
  * @private
  */
 function mediumWin(audioCtx, now) {
@@ -277,6 +279,7 @@ function mediumWin(audioCtx, now) {
  * chorused neon-synth texture characteristic of a big cyberpunk payoff.
  * @param {AudioContext} audioCtx
  * @param {number} now AudioContext timestamp
+ * @returns {void}
  * @private
  */
 function bigWin(audioCtx, now) {
