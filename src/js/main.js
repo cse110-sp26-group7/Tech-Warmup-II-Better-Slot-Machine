@@ -9,6 +9,7 @@ import * as RNG from './rng.js';
 import { REEL_STRIPS } from './reels.js';
 import { PAYLINES } from './paylines.js';
 import { evaluateAllPaylines, checkScatterTrigger } from './payout.js';
+import { classifyWinLevel } from './winTiers.js';
 import {
   initAudio,
   playSpinSound,
@@ -47,15 +48,6 @@ const AUTO_SPIN_DELAY_MS = 500;
 /** Maximum number of spin results kept in the sidebar history panel */
 const SPIN_HISTORY_LIMIT = 10;
 
-/**
- * Payout multiple of the per-line bet that classifies a win as "big".
- * 25 × betPerLine equals the full total bet (25 paylines × 1 per line).
- */
-const BIG_WIN_THRESHOLD = 25;
-
-/** Payout multiple of the per-line bet that classifies a win as "medium" */
-const MEDIUM_WIN_THRESHOLD = 5;
-
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /**
@@ -65,22 +57,6 @@ const MEDIUM_WIN_THRESHOLD = 5;
  */
 function getBetPerLine() {
   return gameState.currentBet / PAYLINE_COUNT;
-}
-
-/**
- * Classifies a spin payout into a win tier used for sound and animation.
- * @param {number} totalPayout - Total payout from the spin
- * @param {number} betPerLine - Current bet per payline
- * @returns {'big'|'medium'|'small'} Win tier
- */
-function classifyWinLevel(totalPayout, betPerLine) {
-  if (totalPayout >= betPerLine * BIG_WIN_THRESHOLD) {
-    return 'big';
-  }
-  if (totalPayout >= betPerLine * MEDIUM_WIN_THRESHOLD) {
-    return 'medium';
-  }
-  return 'small';
 }
 
 /**
@@ -341,14 +317,19 @@ function populatePaylineNumbers() {
  */
 async function executeSpin() {
   try {
-    // Step 1: Validate player can afford the bet
-    if (gameState.balance < gameState.currentBet) {
+    // Determine if this is a free spin
+    const isFreeSpinActive = gameState.freeSpinsRemaining > 0;
+
+    // Step 1: Validate player can afford the bet (skip if free spin)
+    if (!isFreeSpinActive && gameState.balance < gameState.currentBet) {
       showErrorMessage('Insufficient balance for this bet!');
       return;
     }
 
-    // Step 2: Deduct bet from balance and update state
-    gameState = State.placeBet(gameState, gameState.currentBet);
+    // Step 2: Deduct bet from balance and update state (skip if free spin)
+    if (!isFreeSpinActive) {
+      gameState = State.placeBet(gameState, gameState.currentBet);
+    }
 
     // Step 3: Set isSpinning = true and disable spin button
     gameState = { ...gameState, isSpinning: true };
@@ -372,16 +353,24 @@ async function executeSpin() {
     renderSymbolMatrix(symbolMatrix);
 
     // Step 7: Evaluate all paylines and calculate total payout
-    const { totalPayout, winningPaylines } = evaluateAllPaylines(
+    let { totalPayout, winningPaylines } = evaluateAllPaylines(
       symbolMatrix,
       PAYLINES,
       getBetPerLine(),
     );
 
+    // Apply 2× multiplier during free spins
+    if (isFreeSpinActive) {
+      totalPayout *= 2;
+    }
+
     // Check for scatter bonus trigger
     const scatterSpins = checkScatterTrigger(symbolMatrix);
     if (scatterSpins > 0) {
       playBonusSound();
+      // Award free spins (add to existing for retriggers)
+      gameState = State.setFreeSpins(gameState, gameState.freeSpinsRemaining + scatterSpins);
+      renderFreeSpinsCounter(gameState.freeSpinsRemaining);
     }
 
     // Render payline highlights unconditionally. On losing spins the
@@ -392,9 +381,15 @@ async function executeSpin() {
     // Step 8: Record spin in state
     gameState = State.recordSpin(gameState, totalPayout);
 
+    // Decrement free spins counter if this was a free spin
+    if (isFreeSpinActive) {
+      gameState = State.decrementFreeSpins(gameState);
+      renderFreeSpinsCounter(gameState.freeSpinsRemaining);
+    }
+
     // Step 9: If payout > 0, trigger win animation and win sound
     if (totalPayout > 0) {
-      const winLevel = classifyWinLevel(totalPayout, getBetPerLine());
+      const winLevel = classifyWinLevel(totalPayout, gameState.currentBet);
       playWinSound(winLevel);
       await celebrateWin(totalPayout, winningPaylines, gameState.currentBet);
     }
@@ -409,7 +404,14 @@ async function executeSpin() {
     setSpinButtonState(false);
     updateBetButtonStates();
 
-    // Step 12: If auto-spin is active, check stop conditions and recurse
+    // Step 12: If still in free-spin round, continue automatically
+    if (gameState.freeSpinsRemaining > 0) {
+      await new Promise((resolve) => setTimeout(resolve, AUTO_SPIN_DELAY_MS));
+      await executeSpin();
+      return;
+    }
+
+    // Step 13: If auto-spin is active, check stop conditions and recurse
     if (gameState.autoSpinCount > 0) {
       // Check if auto-spin should stop
       if (shouldStopAutoSpin()) {
@@ -438,8 +440,11 @@ async function executeSpin() {
         }
       }
     }
-  } catch (_error) {
-    // Handle any errors during spin
+  } catch (error) {
+    // Log error details for debugging while showing user-friendly message.
+    // Future refinement: narrow catch scope so animation/audio errors don't
+    // break the entire spin — handle those at module boundaries instead.
+    console.error('Spin failed:', error); // eslint-disable-line no-console
     gameState = { ...gameState, isSpinning: false };
     setSpinButtonState(false);
     showErrorMessage('An error occurred during the spin. Please try again.');

@@ -4,6 +4,7 @@
  */
 
 import { getSymbolById } from './reels.js';
+import { classifyWinLevel } from './winTiers.js';
 
 /** Number of paylines — used to convert a total bet to a per-line bet */
 const PAYLINE_COUNT = 25;
@@ -294,12 +295,13 @@ export function setSpinButtonState(isSpinning) {
 
 /**
  * Celebrates a win with animations scaled to win size
- * Small (1-2x bet): symbol pulse + quick count-up
- * Medium (3-9x bet): payline flash + symbol pulse + dramatic count-up
- * Big (10x+ bet): full-screen overlay with glitch effect + data-rain
+ * Uses shared win-tier classification from winTiers.js for consistency with audio.
+ * Small win: symbol pulse + quick count-up
+ * Medium win: payline flash + symbol pulse + dramatic count-up
+ * Big win: full-screen overlay with glitch effect + data-rain
  * @param {number} amount - The win payout amount
  * @param {number[]} winningPaylineIndices - Array of winning payline indices
- * @param {number} currentBet - Current bet amount (for calculating multiplier)
+ * @param {number} currentBet - Current total bet amount (for tier classification)
  * @returns {Promise<void>} Promise that resolves when celebration completes
  * @throws {Error} If parameters are invalid
  */
@@ -317,13 +319,13 @@ export function celebrateWin(amount, winningPaylineIndices, currentBet) {
   }
 
   return new Promise((resolve) => {
-    // Calculate win multiplier
-    const multiplier = amount / currentBet;
+    // Use shared win-tier classification for consistent sound/visual experience
+    const winLevel = classifyWinLevel(amount, currentBet);
 
     // Determine win size and apply celebration
-    if (multiplier >= 10) {
+    if (winLevel === 'big') {
       celebrateBigWin(amount, resolve);
-    } else if (multiplier >= 3) {
+    } else if (winLevel === 'medium') {
       celebrateMediumWin(amount, resolve);
     } else {
       celebrateSmallWin(amount, resolve);
@@ -438,9 +440,7 @@ function celebrateBigWin(amount, resolve) {
   for (let i = 0; i < 20; i++) {
     const rainChar = document.createElement('div');
     rainChar.className = 'rain-char';
-    rainChar.textContent = ['0', '1', '$', '#', '@', '%'].random
-      ? ['0', '1', '$', '#', '@', '%'][Math.floor(Math.random() * 6)]
-      : '█';
+    rainChar.textContent = ['0', '1', '$', '#', '@', '%'][Math.floor(Math.random() * 6)];
     rainChar.style.left = `${Math.random() * 100}%`;
     rainChar.style.animationDelay = `${Math.random() * 0.5}s`;
     rainChar.style.animationDuration = `${1.5 + Math.random() * 0.5}s`;
