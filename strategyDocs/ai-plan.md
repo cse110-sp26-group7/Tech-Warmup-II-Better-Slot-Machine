@@ -4,9 +4,36 @@
 ---
 
 ## Model
-**Claude Sonnet** via Claude Code.
 
-Sonnet is fast and capable enough for this project. We'll only switch to Opus if Sonnet repeatedly fails on a task.
+**Primary:** Claude Sonnet via Claude Code.
+**Escalate to:** Claude Opus for hard tasks only.
+**Do not use:** Claude Haiku.
+
+### Why Sonnet (default)
+
+Sonnet is the right default for this project because our work is a sequence of small, well-scoped prompts — single modules, single functions, a bounded rebalance of the paytable — not long-horizon autonomous sessions. For that shape of work, Sonnet hits the best cost/speed-to-quality point:
+
+- **Fast iteration.** Our loop is `prompt → review → lint → test → commit`. We re-run it dozens of times per evening. Sonnet's faster turns keep that loop tight; Opus latency adds up across 40+ entries.
+- **Capability matches task size.** Each phase (RNG, reels, paylines, payout, UI, audio, free spins) is a few hundred lines of vanilla JS with clear inputs and outputs. Sonnet handles that cleanly — we verified by running ESLint and Jest after every generation.
+- **Cost discipline.** With 12 teammates potentially iterating, defaulting to Opus for every prompt is wasteful when Sonnet gets it right the first time.
+- **Good at following a style guide.** We committed `STYLE-GUIDE.md` early and Sonnet produced consistent single-quote, JSDoc-annotated ES-module code across modules without per-prompt reminders.
+
+### When to escalate to Opus
+
+Switch to Opus (and log the switch in `ai-use-log.md`) when:
+
+- Sonnet has failed the same task twice in a row after re-prompting with corrections.
+- The task spans multiple files with cross-module invariants (e.g., rebalancing the paytable touches `payout.js`, `main.js`, and the entire `payout.test.js` suite at once — a case where a single coherent edit beats two cheaper but inconsistent ones).
+- The task requires nontrivial math or probability reasoning (RTP/volatility tuning, weighted-symbol reel-strip design) where a wrong answer is hard to catch in unit tests.
+- We are debugging an intermittent failure and need stronger hypothesis generation than Sonnet is giving us.
+
+### Why not Haiku
+
+Haiku is optimized for short, simple, high-throughput tasks (classification, extraction, routing). Our prompts routinely ask for a full module with JSDoc, error handling, and style-guide adherence, plus corresponding test updates — that is past Haiku's sweet spot and we would spend the savings on re-prompts. We deliberately keep it off the table so teammates don't silently downgrade mid-session.
+
+### Rule
+
+**Start every session on Sonnet.** If you escalate or change the model for a specific prompt, log it as its own entry in `ai-use-log.md` with the reason and the outcome, so we build evidence for future tuning.
 
 ---
 
