@@ -5,9 +5,8 @@
 
 import { getSymbolById } from './reels.js';
 import { classifyWinLevel } from './winTiers.js';
-
-/** Number of paylines — used to convert a total bet to a per-line bet */
-const PAYLINE_COUNT = 25;
+import { PAYLINE_COUNT } from './state.js';
+import { PAYLINES } from './paylines.js';
 
 /**
  * Unicode character representations for each symbol
@@ -734,35 +733,7 @@ function getSymbolColor(symbolId) {
  * @returns {string} HTML string with payline items
  */
 function generatePaylineDiagrams() {
-  const paylines = [
-    [1, 1, 1, 1, 1],
-    [0, 0, 0, 0, 0],
-    [2, 2, 2, 2, 2],
-    [0, 1, 2, 1, 0],
-    [2, 1, 0, 1, 2],
-    [0, 1, 0, 1, 0],
-    [1, 0, 1, 0, 1],
-    [2, 1, 2, 1, 2],
-    [1, 2, 1, 2, 1],
-    [0, 0, 1, 2, 2],
-    [2, 2, 1, 0, 0],
-    [1, 0, 0, 0, 1],
-    [1, 2, 2, 2, 1],
-    [1, 1, 0, 1, 1],
-    [1, 1, 2, 1, 1],
-    [0, 2, 0, 2, 0],
-    [2, 0, 2, 0, 2],
-    [0, 0, 0, 1, 2],
-    [2, 2, 2, 1, 0],
-    [0, 1, 2, 2, 2],
-    [2, 1, 0, 0, 0],
-    [1, 0, 2, 0, 1],
-    [1, 2, 0, 2, 1],
-    [0, 2, 1, 2, 0],
-    [2, 0, 1, 0, 2],
-  ];
-
-  return paylines.map((payline, index) => {
+  return PAYLINES.map((payline, index) => {
     const diagram = payline.map((row) => {
       const top = row === 0 ? '█' : '░';
       const mid = row === 1 ? '█' : '░';
