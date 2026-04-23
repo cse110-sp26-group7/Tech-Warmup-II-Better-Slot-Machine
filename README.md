@@ -20,6 +20,36 @@ You are a rogue street runner breaking into megacorp data vaults. Every spin is 
 
 ---
 
+## User Needs & Acceptance Coverage
+
+Every feature in **Data Heist** was driven by the personas in [`plan/personas/`](plan/personas/) and the acceptance criteria in [`plan/user-stories/`](plan/user-stories/). We kept returning to those documents throughout development so the build would serve real players with real motivations, not an abstract "user." We tried our best to address as many personas as possible within the scope of this milestone — the mapping below shows where that effort landed, including the places we've flagged honestly as future work rather than silently dropped.
+
+### Personas → Delivered features
+
+| Persona | What they need | How the build addresses it |
+|---|---|---|
+| **Marcus** — casual casino player | Strong theme, quick to pick up, bonus features, few buttons | Cohesive cyberpunk identity, large prominent **SPIN**, clearly labeled balance/bet, free-spins bonus, win-tier celebrations, SFX toggle |
+| **Noah** — online gambler chasing the rush | Fast replay, big animations, bonus rounds, celebratory sounds | **AUTO SPIN**, **MAX BET**, scatter-triggered free spins (10 / 15 / 25) with **2× multiplier**, tiered win animations & audio (`winTiers.js`, `audio.js`) |
+| **Bardow** — slot player chasing jackpots | Jackpot thrill; awareness of session to break chase-loss spirals | High-tier win feedback delivers the jackpot rush; **Last Spins** history panel surfaces session reality. *Future:* explicit responsible-gambling limits |
+| **Scott** — rational / mathematical player | Understand the math, stretch a small budget | Full **PAYTABLE** modal with every symbol's payout and all **25 paylines** available at any time; precise bet controls (`−` / `+` / MAX BET). *Future:* surface RTP % and volatility |
+| **Molly** — senior, budget-conscious | Extended entertainment, stay within a daily budget | 10,000 starting credits + small-step bet controls let a session last; clear win feedback and spin history reinforce entertainment value. *Future:* hard daily-budget cap and promo concept |
+
+### User stories → Status
+
+| # | Story | Status | Where in the build |
+|---|---|---|---|
+| 1 | Casual player — obvious UI (spin, bet, balance, win reaction) | ✅ Met | `src/index.html` top bar + controls bar + win display |
+| 2 | Stealth / privacy mode | ⚠️ Future work | Responsive layout is in place; a dedicated discreet mode was not in this milestone |
+| 3 | Paylines drawn on wins | ✅ Met | `src/js/paylines.js` + 25 paylines visualized in the paytable |
+| 4 | New player — paytable available at any time | ✅ Met | **PAYTABLE** button + modal |
+| 5 | Bonus-feature hunter — regular bonus rounds | ✅ Met | Neural Chip scatter → 10 / 15 / 25 free spins with 2× multiplier |
+| 6 | Session tracker — last-spins side panel | ✅ Met | `side-panel--right` / `#spin-history-list` |
+| 7 | Unlucky player — sympathetic feedback on dry streaks | ⚠️ Future work | Win tiers shipped; a losing-streak acknowledgement is the natural extension |
+
+**Bottom line:** every one of the five personas informed at least one concrete feature in the shipped code, and five of seven user stories are directly met. The two remaining stories and the three persona-level future-work items above are documented openly so future iterations have a clear starting point.
+
+---
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) 18 or later
