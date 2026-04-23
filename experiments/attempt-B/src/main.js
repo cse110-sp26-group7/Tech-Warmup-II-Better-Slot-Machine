@@ -4,14 +4,20 @@ import { spin, generateGrid } from './engine.js';
 import { INITIAL_STATE, BET_STEPS } from './paytable.js';
 import {
   renderGrid, highlightWins, renderBreakdown, renderHud, renderPaytable,
-  setSpinEnabled, setResetVisible, triggerBigWin, wireEvents,
+  setSpinEnabled, setResetVisible, triggerBigWin, triggerUnlucky, wireEvents,
 } from './ui.js';
-import { playSpin, playWin, playBigWin, playMegaWin } from './sound.js';
+import { playSpin, playWin, playBigWin, playMegaWin, playPity } from './sound.js';
 
 const rng = createRng();
 
 /** @type {import('./types.js').GameState} */
 let state = { ...INITIAL_STATE };
+
+// Pity mechanic per User Story 7. Tracked outside engine (engine stays pure).
+// Threshold = 10 consecutive zero-payout spins; bonus = 2× bet, disclosed.
+const UNLUCKY_STREAK_THRESHOLD = 10;
+const UNLUCKY_BONUS_MULT = 2;
+let losingStreak = 0;
 
 function render(wins = []) {
   renderHud({
@@ -37,10 +43,21 @@ function handleSpin() {
     render(result.wins);
 
     if (result.payout > 0) {
+      losingStreak = 0;
       const ratio = result.payout / state.bet;
       if (ratio >= 50) playMegaWin();
       else if (ratio >= 10) playBigWin();
       else playWin();
+    } else {
+      losingStreak += 1;
+      if (losingStreak >= UNLUCKY_STREAK_THRESHOLD) {
+        const bonus = state.bet * UNLUCKY_BONUS_MULT;
+        state = { ...state, balance: state.balance + bonus };
+        triggerUnlucky(bonus);
+        playPity();
+        losingStreak = 0;
+        render(result.wins);
+      }
     }
   } catch (err) {
     // eslint-disable-next-line no-console -- design spec §3.5 requires console logging of unexpected engine errors
@@ -70,6 +87,7 @@ function handleMaxBet() {
 
 function handleReset() {
   state = { ...INITIAL_STATE };
+  losingStreak = 0;
   render();
 }
 
@@ -85,8 +103,8 @@ function bootstrap() {
     onReset: handleReset,
   });
 
-  // Test hooks — let devs trigger BIG/MEGA effects without waiting for a rare RNG roll.
-  // Shift+B = BIG WIN preview, Shift+M = MEGA WIN preview. Safe to remove for final build.
+  // Test hooks — let devs preview the rare overlay effects without RNG waiting.
+  // Shift+B = BIG WIN, Shift+M = MEGA WIN, Shift+U = UNLUCKY BONUS. Safe to remove for final build.
   window.addEventListener('keydown', (e) => {
     if (!e.shiftKey) return;
     if (e.key === 'B' || e.key === 'b') {
@@ -95,6 +113,9 @@ function bootstrap() {
     } else if (e.key === 'M' || e.key === 'm') {
       triggerBigWin(state.bet * 75, state.bet);
       playMegaWin();
+    } else if (e.key === 'U' || e.key === 'u') {
+      triggerUnlucky(state.bet * UNLUCKY_BONUS_MULT);
+      playPity();
     }
   });
 }

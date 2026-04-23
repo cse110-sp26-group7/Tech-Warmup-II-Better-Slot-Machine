@@ -75,7 +75,7 @@ The research produced **5 personas** (`research/personas/`) and **7 user stories
 | US4 | New player — clear paytable available at any time | **Implemented** | Left sidebar `PAYTABLE` shows compact per-symbol payouts (×3/×4/×5) at all times on desktop/tablet. A `<details>` expansion below reveals all 25 paylines. On mobile the `[i]` button opens the full paytable in a native `<dialog>`. |
 | US5 | Bonus-feature hunter — bonus rounds or free spins per session | **Scope cut** | SPEC §10 lists Scatter / Free Spins / Multipliers as explicitly out of scope for Attempt B. Substituted: BIG WIN / MEGA WIN overlays + sounds at payouts ≥ 10× / 50× bet fill part of the "something to look forward to" role, though not to the level this story originally asked for. |
 | US6 | Session tracker — last-N spin history in a side panel | **Reinterpreted** | Original ask was a chronological log. Attempt B rebuilt this as the **Win Breakdown panel** — current spin's line-by-line payout decomposition. Same "see data about my play" motivation, narrower focus on the most recent spin so the panel stays readable. |
-| US7 | Unlucky player — "pity" acknowledgement when a cold streak runs long | **Not implemented** | No streak detection or sympathetic messaging. Would require session-level state that SPEC does not carry. |
+| US7 | Unlucky player — "pity" acknowledgement when a cold streak runs long | **Implemented (disclosed pity bonus)** | `main.js` tracks consecutive zero-payout spins outside the engine (engine stays pure). After 10 losses in a row, a **disclosed, non-mystical** pity bonus (2× bet) is credited and an `UNLUCKY BONUS +N` overlay flashes with a gentle descending arpeggio. Framing is explicit — "on the house", not "your luck is about to change" — so the mechanic is a rule, not a manipulation of RNG perception. Counter resets on any win. |
 
 #### Personas
 
@@ -94,7 +94,6 @@ Four features raised by the research were explicitly cut. Listing them prevents 
 - **Scatter / Free Spins / Multipliers** (US5) — scope cut, SPEC §10.
 - **Stealth/privacy UI** (US2) — rejected on ethical grounds.
 - **Session history log** (US6) — reinterpreted as Win Breakdown, kept the motivation.
-- **Pity messaging for cold streaks** (US7) — not implemented; no session-level state.
 - **Responsible-gambling affordances** (Bardow) — out of scope; should be in a future iteration.
 
 Explicitly listing cuts is part of user-centered design. Silent omission would imply the features were overlooked; logging them as decisions documents that the team saw the request and made a deliberate call.

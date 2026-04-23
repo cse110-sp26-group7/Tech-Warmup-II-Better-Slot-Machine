@@ -466,6 +466,38 @@ body {
   text-shadow: 0 0 20px var(--gold), 0 0 60px var(--gold);
 }
 
+.big-win-overlay.unlucky.active {
+  animation: unlucky-flash 1.4s ease-out 1 forwards;
+}
+
+.big-win-overlay.unlucky #big-win-label {
+  font-size: 56px;
+  color: var(--magenta);
+  text-shadow: 0 0 16px var(--magenta), 0 0 40px var(--magenta);
+}
+
+@keyframes unlucky-flash {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  15% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  80% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+}
+
 @keyframes big-win-flash {
   0% {
     opacity: 0;

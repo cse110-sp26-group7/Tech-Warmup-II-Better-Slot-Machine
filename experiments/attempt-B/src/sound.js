@@ -89,6 +89,15 @@ export function playBigWin() {
   });
 }
 
+/** Unlucky pity bonus — gentle descending major arpeggio, smaller volume. */
+export function playPity() {
+  const d = 0.3;
+  // G4 → E4 → C4, consolation-feel (descending major thirds)
+  tone(392.00, 0.25, 'triangle', 0.09, d);
+  tone(329.63, 0.25, 'triangle', 0.09, d + 0.12);
+  tone(261.63, 0.35, 'triangle', 0.09, d + 0.24);
+}
+
 /** Mega win — triadic progression plus sustained bass. */
 export function playMegaWin() {
   const d = 0.7;

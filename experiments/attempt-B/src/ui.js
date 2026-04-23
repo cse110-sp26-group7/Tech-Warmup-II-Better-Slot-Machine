@@ -187,7 +187,7 @@ export function triggerBigWin(payout, bet) {
   const ratio = payout / bet;
   if (ratio < 10) return;
 
-  bigWinEl.classList.remove('active', 'mega');
+  bigWinEl.classList.remove('active', 'mega', 'unlucky');
   // reflow forces the animation to restart on re-add — CSS-only restart trick
   void bigWinEl.offsetWidth;
 
@@ -198,4 +198,15 @@ export function triggerBigWin(payout, bet) {
     bigWinLabelEl.textContent = 'BIG WIN';
     bigWinEl.classList.add('active');
   }
+}
+
+/**
+ * Pity bonus overlay — disclosed, non-mystical ("on the house") framing.
+ * @param {number} amount  credits awarded
+ */
+export function triggerUnlucky(amount) {
+  bigWinEl.classList.remove('active', 'mega', 'unlucky');
+  void bigWinEl.offsetWidth;
+  bigWinLabelEl.textContent = `UNLUCKY BONUS +${amount.toFixed(1)}`;
+  bigWinEl.classList.add('active', 'unlucky');
 }
