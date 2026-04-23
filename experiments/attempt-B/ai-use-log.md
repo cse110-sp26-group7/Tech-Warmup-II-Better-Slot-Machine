@@ -379,3 +379,45 @@ Result:
 Lint / tests: 18/18 pass; js lint clean.
 Hand-edit: none.
 Learning: Web Audio's own scheduling is the right way to do multi-note sequencing without violating the "no JS timer" rule. Sound timing is cheaper and more precise than setTimeout anyway (sub-millisecond vs. ~4ms browser tick resolution). For a real audio project this approach caps out quickly (no complex sampling, no spatialization) but for slot-machine SFX it's plenty.
+
+---
+
+## Turn 25 — 2026-04-22 — Desktop browser smoke (Task 18) + iterated fixes
+
+Prompt intent: User opened the app in a browser mid-Phase-C to sanity-check layout; discovered and we fixed several real issues that linters had not caught. Logging the smoke pass as a whole rather than per-fix.
+Context loaded: running page, screenshots from user.
+Observations + fixes from the smoke pass (each committed separately for traceability):
+- **RESET overlay showing on load** — Turn 16 (`.reset-overlay[hidden] { display: none }` patch).
+- **Symbols not rendering (empty cells)** — Turn 20 (path: `assets/` → `src/assets/`, added `viewBox="0 0 100 100"`).
+- **Symbols felt too small, reel area too narrow** — Turn 23 (SVG 70 → 92%, max-width 560 → 800).
+- **Column-wise drop not the intended visual** — Turn 23 (moved animation to `.cell`, indexed by `--row`, top→middle→bottom).
+- **Research SVG was available but not used** — Turn 21 (swap to research sprite via subagent).
+- **No spin/win sound** — Turn 24 (Web Audio synthesis).
+- **BIG/MEGA effects hard to test by waiting** — just-now fix (`Shift+B`/`Shift+M` dev hooks).
+- **Balance display inconsistent decimals** — just-now fix (`.toFixed(1)`).
+
+Current desktop state (verified):
+- Initial paint: BAL 1000.0, BET 10, random grid (seed-of-day), no RESET overlay.
+- Spin: column→wait→reveal grid w/ row-wise drop + spin sound → breakdown rendered → hot cells glow-pulse 500ms after drop finishes.
+- Bet stepper + MAX BET work; SPIN disabled when bet>balance; balance=0 triggers RESET overlay.
+- All four lint gates clean; 18/18 unit tests pass.
+- Browser console: no errors, no warnings.
+
+Hand-edit: none across all smoke-driven fixes. Every fix applied via Claude (orchestrator or subagent).
+Learning: Lint and unit tests caught none of the 4 real layout/rendering defects that the browser caught. For a project with a visual component, **"lint + unit + in-browser smoke" is the minimum viable verification set**; the first two alone are necessary but not sufficient. Next time, plan-write should include a live smoke session before freezing.
+
+---
+
+## Turn 26 — 2026-04-22 — FINAL-REPORT, slides outline, README
+
+Prompt intent: Author the final deliverables — `final-report/FINAL-REPORT.md` with real data from the log, `final-report/slides-outline.md` for 4–7 slides and ≤4-min video, and an updated `README.md` that reflects the shipped state.
+Context loaded: ai-use-log (25 prior turns), git log stats (29 commits, 634 + 190 LOC), test count (18/18), empirical RTP (0.9603), 0 hand-edits.
+Result:
+- `final-report/FINAL-REPORT.md` — 5 sections (Hypothesis, Process, Data, Discussion, Conclusion). Uses specific Turn references for qualitative claims (Turn 10 evaluateLine bug, Turn 12 RTP tune, Turn 23 animation composition, Turns 16/20/23 browser-caught defects). Defensible conclusion.
+- `final-report/slides-outline.md` — 4–7 slide structure + video arc, sized to the assignment's constraints. Includes notes on tooling (Marp / Keynote / Slides) and visual guidance (dark bg, Orbitron, acid accent).
+- `README.md` — rewrote from the pre-build stub into a shipped-state doc: layout tree, run commands, differentiators, verification summary, headline numbers.
+Lint / tests: 18/18 pass; all four linters clean. No regressions from the documentation additions.
+Hand-edit: none.
+Learning: Writing the final report last meant every claim could point to a specific Turn number in this log. If the report had been drafted earlier and updated as we went, it would have accreted vague "see log" references. The "log first, report last" ordering is worth keeping.
+
+## Phase E partially complete — FINAL-REPORT + slides outline + README done. Remaining: slides PDF export and demo video recording (both user-driven).
