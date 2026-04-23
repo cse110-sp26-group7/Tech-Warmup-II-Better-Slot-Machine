@@ -314,3 +314,19 @@ Result:
 Lint / tests: lint:js clean; other gates not re-run (ui.js change is cosmetic, no test impact).
 Hand-edit: none — Claude orchestrator applied both patches.
 Learning: **Fourth Phase C defect traceable to "plan author did not run the artifact."** The plan's `href="assets/symbols.svg"` was a path written against a mental model where index.html lives next to `assets/`. In reality index.html is at the project root and assets are under `src/assets/`. The CSS already used the correct relative path (`src/styles.css`); the JS path was a typo-level inconsistency. Same pattern as Turns 14/15/16/18 — prescribed content doesn't survive contact with a browser. Mitigation for future projects: **the plan-write step should end with `npm run serve` + manual smoke of the plan's HTML/CSS/JS snippets, not just lint.** Lint caught none of the four Phase C defects; only the browser caught them.
+
+---
+
+## Turn 21 — 2026-04-22 — Replace authored sprite with research-asset conversion (user-requested)
+
+Prompt intent: User asked "why didn't you use the existing research SVG?" I explained the structure mismatch (research SVG is a single-canvas illustration, not a sprite) and the tradeoff. User said "spawn a subagent, it won't take long." Dispatched.
+Context loaded (by subagent): research/visuals_and_assets/cyberpunk/symbols-cyberpunk.svg (source), src/assets/symbols.svg (target to overwrite), src/ui.js (consumer contract).
+Result:
+- Subagent wrapped each of 8 glyphs from the 4×2 grid into `<symbol id="sym-<id>">` elements with viewBox set to the cell's origin (20/180/340/500 × 40/220, size 150×170).
+- Dropped the root dark-canvas rect and sheet-level title/desc; kept each cell's background rect so neon glyphs render on their dark panel.
+- Kept original stroke colors and layered glow paths — no currentColor conversion. We lose the per-symbol CSS color theming (`.cell.sym-wild { color: var(--magenta) }` becomes a no-op) but gain the intended neon look.
+- Element counts vary by symbol (neon_7: 4, gold_kanji: 5, oni_mask: 17, chrome_skull: 21, neural_chip: 32, wild: 6, cyber_iris: 19, katana: 11) — reflects the detail level of the illustration.
+- Subagent flagged: per-cell caption `<text>` labels (e.g., "Neon 7") are still present since their y-coordinates fall within the cell bounds. At 70% cell size in the browser they should be mostly invisible, but noted for future cleanup if needed.
+- All four gates green (18 tests, js/css/html lint clean).
+Hand-edit: none.
+Learning: The tradeoff between "author simple and themable" vs. "use the real artwork" ended up being lower-cost than I estimated. Extracting via bounding-box mapping was mechanical and the subagent completed it in one pass. Lesson: when a user asks about an asset that already exists, try the swap first rather than defending the authored version — the research artifact is usually richer for free.
