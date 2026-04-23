@@ -397,7 +397,7 @@ async function executeSpin() {
     // Step 10: Update displays
     renderBalance(gameState.balance);
     renderWin(totalPayout);
-    updateLastSpinsPanel(totalPayout);
+    updateLastSpinsPanel(totalPayout, isFreeSpinActive ? 0 : gameState.currentBet);
 
     // Step 11: Set isSpinning = false and re-enable spin button
     gameState = { ...gameState, isSpinning: false };
@@ -487,9 +487,10 @@ function showErrorMessage(message) {
  * Updates the last spins history panel
  * Adds the latest spin result to the history list
  * @param {number} payout - The payout amount from the spin
+ * @param {number} bet - The bet amount deducted for the spin (0 for free spins)
  * @returns {void}
  */
-function updateLastSpinsPanel(payout) {
+function updateLastSpinsPanel(payout, bet) {
   const historyList = document.getElementById('spin-history-list');
   if (!historyList) {
     return;
@@ -506,7 +507,7 @@ function updateLastSpinsPanel(payout) {
 
   const payoutText = payout > 0
     ? `Win: +${Math.floor(payout)}`
-    : 'Loss: 0';
+    : `Loss: -${bet}`;
 
   item.textContent = payoutText;
   item.style.color = payout > 0
