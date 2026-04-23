@@ -1,6 +1,6 @@
 # DATA HEIST
 
-A cyberpunk-themed 5×3 video slot machine built with vanilla JavaScript, HTML, and CSS — no frameworks, no audio files.
+A cyberpunk-themed 5×3 video slot machine built with vanilla JavaScript, HTML, and CSS — no frameworks.
 
 ---
 
