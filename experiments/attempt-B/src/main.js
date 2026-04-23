@@ -84,6 +84,19 @@ function bootstrap() {
     onMaxBet: handleMaxBet,
     onReset: handleReset,
   });
+
+  // Test hooks — let devs trigger BIG/MEGA effects without waiting for a rare RNG roll.
+  // Shift+B = BIG WIN preview, Shift+M = MEGA WIN preview. Safe to remove for final build.
+  window.addEventListener('keydown', (e) => {
+    if (!e.shiftKey) return;
+    if (e.key === 'B' || e.key === 'b') {
+      triggerBigWin(state.bet * 15, state.bet);
+      playBigWin();
+    } else if (e.key === 'M' || e.key === 'm') {
+      triggerBigWin(state.bet * 75, state.bet);
+      playMegaWin();
+    }
+  });
 }
 
 bootstrap();
