@@ -23,22 +23,10 @@
 
         <!-- Main Game Container -->
         <main class="game-container">
-            <!-- Left Side Panel - Payline Numbers -->
+            <!-- Left Side Panel - Payline Numbers (populated by JS) -->
             <aside class="side-panel side-panel--left">
-                <div class="payline-numbers">
-                    <div class="payline-number" data-line="1">1</div>
-                    <div class="payline-number" data-line="2">2</div>
-                    <div class="payline-number" data-line="3">3</div>
-                    <div class="payline-number" data-line="4">4</div>
-                    <div class="payline-number" data-line="5">5</div>
-                    <div class="payline-number" data-line="6">6</div>
-                    <div class="payline-number" data-line="7">7</div>
-                    <div class="payline-number" data-line="8">8</div>
-                    <div class="payline-number" data-line="9">9</div>
-                    <div class="payline-number" data-line="10">10</div>
-                    <div class="payline-number" data-line="11">11</div>
-                    <div class="payline-number" data-line="12">12</div>
-                    <div class="payline-number" data-line="13">13</div>
+                <div class="payline-numbers" id="payline-numbers">
+                    <!-- .payline-number divs populated from PAYLINES.length in initializeGame() -->
                 </div>
             </aside>
 
@@ -97,7 +85,7 @@
                     <div class="controls-group">
                         <button id="auto-spin-btn" class="btn btn--control">AUTO SPIN</button>
                         <span id="auto-spin-counter" class="auto-spin-counter"></span>
-                        <button id="max-bet-btn" class="btn btn--control">MAX BET</button>
+                        <button id="max-bet-btn" class="btn btn--control">MAX BET (2500)</button>
                     </div>
                 </section>
 

@@ -95,20 +95,28 @@ test.describe('Data Heist slot machine', () => {
   });
 
   // ── 3 ───────────────────────────────────────────────────────────────────
-  test('after a spin the 5×3 symbol grid is fully populated with 15 symbols', async ({ page }) => {
+  test('the 5×3 symbol grid is fully populated on load and after a spin', async ({ page }) => {
     await gotoGame(page);
 
-    await page.getByRole('button', { name: 'SPIN', exact: true }).click();
-    await waitForSpinEnd(page);
-
-    // Every reel-cell should contain exactly one .symbol div
+    // Before any spin: initializeGame() seeds the grid with a decorative
+    // starting matrix so the player never sees a blank reel area.
     await page.waitForFunction(
       () => document.querySelectorAll('.reel-cell .symbol').length === 15,
       { timeout: 10_000 },
     );
+    const symbolsOnLoad = await page.locator('.reel-cell .symbol').count();
+    expect(symbolsOnLoad).toBe(15);
 
-    const symbolCount = await page.locator('.reel-cell .symbol').count();
-    expect(symbolCount).toBe(15);
+    // After a spin the grid must still be fully populated.
+    await page.getByRole('button', { name: 'SPIN', exact: true }).click();
+    await waitForSpinEnd(page);
+
+    await page.waitForFunction(
+      () => document.querySelectorAll('.reel-cell .symbol').length === 15,
+      { timeout: 10_000 },
+    );
+    const symbolsAfterSpin = await page.locator('.reel-cell .symbol').count();
+    expect(symbolsAfterSpin).toBe(15);
   });
 
   // ── 4 ───────────────────────────────────────────────────────────────────
@@ -162,9 +170,9 @@ test.describe('Data Heist slot machine', () => {
       { timeout: 30_000 },
     );
 
-    // Stop the auto-spin loop: the current count is not in AUTO_SPIN_OPTIONS,
-    // so one click cycles back to 0 (OFF).
-    await page.getByRole('button', { name: 'AUTO SPIN' }).click();
+    // Stop the auto-spin loop: while auto-spin is active the button label
+    // is "STOP", so locate by id instead of by accessible name.
+    await page.locator('#auto-spin-btn').click();
 
     // Let the in-flight spin finish before reading state
     await waitForSpinEnd(page);
@@ -205,6 +213,32 @@ test.describe('Data Heist slot machine', () => {
     await waitForSpinEnd(page);
 
     await expect(page.locator('#free-spins-counter')).not.toBeVisible();
+  });
+
+  // ── 8 ───────────────────────────────────────────────────────────────────
+  test('auto-spin button cancels immediately on a single STOP click', async ({ page }) => {
+    await gotoGame(page);
+
+    const autoBtn = page.locator('#auto-spin-btn');
+    const autoCounter = page.locator('#auto-spin-counter');
+
+    // Initial label is AUTO SPIN
+    await expect(autoBtn).toHaveText('AUTO SPIN');
+
+    // Start auto-spin — label flips to STOP and counter shows "(10)"
+    await autoBtn.click();
+    await expect(autoBtn).toHaveText('STOP');
+    await expect(autoCounter).toHaveText(/\(\d+\)/);
+
+    // Single click cancels immediately — no four-click cycle required
+    await autoBtn.click();
+
+    // Let the in-flight spin finish
+    await waitForSpinEnd(page);
+
+    // Label restored, counter cleared
+    await expect(autoBtn).toHaveText('AUTO SPIN');
+    await expect(autoCounter).toHaveText('');
   });
 
 });

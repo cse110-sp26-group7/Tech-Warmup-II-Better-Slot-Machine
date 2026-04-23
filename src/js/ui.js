@@ -4,6 +4,7 @@
  */
 
 import { getSymbolById } from './reels.js';
+import { classifyWinLevel } from './winTiers.js';
 
 /** Number of paylines — used to convert a total bet to a per-line bet */
 const PAYLINE_COUNT = 25;
@@ -80,7 +81,8 @@ export function renderBet(bet) {
     throw new Error('Bet display element (#bet-display) not found in DOM');
   }
 
-  betDisplay.textContent = Math.floor(bet).toString();
+  const perLineBet = bet / 25;
+  betDisplay.innerHTML = `${Math.floor(bet)}<br><span style="font-size: 0.6em; opacity: 0.8;">(${perLineBet.toFixed(perLineBet % 1 === 0 ? 0 : 2)} per line)</span>`;
 }
 
 /**
@@ -112,32 +114,62 @@ export function renderWin(amount) {
 }
 
 /**
- * Draws neon pink highlights connecting winning symbols across reels
- * Creates SVG lines from each winning payline
- * @param {number[]} winningPaylineIndices - Array of winning payline indices (0-24)
- * @param {number[]} paylines - Array of payline definitions (each is array of 5 row indices)
+ * Clears any leftover payline highlights — both the SVG polyline overlay
+ * and the `is-active` class on the left-side payline number panel.
+ * Safe to call when nothing is highlighted.
+ * @returns {void}
+ */
+export function clearPaylineHighlight() {
+  const existingOverlay = document.getElementById('payline-highlight-overlay');
+  if (existingOverlay) {
+    existingOverlay.remove();
+  }
+
+  document.querySelectorAll('.payline-number.is-active').forEach((el) => {
+    el.classList.remove('is-active');
+  });
+}
+
+/**
+ * Draws neon pink highlights connecting winning symbols across reels.
+ * Creates SVG polylines that terminate at the last matching symbol so a
+ * 3-of-a-kind win doesn't visually extend through the non-matching reels.
+ *
+ * @param {{index:number, matchCount:number}[]} winningPaylines
+ *   Array of winning payline descriptors produced by `evaluateAllPaylines`.
+ *   `index` is 0-based; `matchCount` is the number of consecutive matching
+ *   symbols from reel 0 (always ≥ 3 for a winner).
+ * @param {number[][]} paylines - Array of payline definitions (each is array of 5 row indices)
  * @returns {void}
  * @throws {Error} If parameters are invalid or DOM elements not found
  */
-export function renderPaylineHighlight(winningPaylineIndices, paylines) {
-  if (!Array.isArray(winningPaylineIndices)) {
-    throw new Error('Winning payline indices must be an array');
+export function renderPaylineHighlight(winningPaylines, paylines) {
+  if (!Array.isArray(winningPaylines)) {
+    throw new Error('winningPaylines must be an array');
   }
 
   if (!Array.isArray(paylines) || paylines.length !== PAYLINE_COUNT) {
     throw new Error('Paylines must be an array of 25 paylines');
   }
 
-  // Remove existing highlight overlay if present
-  const existingOverlay = document.getElementById('payline-highlight-overlay');
-  if (existingOverlay) {
-    existingOverlay.remove();
-  }
+  // Always clear prior highlights first so a losing spin wipes the grid.
+  clearPaylineHighlight();
 
-  // If no winning paylines, return early
-  if (winningPaylineIndices.length === 0) {
+  // If no winning paylines, the clear above is all we needed.
+  if (winningPaylines.length === 0) {
     return;
   }
+
+  // Mark the corresponding side-panel numbers as active. data-line is
+  // 1-indexed; winningPaylines[].index is 0-indexed.
+  winningPaylines.forEach(({ index }) => {
+    const numberDiv = document.querySelector(
+      `.payline-number[data-line="${index + 1}"]`,
+    );
+    if (numberDiv) {
+      numberDiv.classList.add('is-active');
+    }
+  });
 
   // Get the reel area to determine dimensions for SVG
   const reelArea = document.querySelector('.reel-area');
@@ -171,18 +203,21 @@ export function renderPaylineHighlight(winningPaylineIndices, paylines) {
     }
   }
 
-  // Draw lines for each winning payline
-  winningPaylineIndices.forEach((paylineIndex) => {
-    if (paylineIndex < 0 || paylineIndex >= paylines.length) {
+  // Draw lines for each winning payline, terminating at the last matching
+  // symbol so a 3-of-a-kind win doesn't visually extend through the
+  // non-matching reels.
+  winningPaylines.forEach(({ index, matchCount }) => {
+    if (index < 0 || index >= paylines.length) {
       return;
     }
 
-    const payline = paylines[paylineIndex];
+    const payline = paylines[index];
     const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
     const points = [];
 
-    // Calculate center points for each reel on this payline
-    for (let reelIndex = 0; reelIndex < 5; reelIndex++) {
+    // Draw through only the first `matchCount` cells (bounded by reel count)
+    const endReel = Math.min(matchCount, payline.length);
+    for (let reelIndex = 0; reelIndex < endReel; reelIndex++) {
       const rowIndex = payline[reelIndex];
       const cell = cellsByReel[reelIndex][rowIndex];
 
@@ -261,12 +296,13 @@ export function setSpinButtonState(isSpinning) {
 
 /**
  * Celebrates a win with animations scaled to win size
- * Small (1-2x bet): symbol pulse + quick count-up
- * Medium (3-9x bet): payline flash + symbol pulse + dramatic count-up
- * Big (10x+ bet): full-screen overlay with glitch effect + data-rain
+ * Uses shared win-tier classification from winTiers.js for consistency with audio.
+ * Small win: symbol pulse + quick count-up
+ * Medium win: payline flash + symbol pulse + dramatic count-up
+ * Big win: full-screen overlay with glitch effect + data-rain
  * @param {number} amount - The win payout amount
  * @param {number[]} winningPaylineIndices - Array of winning payline indices
- * @param {number} currentBet - Current bet amount (for calculating multiplier)
+ * @param {number} currentBet - Current total bet amount (for tier classification)
  * @returns {Promise<void>} Promise that resolves when celebration completes
  * @throws {Error} If parameters are invalid
  */
@@ -284,13 +320,13 @@ export function celebrateWin(amount, winningPaylineIndices, currentBet) {
   }
 
   return new Promise((resolve) => {
-    // Calculate win multiplier
-    const multiplier = amount / currentBet;
+    // Use shared win-tier classification for consistent sound/visual experience
+    const winLevel = classifyWinLevel(amount, currentBet);
 
     // Determine win size and apply celebration
-    if (multiplier >= 10) {
+    if (winLevel === 'big') {
       celebrateBigWin(amount, resolve);
-    } else if (multiplier >= 3) {
+    } else if (winLevel === 'medium') {
       celebrateMediumWin(amount, resolve);
     } else {
       celebrateSmallWin(amount, resolve);
@@ -405,9 +441,7 @@ function celebrateBigWin(amount, resolve) {
   for (let i = 0; i < 20; i++) {
     const rainChar = document.createElement('div');
     rainChar.className = 'rain-char';
-    rainChar.textContent = ['0', '1', '$', '#', '@', '%'].random
-      ? ['0', '1', '$', '#', '@', '%'][Math.floor(Math.random() * 6)]
-      : '█';
+    rainChar.textContent = ['0', '1', '$', '#', '@', '%'][Math.floor(Math.random() * 6)];
     rainChar.style.left = `${Math.random() * 100}%`;
     rainChar.style.animationDelay = `${Math.random() * 0.5}s`;
     rainChar.style.animationDuration = `${1.5 + Math.random() * 0.5}s`;
@@ -714,8 +748,8 @@ function generatePaylineDiagrams() {
     [2, 2, 1, 0, 0],
     [1, 0, 0, 0, 1],
     [1, 2, 2, 2, 1],
-    [0, 1, 0, 1, 0],
-    [2, 1, 2, 1, 2],
+    [1, 1, 0, 1, 1],
+    [1, 1, 2, 1, 1],
     [0, 2, 0, 2, 0],
     [2, 0, 2, 0, 2],
     [0, 0, 0, 1, 2],

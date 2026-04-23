@@ -46,7 +46,7 @@ body {
     font-family: 'Orbitron', sans-serif;
     background-color: var(--color-bg-main);
     color: var(--color-text-primary);
-    overflow: hidden;
+    overflow: auto;
 }
 
 /* ====================================
@@ -139,6 +139,8 @@ body {
     gap: 1rem;
     padding: 1rem;
     overflow: hidden;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
 /* Mobile-first: stack layout vertically on small screens */
@@ -200,6 +202,14 @@ body {
     border-radius: 3px;
 }
 
+.payline-number.is-active {
+    color: var(--color-neon-pink);
+    border-color: var(--color-neon-pink);
+    text-shadow: 0 0 8px var(--color-neon-pink);
+    box-shadow: 0 0 8px var(--color-neon-pink);
+    font-weight: 700;
+}
+
 /* ====================================
    Game Center Section
    ==================================== */
@@ -242,13 +252,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    min-height: 60px;
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    font-size: clamp(1.2rem, 3vw, 2.8rem);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .symbol {
-    font-size: 2.5rem;
+    font-size: clamp(1.5rem, 3.5vw, 3rem);
     font-weight: 700;
     display: flex;
     align-items: center;

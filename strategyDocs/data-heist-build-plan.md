@@ -363,6 +363,109 @@ A phased prompt plan for building a web-based cyberpunk slot machine, scoped so 
 
 ---
 
+## Phase 8 — Payout Correctness
+
+### Prompt 8A — Fix 25× Payout Inflation
+
+> In `src/js/main.js` inside `executeSpin()`, the call to `evaluateAllPaylines` passes `gameState.currentBet` — which is the **total** bet (per-line × 25) — as the third argument. That value is forwarded straight to `calculatePayout`, whose contract (proven by `tests/payout.test.js`) is that `betAmount` is the **per-line** bet. Every winning line is therefore scaled by the full 25-payline multiplier a second time, making every payout 25× too large.
+>
+> Fix: pass `getBetPerLine()` instead of `gameState.currentBet`. Do not change `evaluateAllPaylines`, `calculatePayout`, or their existing tests — only the caller is wrong. Run the unit tests after to confirm nothing regresses. Then add a new test in `tests/payout.test.js` that exercises `evaluateAllPaylines` directly with a realistic per-line bet so this regression can't silently return.
+
+### Prompt 8B — Remove the Double `recordSpin` Call
+
+> In `src/js/main.js`, `executeSpin()` calls `State.recordSpin(gameState, 0)` at step 3 and `State.recordSpin(gameState, totalPayout)` again at step 8. Because `recordSpin` increments `totalSpins` and sets `isSpinning: false`, the first call (a) double-counts every spin and (b) flips `isSpinning` off, forcing the manual `{ ...gameState, isSpinning: true }` override on the next line.
+>
+> Fix: delete the step-3 `recordSpin` call entirely and keep only the direct `gameState = { ...gameState, isSpinning: true }` assignment. After the fix, `totalSpins` must increment by exactly 1 per spin. Add a test in `tests/state.test.js` (or an integration-style test) asserting that two sequential spins produce `totalSpins === 2`, not 4.
+
+### Prompt 8C — Deduplicate the Payline Definitions
+
+> In `src/js/paylines.js`, lines 6 and 14 are both `[0, 1, 0, 1, 0]`, and lines 8 and 15 are both `[2, 1, 2, 1, 2]`. The same duplicates appear in the hardcoded paylines list inside `generatePaylineDiagrams()` in `src/js/ui.js`. With duplicates present there are only 23 unique paylines, but the README, HTML side panel, and paytable all claim 25 — and any win on those two patterns is counted and paid twice.
+>
+> Fix: replace the two duplicate entries with distinct payline patterns (e.g. different zigzag or stepped shapes that aren't already in the list). Keep the total count at 25. Apply the same two replacements to `generatePaylineDiagrams()` so the paytable stays in sync. Add a unit test in `tests/paylines.test.js` asserting `new Set(PAYLINES.map((p) => JSON.stringify(p))).size === PAYLINES.length` so duplicates cannot silently return.
+
+---
+
+## Phase 9 — UX Fixes
+
+### Prompt 9A — Render an Initial Symbol Matrix on Load
+
+> The reel cells in `src/index.html` start empty. `initializeGame()` in `src/js/main.js` renders the balance, bet, win amount, and counters on load, but never calls `renderSymbolMatrix`. The player sees a blank 5×3 grid until the first spin completes.
+>
+> Fix: at the end of `initializeGame()`, generate a starting matrix via `RNG.generateSymbolMatrix(REEL_STRIPS, 3)` and pass it through `renderSymbolMatrix()`. Treat this matrix as purely decorative — the real spin result replaces it on first click, and it should not be recorded in state. Update the e2e test in `tests/e2e/slot.spec.js` (scenario 3) to assert that all 15 cells are populated *before* any spin is initiated, not only after.
+
+### Prompt 9B — Give Auto-Spin a Direct Stop
+
+> `toggleAutoSpin()` in `src/js/main.js` cycles the auto-spin count through `[0, 10, 25, 50, 100]`. Once auto-spin is running, the only way to stop it is to click the button four more times to wrap back around to 0. The button label never changes either, so there is no visual cue that it can be cancelled.
+>
+> Fix: change the click handler so that when `gameState.autoSpinCount > 0`, clicking the auto-spin button immediately sets the count to 0 (cancelling the loop) regardless of cycle position. When auto-spin is active, change the button label to `STOP`; restore it to `AUTO SPIN` when inactive. The cycle behaviour should only apply when auto-spin is currently off. Ensure the recursion inside `executeSpin()` honours the cancellation — once the count is 0, no further spin should fire. Add an e2e test that starts auto-spin, clicks the button once, and asserts the count returns to 0 within the next spin boundary.
+
+### Prompt 9C — Fix the Left Payline Number Panel
+
+> The left side panel in `src/index.html` hardcodes only payline numbers 1–13 as static divs. The game has 25 paylines, and these numbers are inert — `renderPaylineHighlight` only draws SVG polylines over the reels and never touches the side-panel numbers.
+>
+> Fix:
+> 1. Replace the hardcoded 1–13 list. Generate 25 `.payline-number` divs in JS inside `initializeGame()` (source of truth: `PAYLINES.length`), or hardcode all 25 consistently.
+> 2. Extend `renderPaylineHighlight(winningPaylineIndices, paylines)` in `src/js/ui.js` so that for each winning index it adds an `is-active` class to the matching `[data-line="N"]` div, and clears the class on all divs before redrawing.
+> 3. Add a CSS rule that makes `.payline-number.is-active` glow in neon pink (`var(--color-neon-pink)`).
+> 4. Clear the active state at the start of every new spin, not only on wins — so the previous win's highlights don't linger through a losing spin.
+
+---
+
+## Phase 10 — Payline Highlight Fidelity
+
+### Prompt 10A — Highlight Only Matching Symbols and Clear on Losses
+
+> Two problems live in `renderPaylineHighlight` in `src/js/ui.js` and the way it's called from `executeSpin()`:
+>
+> 1. The polyline is drawn through **all 5 cells** of a winning payline, even when the match was 3- or 4-of-a-kind. A win on reels 0/1/2 visually runs through reels 3 and 4 as well, misleading the player about what actually hit.
+> 2. `renderPaylineHighlight` is only invoked from `main.js` when `winningPaylines.length > 0`. On a zero-payout spin the previous overlay is never cleared — old lines linger across non-winning spins until the next win overwrites them.
+>
+> Fix part 1: change the winning-paylines contract so each entry carries its match count. Update `evaluateAllPaylines` in `src/js/payout.js` to return an array like `[{ index, matchCount }, ...]` alongside `totalPayout`, and update `calculatePayout` (or add a sibling) to surface the match count so the caller doesn't have to recompute it. In `renderPaylineHighlight`, draw the polyline through only the first `matchCount` cells.
+>
+> Fix part 2: extract a `clearPaylineHighlight()` helper in `src/js/ui.js` that removes `#payline-highlight-overlay`, and call it unconditionally at the top of `executeSpin()` (before the RNG step). On winning spins the subsequent `renderPaylineHighlight` call redraws; on losing spins the grid is left clean.
+>
+> Update any existing unit tests that pin the old `evaluateAllPaylines` return shape.
+
+---
+
+## Phase 11 — Scatter Bonus Feature
+
+### Prompt 11A — Wire Up the Free-Spins Round
+
+> `checkScatterTrigger(matrix)` in `src/js/payout.js` correctly detects 3/4/5 Neural Chip scatters and returns the matching free-spin count (10/15/25). But `executeSpin()` in `src/js/main.js` only uses the return value to play `playBonusSound()`. `State.setFreeSpins` is never called, `renderFreeSpinsCounter` is never updated after init, and no free-spin round ever runs. The feature advertised in the README and paytable is missing entirely.
+>
+> Fix:
+> 1. When `scatterSpins > 0`, after playing the bonus sound, call `State.setFreeSpins(gameState, scatterSpins)` (or add them on top of any already-remaining free spins so scatters retrigger correctly) and `renderFreeSpinsCounter(gameState.freeSpinsRemaining)`.
+> 2. Extend the spin flow so that while `gameState.freeSpinsRemaining > 0`, the next spin (a) skips the bet deduction (free), (b) decrements `freeSpinsRemaining` via `State.decrementFreeSpins`, (c) re-renders `renderFreeSpinsCounter`, and (d) applies a 2× multiplier to any payout per Prompt 4C.
+> 3. Ensure the free-spin counter is hidden again once the round ends.
+> 4. Keep auto-spin interaction sane: a free-spin round runs to completion before auto-spin deducts again. Auto-spin should not burn balance during a free-spin run.
+>
+> Add unit tests covering (a) retrigger during a bonus round, (b) bet-not-deducted invariant, (c) 2× multiplier applied during free spins.
+
+---
+
+## Phase 12 — Polish
+
+### Prompt 12A — Fix the Data-Rain Character Typo
+
+> In `src/js/ui.js` around line 408, the big-win data-rain uses `['0', '1', '$', '#', '@', '%'].random` as a truthy check. `Array.prototype.random` does not exist, so the condition is always falsy and every rain character renders as `█`. The intended random-glyph effect never happens.
+>
+> Fix: remove the bogus conditional. Set `rainChar.textContent` directly to `['0', '1', '$', '#', '@', '%'][Math.floor(Math.random() * 6)]`. One-line change, no fallback needed.
+
+### Prompt 12B — Unify Win-Tier Classification Between Sound and Animation
+
+> `classifyWinLevel` in `src/js/main.js` (used by `playWinSound`) classifies tiers by **per-line** bet thresholds: big at `25 × betPerLine`, medium at `5 × betPerLine`. `celebrateWin` in `src/js/ui.js` classifies tiers by **total** bet: big at `10 × currentBet`, medium at `3 × currentBet`. After the Phase 8A fix, the same payout will regularly trigger a "big" fanfare over a "small" pulse animation — audio and visuals will disagree.
+>
+> Fix: pick one scale (recommend per-line, since that is the native unit of the payout math). Replace both classifications with a single shared helper — either export `classifyWinLevel` from `main.js` and import it in `ui.js`, or lift it into a new `src/js/winTiers.js` module consumed by both. Re-examine the thresholds so that at 1 per line, a typical 3-of-a-kind low-symbol win reads as "small", not "big". Update any tests that pin the old behaviour.
+
+### Prompt 12C — Stop Swallowing Errors in `executeSpin`
+
+> The `catch (_error)` block at the bottom of `executeSpin()` in `src/js/main.js` discards all errors thrown inside the spin flow and shows a generic message. Validation errors from `renderBalance`, `calculatePayout`, `setBet`, etc. vanish silently, which made diagnosing the other bugs in Phases 8–11 harder than necessary.
+>
+> Fix: rename `_error` to `error` and emit `console.error('Spin failed:', error)` before displaying the user-facing message. Keep the user-visible copy, but make sure enough detail is surfaced in devtools to identify the failure site. Consider narrowing the catch in a follow-up — animation and audio errors could be caught at finer granularity so one misbehaving module does not break the whole spin.
+
+---
+
 ## Log Entry Template
 
 Copy this block for every prompt executed:
