@@ -43,6 +43,7 @@ Every `render*` function fully rebuilds its area from its inputs. No partial dif
 - `@keyframes` only. No `setInterval`/`setTimeout` chains.
 - One `requestAnimationFrame` is acceptable for the spin button's pressed-state feedback if needed; no other timers.
 
-## No imports from core
+## Imports
 
-- `ui.js` imports from `./types.js` only (for JSDoc types). It never imports `engine.js`, `rng.js`, or `paytable.js`.
+- `ui.js` may import from `./paytable.js` (for `SYMBOLS`, `PAYLINES`, `payoutFor` — needed to render the paytable display) and `./types.js` (JSDoc types).
+- `ui.js` NEVER imports from `engine.js` or `rng.js`. Those are the compute core; keeping them out of UI preserves the "UI is a view over data" boundary.

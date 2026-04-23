@@ -269,3 +269,18 @@ Hand-edit: none.
 Learning: **First turn this run where proactive preemption in the dispatch worked.** Turn 15 cost a round-trip because the plan's CSS didn't match stylelint rules; this time I read the linter spec, re-wrote the prescribed CSS to modern syntax, and the subagent completed in one pass. The cost of "read rules, pre-convert syntax" is ~30 seconds in the dispatch prompt; the cost of round-tripping is a minute of subagent call + review + patch. Flat win.
 
 ## Phase C partially complete: responsive done, ui.js + main.js remaining.
+
+---
+
+## Turn 18 — 2026-04-22 — src/ui.js (render functions + event wiring) + two orchestrator patches
+
+Prompt intent: Dispatch subagent to create `src/ui.js` with all render functions (grid, highlight, breakdown, hud, paytable, reset overlay) and the `wireEvents` handler registration. Pre-corrections vs. plan: (1) dropped the 4s auto-dismiss `setTimeout` in `renderBreakdown` per slot-ui skill rule, (2) preempted CSS selector bug `.ctrl-group:last-child` → `:last-of-type`.
+Context loaded (by subagent): SPEC §6/§8/§9, CLAUDE.md, slot-ui.md, design §4.11/§4.12, plan §Task 16, index.html, paytable.js.
+Result:
+- Subagent created `src/ui.js` verbatim from the prescribed content. eslint clean; 18/18 tests pass; css + html lint clean.
+- **Subagent flagged an architectural inconsistency I had introduced:** slot-ui.md said "ui.js imports only from types.js" but the dispatch prompt (and the plan's ui.js code) imports from paytable.js. Subagent followed the prompt (higher authority) but raised the conflict cleanly.
+- **Orchestrator follow-up #1:** relaxed slot-ui.md to permit paytable import (real need — SYMBOLS/PAYLINES/payoutFor are required for paytable render, and duplicating them in ui.js would violate DRY). Engine.js and rng.js stay forbidden.
+- **Orchestrator follow-up #2 (preemptive, before dispatch):** fixed `.controls .ctrl-group:last-child` → `:last-of-type` in styles.css so the mobile rule actually hides the WIN column (the previous selector targeted `.paytable-btn` by position which is not a `.ctrl-group`, so nothing matched).
+Lint / tests: all four gates green. 18/18.
+Hand-edit: none.
+Learning: **Two for two on preemptive corrections this task.** (a) The `setTimeout` rewrite saved a skill-rule violation + round-trip. (b) The `:last-of-type` CSS fix was a selector bug that would have silently survived to final smoke. Pattern is clear: **read the plan content AND adjacent skill rules together before dispatch; rewrite plan content inline to match the stricter rule.** This is the new default for remaining dispatches.
