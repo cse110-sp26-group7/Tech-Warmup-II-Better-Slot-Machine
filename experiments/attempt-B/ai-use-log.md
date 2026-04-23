@@ -58,3 +58,17 @@ Result:
 Lint / tests: N/A (no code yet). Verified with `grep -rn superpowers` that zero references remain.
 Hand-edit: none.
 Learning: Keeping authoring-tool names out of committed artifacts matters. The team and TA reviewers should see repo structure that describes the project (design + plan), not the chain of tools that produced it.
+
+---
+
+## Turn 4 — 2026-04-22 — Three skill files
+
+Prompt intent: Author the three path-scoped skill files that constrain AI edits on core/UI/tests; these are the narrow rule packets that Claude Code loads when the matching file path is being edited.
+Context loaded: design spec §5.3, plan Task 3, CLAUDE.md (Module Boundaries section).
+Result:
+- Created `.claude/skills/slot-engine.md` — purity rule, frozen signatures, cumulative-distribution pick snippet, wild-substitution rule, test-co-change rule.
+- Created `.claude/skills/slot-ui.md` — CSS-var-only, DOM query caching, idempotent renders, CSS-only responsive, CSS-only animation, no-core-imports.
+- Created `.claude/skills/slot-testing.md` — node --test runner, seeded determinism, RTP test template, no DOM tests, one concept per test.
+Lint / tests: N/A (no code yet).
+Hand-edit: none.
+Learning: Three narrow skills > one catch-all because Claude Code loads whichever skill matches the file path being edited — a noisy combined skill would pollute engine edits with UI rules and vice versa. Frozen signatures in slot-engine.md are the key safety rail: preventing drift of `spin` / `createRng` / `payoutFor` across turns removes the #1 risk in a long AI-assisted run.
