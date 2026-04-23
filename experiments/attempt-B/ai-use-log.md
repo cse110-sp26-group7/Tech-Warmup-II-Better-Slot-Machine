@@ -20,7 +20,7 @@ Learning: <one line — what worked or did not>
 ## Turn 1 — 2026-04-22 — SPEC.md + ai-use-log.md bootstrap
 
 Prompt intent: Author the lean implementation-facing SPEC.md and bootstrap the log file so every subsequent turn can append in place.
-Context loaded: design spec §1–§10 (docs/superpowers/specs/2026-04-22-data-heist-attempt-b-design.md)
+Context loaded: design spec §1–§10 (docs/design.md)
 Result:
 - Created `SPEC.md` — condensed reference covering game rules, symbols, weights, paytable, paylines, state, RTP target, differentiators, responsive, out-of-scope.
 - Created `ai-use-log.md` with template and this first entry.
@@ -42,3 +42,19 @@ Result:
 Lint / tests: N/A (no code yet).
 Hand-edit: none.
 Learning: Keeping WHAT (SPEC) and HOW (CLAUDE) strictly separate means either file can change without polluting the other. CLAUDE.md can grow over time with coding rules; SPEC only changes if game rules change.
+
+---
+
+## Turn 3 — 2026-04-22 — Flatten docs/ structure (remove `superpowers/` nesting)
+
+Prompt intent: Before pushing the branch for the team, collapse `docs/superpowers/{specs,plans}/` into flat `docs/design.md` and `docs/plan.md` so the repo structure does not leak the name of an authoring tool chain.
+Context loaded: SPEC.md, ai-use-log.md, docs/design.md, docs/plan.md.
+Result:
+- `git mv docs/superpowers/specs/2026-04-22-data-heist-attempt-b-design.md docs/design.md`
+- `git mv docs/superpowers/plans/2026-04-22-data-heist-attempt-b.md docs/plan.md`
+- Removed empty `docs/superpowers/specs/`, `docs/superpowers/plans/`, `docs/superpowers/` directories.
+- Rewrote every path reference (10 sites) in SPEC.md, ai-use-log.md (Turn 1), docs/design.md (file-layout diagram + file-responsibilities table), and docs/plan.md (header, spec reference, embedded SPEC template, embedded ai-use-log template, README tree block).
+- Removed the "REQUIRED SUB-SKILL: superpowers:subagent-driven-development / superpowers:executing-plans" line from the plan header — that instruction was tool-chain specific and is replaced with a tool-agnostic implementer instruction.
+Lint / tests: N/A (no code yet). Verified with `grep -rn superpowers` that zero references remain.
+Hand-edit: none.
+Learning: Keeping authoring-tool names out of committed artifacts matters. The team and TA reviewers should see repo structure that describes the project (design + plan), not the chain of tools that produced it.

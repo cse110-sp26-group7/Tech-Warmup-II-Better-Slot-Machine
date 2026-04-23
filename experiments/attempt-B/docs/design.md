@@ -97,8 +97,9 @@ attempt-B/
 │   ├── rng.test.js
 │   ├── paytable.test.js
 │   └── engine.test.js
-├── docs/superpowers/specs/
-│   └── 2026-04-22-data-heist-attempt-b-design.md  (this document)
+├── docs/
+│   ├── design.md                    (this document)
+│   └── plan.md                      (implementation plan)
 └── final-report/
     ├── FINAL-REPORT.md
     └── slides.pdf
@@ -398,7 +399,7 @@ Orbitron is loaded once in `<head>` from Google Fonts (weights 400 / 500 / 700 /
 
 | file | holds | changes |
 |---|---|---|
-| `docs/superpowers/specs/2026-04-22-…design.md` | this full design record | rarely; historical |
+| `docs/design.md` | this full design record | rarely; historical |
 | `SPEC.md` | lean implementation-facing reference (§3–§4 condensed) | when design changes |
 | `CLAUDE.md` | project-wide rules (HOW, global) | rarely |
 | `.claude/skills/slot-engine.md` | rules for engine/rng/paytable edits | rarely |

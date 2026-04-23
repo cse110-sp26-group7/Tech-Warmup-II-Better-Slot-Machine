@@ -1,6 +1,6 @@
 # DATA HEIST — Implementation Spec
 
-This file is the single source of truth for WHAT the game does. The full rationale lives in `docs/superpowers/specs/2026-04-22-data-heist-attempt-b-design.md`; this file is the condensed reference for coding.
+This file is the single source of truth for WHAT the game does. The full rationale lives in `docs/design.md`; this file is the condensed reference for coding.
 
 ## 1. Game Rules
 
@@ -43,7 +43,7 @@ Paytable values are the **initial** set. If the 100k-spin RTP Monte Carlo (§7) 
 
 ## 5. Paylines
 
-25 fixed paths, each a 5-element array of row indices (0 = top, 2 = bottom). The full list is in `src/paytable.js`. Design rationale and diagrams are in `docs/superpowers/specs/2026-04-22-data-heist-attempt-b-design.md` §4.4.
+25 fixed paths, each a 5-element array of row indices (0 = top, 2 = bottom). The full list is in `src/paytable.js`. Design rationale and diagrams are in `docs/design.md` §4.4.
 
 ## 6. State
 

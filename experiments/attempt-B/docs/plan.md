@@ -1,6 +1,6 @@
 # DATA HEIST — Attempt B Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For implementers:** Work this plan task-by-task. Each task is bite-sized (2–5 min of work). Steps use checkbox (`- [ ]`) syntax so progress can be tracked inline.
 
 **Goal:** Build the Data Heist slot machine (Attempt B, context-engineered) from scratch under the rules of the design spec, with all deliverables in `experiments/attempt-B/`.
 
@@ -8,7 +8,7 @@
 
 **Tech Stack:** HTML5, CSS3 (CSS custom properties, grid, media queries), ES Modules (no bundler), Node built-in `node --test` runner, ESLint, stylelint, html-validate.
 
-**Spec reference:** `docs/superpowers/specs/2026-04-22-data-heist-attempt-b-design.md`. All `§X.Y` citations below refer to that document.
+**Spec reference:** `docs/design.md`. All `§X.Y` citations below refer to that document.
 
 **Scope guardrail:** Every path in this plan is relative to `experiments/attempt-B/`. Do not read from or write to any directory above `experiments/attempt-B/` (no `plan/`, no `src/` at repo root, no sibling `experiments/attempt-A/`).
 
@@ -28,7 +28,7 @@ Everything in Phase A is authored **before** writing code. The harness files con
 ```markdown
 # DATA HEIST — Implementation Spec
 
-This file is the single source of truth for WHAT the game does. The full rationale lives in `docs/superpowers/specs/2026-04-22-data-heist-attempt-b-design.md`; this file is the condensed reference for coding.
+This file is the single source of truth for WHAT the game does. The full rationale lives in `docs/design.md`; this file is the condensed reference for coding.
 
 ## 1. Game Rules
 
@@ -411,7 +411,7 @@ Learning: <one line — what worked or did not>
 ## Turn 1 — 2026-04-22 <HH:MM> — harness bootstrap
 
 Prompt intent: Generate the initial context engineering harness (SPEC.md, CLAUDE.md, three skill files, ai-plan.md) from the approved design document.
-Context loaded: docs/superpowers/specs/2026-04-22-data-heist-attempt-b-design.md
+Context loaded: docs/design.md
 Result: Files listed above created and committed (see git log).
 Lint / tests: N/A (no code yet).
 Hand-edit: none
@@ -2218,7 +2218,7 @@ attempt-B/
 ├── src/                       types, rng, paytable, engine, ui, main, styles, assets
 ├── tests/                     node --test unit + RTP Monte Carlo
 ├── research/                  snapshotted research (8 personas, 7 user stories, etc.)
-├── docs/superpowers/          spec + plan for this attempt
+├── docs/                      design.md + plan.md for this attempt
 └── final-report/              writeup, slides, demo video
 ```
 
