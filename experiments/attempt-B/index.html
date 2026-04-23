@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DATA HEIST</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <span class="title">DATA HEIST</span>
+      <span class="balance-chip">
+        <span class="label">BAL</span>
+        <span id="balance" class="value">1000</span>
+      </span>
+    </header>
+
+    <section class="stage">
+      <aside class="paytable-panel" aria-label="Paytable">
+        <h2>PAYTABLE</h2>
+        <div id="paytable-compact" class="paytable-compact"></div>
+        <details class="paytable-details">
+          <summary>25 paylines</summary>
+          <div id="paytable-lines" class="paytable-lines"></div>
+        </details>
+      </aside>
+
+      <div class="reel-frame">
+        <div id="reels" class="reels"></div>
+      </div>
+
+      <aside class="breakdown-panel" aria-label="Win breakdown">
+        <h2>WIN BREAKDOWN</h2>
+        <div id="breakdown" class="breakdown"></div>
+      </aside>
+    </section>
+
+    <footer class="controls">
+      <div class="ctrl-group">
+        <span class="ctrl-lbl">BET</span>
+        <div class="bet-stepper">
+          <button id="bet-down" type="button" class="step-btn" aria-label="Decrease bet">−</button>
+          <span id="bet" class="bet-val">10</span>
+          <button id="bet-up" type="button" class="step-btn" aria-label="Increase bet">+</button>
+        </div>
+      </div>
+      <button id="max-bet" type="button" class="ghost-btn">MAX BET</button>
+      <button id="spin" type="button" class="spin-btn">▸ SPIN</button>
+      <div class="ctrl-group">
+        <span class="ctrl-lbl">WIN</span>
+        <span id="last-win" class="ctrl-val">0</span>
+      </div>
+      <button id="paytable-btn" type="button" class="ghost-btn paytable-mobile-trigger" aria-haspopup="dialog">i</button>
+    </footer>
+
+    <dialog id="paytable-dialog" class="paytable-dialog">
+      <button id="paytable-close" type="button" class="ghost-btn close-btn" aria-label="Close">×</button>
+      <h2>PAYTABLE</h2>
+      <div id="paytable-dialog-compact" class="paytable-compact"></div>
+      <details>
+        <summary>25 paylines</summary>
+        <div id="paytable-dialog-lines" class="paytable-lines"></div>
+      </details>
+    </dialog>
+
+    <div id="reset-overlay" class="reset-overlay" hidden>
+      <div class="reset-card">
+        <p>OUT OF CREDITS</p>
+        <button id="reset-btn" type="button" class="spin-btn">RESET</button>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

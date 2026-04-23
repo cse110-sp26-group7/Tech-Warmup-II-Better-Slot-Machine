@@ -210,3 +210,17 @@ Result:
 Lint / tests: 18/18 still pass (SVG has no JS impact). Lint not run for this file (no relevant linter wired). html-validate will cover the file indirectly when it resolves `<use>` references.
 Hand-edit: none.
 Learning: Authoring symbols from scratch beats extracting from the research asset here — the research SVG has per-pixel stroke/fill/opacity layering for a mood illustration (30 KB+), whereas a sprite wants 1 KB geometric glyphs that scale and recolor cleanly. The tradeoff: our symbols are simpler than the research illustration. Acceptable for Attempt B's goal (prove context engineering), and the research illustration remains as the design reference.
+
+---
+
+## Turn 14 — 2026-04-22 — index.html skeleton + html-validate fixes
+
+Prompt intent: Create the single-page HTML shell with topbar, 3-column stage, controls bar, mobile `<dialog>` paytable, and RESET overlay. Target is "html-validate clean" per Attempt B's lint requirement.
+Context loaded (by subagent): SPEC §1/§6/§8/§9, CLAUDE.md, slot-ui.md, plan §Task 13.
+Result:
+- Subagent created `index.html` byte-identical to plan spec.
+- **Subagent correctly flagged blocker:** html-validate produced 8 errors against the plan's prescribed HTML — `doctype-style` (`<!doctype>` must be uppercase) and `no-implicit-button-type` (every `<button>` without `type=` is flagged). Subagent surfaced the two resolutions cleanly (fix HTML vs. extend config) rather than picking one.
+- **Orchestrator follow-up (option 1 chosen):** Fixed the HTML — DOCTYPE uppercased, added `type="button"` to all 7 buttons. These are legitimate best practices (avoid accidental form submission, standard-compliant doctype) so the correction aligns with the broader "clean code" goal rather than weakening the linter.
+Lint / tests: html-validate clean; 18/18 tests pass; js + css lint clean. All four gates green.
+Hand-edit: none. Claude orchestrator applied the HTML corrections.
+Learning: Blocker-policy hit again. The plan had a small but real defect — I had authored HTML against my mental model of "html-validate recommended" without actually running the linter against sample HTML. Running the linter would have caught both issues at plan-write time. Pattern: **write the plan, then run whatever the plan's verification step calls for against a stub, before freezing the plan**. This would have prevented two follow-up cycles in Task 13 alone.
