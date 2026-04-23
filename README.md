@@ -64,7 +64,7 @@ npm run test:watch
 npm run test:coverage
 ```
 
-Coverage output is written to `coverage/`. Unit tests live in `tests/` and cover the four pure-logic modules: `payout`, `paylines`, `rng`, and `state`.
+Coverage output is written to `coverage/`. Unit tests live in `tests/` and cover the five pure-logic modules: `payout`, `paylines`, `rng`, `state`, and the `freeSpins` feature (scatter trigger, round logic, retriggers, multipliers).
 
 ---
 
@@ -126,12 +126,14 @@ data-heist/
 │       ├── paylines.js     # 25 payline definitions and the helper that extracts symbols along a payline
 │       ├── payout.js       # Payout calculation with wild substitution; scatter trigger; full-grid evaluation
 │       ├── ui.js           # All DOM rendering — symbols, balance, bet, win display, animations, paytable modal
-│       └── audio.js        # Web Audio API synthesiser — spin buzz, win fanfares, click blip, bonus stinger
+│       ├── audio.js        # Web Audio API synthesiser — spin buzz, win fanfares, click blip, bonus stinger
+│       └── winTiers.js     # Shared win-tier classifier (small/medium/big) used by main.js and ui.js
 ├── tests/
 │   ├── paylines.test.js    # Unit tests for paylines module
 │   ├── payout.test.js      # Unit tests for payout calculation and scatter trigger
 │   ├── rng.test.js         # Unit tests for RNG module
 │   ├── state.test.js       # Unit tests for state management (setBet, placeBet, recordSpin, auto-spin)
+│   ├── freeSpins.test.js   # Unit tests for the free-spins feature (scatter trigger, round logic, retriggers, 2× multiplier)
 │   └── e2e/
 │       └── slot.spec.js    # Playwright end-to-end tests
 ├── jest.config.js          # Jest configuration (jsdom environment, ES module transform)
@@ -153,14 +155,22 @@ data-heist/
 | `payout.js` | `calculatePayout` (consecutive-match counting with wild substitution, proportional formula), `checkScatterTrigger` (counts Neural Chips anywhere on the grid), `evaluateAllPaylines` (iterates all 25 paylines). |
 | `ui.js` | Every DOM side-effect: `renderSymbolMatrix`, `renderBalance`, `renderBet`, `renderWin`, `renderPaylineHighlight` (SVG overlay), `renderFreeSpinsCounter`, `setSpinButtonState`, `animateReelSpin`, `celebrateWin` (three-tier animations), `openPaytable` / `closePaytable`. |
 | `audio.js` | Lazy `AudioContext` initialisation on first user gesture. Exports `playSpinSound` / `stopSpinSound` (sawtooth + LFO loop), `playWinSound` (three-tier fanfare), `playClickSound`, `playBonusSound` (glitch burst + siren sweep + power chord), `setMuted`. |
+| `winTiers.js` | Exports `classifyWinLevel(totalPayout, currentBet)` — shared helper that bins a payout into `'small' | 'medium' | 'big'` against the current total bet. Consumed by both `main.js` (audio tier selection) and `ui.js` (celebration animation tier). |
 
 
 | Contributor | Role |
 |---|---|
-| Ethan Carter | UX research, UI design |
-| Gabrielle Wang | Frontend development |
-| Kareem Nabulsi | Frontend development, state & payout logic, LLM Strategy |
-| Michael Marras | User research, game design |
-| Nhan Tri Danh | Frontend development |
-| Theo Lee | Game design, reel mechanics, audio |
-| Thy Doan | Visual identity, CSS, audio assets |
+| Ethan Carter (Leader) | Core slot machine structure & UI principles |
+| Gabrielle Wang (Leader) | Analysis of seven prominent slot titles; maintains `research-overview.md`; frontend development |
+| Benjamin Signer | App categories, monetization, regulation; final slide deck |
+| Johnny Huang | Player engagement features & visuals |
+| Theo Lee | Architecture & cyberpunk wireframes / mockups; game design, reel mechanics, audio |
+| Michael Marras | Qualitative player interview & persona; final presentation |
+| Bishal Khatri | RTP, volatility, near-miss, auto-spin, user stories |
+| Kareem Nabulsi | Player demographics & LLM strategy; frontend development; state & payout logic |
+| Thy Doan | Slot types & DATA HEIST visual identity package; CSS, audio assets |
+| Cindy Zhang | Retention mechanics & monetization patterns |
+| Aarnav Gujjari | Explainable AI & regulatory frameworks |
+| Nhan Tri Danh (Jack) | Core mechanics, RNG, symbol weighting; frontend development |
+
+See [`plan/research-overview.md`](plan/research-overview.md) for each member's detailed contributions.
