@@ -61,7 +61,49 @@ Guard rails were codified explicitly:
 | D — validation | 25+ | Desktop smoke + iterated fixes (in progress) |
 | E — report | — | This document; slides outline; demo video (pending) |
 
-Notable orchestrator interventions:
+### 2.4 User-Centered Design Traceability
+
+The research produced **5 personas** (`research/personas/`) and **7 user stories** (`research/user-stories/`). The implementation decisions below trace back to those inputs.
+
+#### User stories
+
+| ID | Story | Status | How it's met |
+|---|---|---|---|
+| US1 | Casual player — instant legibility of spin/bet/balance; satisfying win reaction | **Implemented** | Topbar with `BAL`, inline bet stepper, dominant SPIN button. Winning spins drive the acid-green glow on hot cells (§4.11 highlight animation), the WIN counter pulse, and the breakdown panel populating with per-line payouts. |
+| US2 | Stealth/privacy — hide gambling activity from family | **Rejected (ethical)** | Explicitly excluded. Enabling undisclosed gambling to family members is adjacent to problem-gambling harm patterns; Attempt B does not build affordances for it. Logged as a deliberate cut. |
+| US3 | Paylines — show which symbols connected to form a win | **Implemented** | `highlightWins(wins)` adds the `.hot` class to every cell on each winning payline, staggered by descending payout. Win Breakdown panel labels each entry with `L<id>` so the player can cross-reference a line ID to the paytable's `<details>` section. |
+| US4 | New player — clear paytable available at any time | **Implemented** | Left sidebar `PAYTABLE` shows compact per-symbol payouts (×3/×4/×5) at all times on desktop/tablet. A `<details>` expansion below reveals all 25 paylines. On mobile the `[i]` button opens the full paytable in a native `<dialog>`. |
+| US5 | Bonus-feature hunter — bonus rounds or free spins per session | **Scope cut** | SPEC §10 lists Scatter / Free Spins / Multipliers as explicitly out of scope for Attempt B. Substituted: BIG WIN / MEGA WIN overlays + sounds at payouts ≥ 10× / 50× bet fill part of the "something to look forward to" role, though not to the level this story originally asked for. |
+| US6 | Session tracker — last-N spin history in a side panel | **Reinterpreted** | Original ask was a chronological log. Attempt B rebuilt this as the **Win Breakdown panel** — current spin's line-by-line payout decomposition. Same "see data about my play" motivation, narrower focus on the most recent spin so the panel stays readable. |
+| US7 | Unlucky player — "pity" acknowledgement when a cold streak runs long | **Not implemented** | No streak detection or sympathetic messaging. Would require session-level state that SPEC does not carry. |
+
+#### Personas
+
+| Persona | Core need | How Attempt B addresses it |
+|---|---|---|
+| **Marcus** (casual, 35, stressed, wants quick unwind) | "Looks cheap / too many buttons / no special features" → a strong, self-contained game that starts instantly | Cyberpunk neon aesthetic throughout (tokens from `overview.md` + research sprite). Control surface is 5 buttons: bet ± / MAX BET / SPIN / info. BIG/MEGA overlays + synthesized SFX deliver the "special moments" Marcus misses in shallow games. |
+| **Noah** (23, online gambler, wants adrenaline) | Big animations, sound, fast replay, responsive visuals | Staggered row-wise reel drop, glow-pulse on hot cells, WIN counter scale-up, BIG/MEGA full-screen overlays with acid/gold typography, Web Audio SFX (spin sweep + win arpeggio + mega chord progression). Single-click replay from any state. |
+| **Bardow** (dealer student, at-risk for addiction) | Loses paychecks chasing breakeven; wants help knowing when to stop | **Not addressed.** Responsible-gambling features (session time/loss limits, self-exclusion, reality checks) are out of scope for a 1-day warm-up. Logged as a known gap — future work if the project continues. |
+| **Scott** (rational supervisor, plays for math fun) | Understand the game's math; see exactly why a win paid out | Paytable is published as data (§4.3). Win Breakdown panel exposes `{lineId, symbol, count, payout}` per win — the same data structure the engine uses internally. Empirical RTP is tested and reported (0.96 within [0.95, 0.97]). |
+| **Molly** (retired senior, strict $100/day budget) | Respect a hard budget; feel in control of the session | Starting balance 1000 credits; bet steps (1, 5, 10, 25, 50, 100) cover 2 decades of stake size. When balance hits 0 a dedicated **RESET overlay** blocks further play until the player explicitly resets — no infinite recovery loop. The HUD's balance display uses a single-decimal format (`BAL 985.3`) so she always sees exactly what remains. |
+
+#### Deliberate deferrals
+
+Four features raised by the research were explicitly cut. Listing them prevents the "did you forget?" inference:
+
+- **Scatter / Free Spins / Multipliers** (US5) — scope cut, SPEC §10.
+- **Stealth/privacy UI** (US2) — rejected on ethical grounds.
+- **Session history log** (US6) — reinterpreted as Win Breakdown, kept the motivation.
+- **Pity messaging for cold streaks** (US7) — not implemented; no session-level state.
+- **Responsible-gambling affordances** (Bardow) — out of scope; should be in a future iteration.
+
+Explicitly listing cuts is part of user-centered design. Silent omission would imply the features were overlooked; logging them as decisions documents that the team saw the request and made a deliberate call.
+
+---
+
+### 2.5 Notable orchestrator interventions
+
+
 - Turn 8: Fixed `npm test` script (Node 22 compat) after subagent flagged.
 - Turn 10: Clarified skill ambiguity ("don't export wild-sub helper" vs "don't export `evaluateLine`") after subagent flagged.
 - Turn 15: Pre-converted plan CSS to modern `rgb(r g b / N%)` and short-hex before dispatch to avoid stylelint round-trip.
