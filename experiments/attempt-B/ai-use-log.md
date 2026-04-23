@@ -131,3 +131,18 @@ Result:
 Lint / tests: all green. `npm test` 3/3 pass. `npm run lint:js` clean.
 Hand-edit: none. The package.json edit was a Claude fix (not a hand-edit by the user).
 Learning: Hard constraint "only touch these two files" correctly prevented the subagent from making scope-creep decisions, but also blocked a legitimate tooling fix. The subagent did the right thing — flag, don't fix — and left the follow-up to the orchestrator. Next subagent dispatch should explicitly allow tooling patches (package.json scripts) when a genuine blocker surfaces, OR keep the constraint and accept the round-trip. For now, keeping tight constraints + orchestrator follow-up is working — the boundary is clear and observations are not getting muddled.
+
+---
+
+## Turn 9 — 2026-04-22 — src/paytable.js via TDD (subagent)
+
+Prompt intent: TDD `src/paytable.js` (SYMBOLS, SYMBOL_WEIGHTS, PAYLINES x25, BET_STEPS, INITIAL_STATE, payoutFor). Added explicit blocker policy to the dispatch prompt per the decision adopted after Turn 8.
+Context loaded (by subagent): SPEC.md §1–§10, CLAUDE.md, slot-engine.md, slot-testing.md, docs/plan.md §Task 8.
+Result:
+- Subagent created `tests/paytable.test.js` with 6 tests (catalog size, weight sum, payline shape, state shape, payoutFor values, payoutFor zero-below-3).
+- Subagent verified red → wrote `src/paytable.js` (8 symbols, 25 paylines with row-index notation, payout table as internal const, `payoutFor` switch-on-count) → verified green (9/9 pass total, 6 new + 3 rng retained).
+- Lint clean. No deviations. No tooling blockers hit.
+- **Subagent flagged a skill ambiguity for Turn 10:** slot-engine.md's "Wild substitution lives only inside evaluateLine. Do not export it" is ambiguous between (a) do not export the wild-sub helper, and (b) do not export evaluateLine. Plan Task 9 exports evaluateLine for testing — intent is (a). Will clarify explicitly in the Task 9 dispatch.
+Lint / tests: 9/9 pass. Lint clean (js/css/html all green).
+Hand-edit: none. Blocker policy clause was respected — subagent flagged the skill ambiguity without touching the skill file.
+Learning: Blocker-policy clause in the prompt explicitly worked: subagent raised a semantic (not syntactic) concern and left it for orchestrator resolution. The pattern scales: narrow skills + narrow task + explicit "flag-don't-fix" produces clean hand-offs even when rules are ambiguous.
