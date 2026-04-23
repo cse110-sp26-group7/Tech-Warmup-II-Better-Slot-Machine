@@ -224,3 +224,17 @@ Result:
 Lint / tests: html-validate clean; 18/18 tests pass; js + css lint clean. All four gates green.
 Hand-edit: none. Claude orchestrator applied the HTML corrections.
 Learning: Blocker-policy hit again. The plan had a small but real defect — I had authored HTML against my mental model of "html-validate recommended" without actually running the linter against sample HTML. Running the linter would have caught both issues at plan-write time. Pattern: **write the plan, then run whatever the plan's verification step calls for against a stub, before freezing the plan**. This would have prevented two follow-up cycles in Task 13 alone.
+
+---
+
+## Turn 15 — 2026-04-22 — src/styles.css tokens + desktop layout (blocker + fix)
+
+Prompt intent: Create the desktop CSS (tokens, layout, paytable, breakdown, controls, symbol coloring, glow animation). Mobile/tablet media queries deferred to Task 15.
+Context loaded (by subagent): SPEC §8/§9, CLAUDE.md, slot-ui.md, design §4.8/§4.11/§4.13, plan §Task 14, .stylelintrc.json, index.html.
+Result:
+- Subagent created `src/styles.css` byte-identical to plan spec.
+- **Subagent correctly flagged blocker again:** 20 stylelint-config-standard violations across 4 rule categories — `color-hex-length: short` (3 hits), `color-function-notation: modern` (7 hits), `alpha-value-notation: percentage` (7 hits), `font-family-name-quotes: never` (3 hits). Subagent listed each violation verbatim with line numbers and did not edit CSS or config. Two resolutions offered: (a) amend CSS to modern syntax, (b) relax the four rules in config.
+- **Orchestrator follow-up (option a chosen):** Amended CSS to modern syntax — `#ffffff` → `#fff`, `rgba(r, g, b, a)` → `rgb(r g b / N%)`, `"Orbitron"` → `Orbitron`. These are CSS-Color-4 / industry-standard conventions; the linter was right. Relaxing config would have weakened the style check for no real gain.
+Lint / tests: all gates green. 18/18 tests pass; stylelint clean; eslint clean; html-validate clean.
+Hand-edit: none.
+Learning: Second plan defect of the same shape as Turn 14 — "plan specifies prescribed content without having run the linter against it". Makes me think the remaining Phase C plan entries (responsive CSS, ui.js, main.js) may have similar hidden-lint issues. Mitigation: from here forward, after each subagent dispatch, the orchestrator reads ai-use-log entries and preemptively asks subagents to "first lint a minimal version, only then grow the file". Not yet implemented this turn, but flagging for Task 15+.
