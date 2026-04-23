@@ -98,7 +98,7 @@ export function renderBreakdown(wins) {
 
 /** @param {{balance: number, bet: number, lastWin: number}} hud */
 export function renderHud({ balance, bet, lastWin }) {
-  balanceEl.textContent = String(balance);
+  balanceEl.textContent = balance.toFixed(1);
   betEl.textContent = String(bet);
   lastWinEl.textContent = lastWin > 0 ? `+${lastWin.toFixed(2)}` : '0';
   if (lastWin > 0) {
