@@ -298,7 +298,7 @@ export function setSpinButtonState(isSpinning) {
  * Uses shared win-tier classification from winTiers.js for consistency with audio.
  * Small win: symbol pulse + quick count-up
  * Medium win: payline flash + symbol pulse + dramatic count-up
- * Big win: full-screen overlay with glitch effect + data-rain
+ * Big win: full-screen overlay, cyber-money overflow, reel pulse, 2s counter roll
  * @param {number} amount - The win payout amount
  * @param {number[]} winningPaylineIndices - Array of winning payline indices
  * @param {number} currentBet - Current total bet amount (for tier classification)
@@ -421,45 +421,33 @@ function celebrateMediumWin(amount, resolve) {
 }
 
 /**
- * Celebrates a big win with full-screen overlay and glitch effect
+ * Celebrates a big win with a full-screen overlay, cyber money overflowing
+ * the viewport, pulsing reels, and a 2s count-up roll.
+ * Respects prefers-reduced-motion by skipping particles and reel pulse.
  * @private
  * @param {number} amount - Win amount
  * @param {Function} resolve - Promise resolve callback
  * @returns {void}
  */
 function celebrateBigWin(amount, resolve) {
-  // Create overlay container
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const overlay = document.createElement('div');
   overlay.className = 'big-win-overlay';
 
-  // Create data-rain background
-  const dataRain = document.createElement('div');
-  dataRain.className = 'data-rain';
-
-  // Generate falling data characters
-  for (let i = 0; i < 20; i++) {
-    const rainChar = document.createElement('div');
-    rainChar.className = 'rain-char';
-    rainChar.textContent = ['0', '1', '$', '#', '@', '%'][Math.floor(Math.random() * 6)];
-    rainChar.style.left = `${Math.random() * 100}%`;
-    rainChar.style.animationDelay = `${Math.random() * 0.5}s`;
-    rainChar.style.animationDuration = `${1.5 + Math.random() * 0.5}s`;
-    rainChar.style.animation = 'dataRain 2s linear forwards';
-    dataRain.appendChild(rainChar);
+  if (!prefersReducedMotion) {
+    overlay.appendChild(createCyberMoneyLayer());
   }
 
-  // Create content box
   const content = document.createElement('div');
-  content.className = 'big-win-content';
+  content.className = prefersReducedMotion ? 'big-win-content' : 'big-win-content glitch';
 
   const text = document.createElement('div');
   text.className = 'big-win-text';
   text.textContent = 'SYSTEM BREACH';
 
   const subText = document.createElement('div');
-  subText.style.fontSize = '1.5rem';
-  subText.style.color = 'var(--color-neon-yellow-green)';
-  subText.style.marginBottom = '2rem';
+  subText.className = 'big-win-subtext';
   subText.textContent = 'BIG WIN';
 
   const amountDisplay = document.createElement('div');
@@ -469,38 +457,77 @@ function celebrateBigWin(amount, resolve) {
   content.appendChild(text);
   content.appendChild(subText);
   content.appendChild(amountDisplay);
-
-  // Add glitch animation to content
-  const style = document.createElement('style');
-  style.textContent = `
-    .big-win-content.glitch {
-      animation: glitchBorder 0.6s ease-in-out infinite;
-    }
-  `;
-  document.head.appendChild(style);
-
-  content.classList.add('glitch');
-
-  overlay.appendChild(dataRain);
   overlay.appendChild(content);
   document.body.appendChild(overlay);
 
-  // Count up the big win amount using the shared helper
-  const BIG_WIN_COUNT_UP_MS = 2000;
-  countUpDisplay(amountDisplay, amount, BIG_WIN_COUNT_UP_MS);
+  // Pulse the reels alongside the overlay. Clear any inline `animation` that
+  // animateReelSpin leaves behind so the class-based animation can take over.
+  const pulsingReels = prefersReducedMotion
+    ? []
+    : Array.from(document.querySelectorAll('.reel-column'));
+  pulsingReels.forEach((col) => {
+    col.style.animation = '';
+    col.classList.add('reel-column-pulse');
+  });
 
-  // Remove overlay after celebration
+  const COUNT_UP_MS = 2000;
+  const HOLD_MS = 500;
+  const FADE_MS = 500;
+
+  countUpDisplay(amountDisplay, amount, COUNT_UP_MS);
+
   setTimeout(() => {
-    content.classList.remove('glitch');
+    pulsingReels.forEach((col) => {
+      col.classList.remove('reel-column-pulse');
+      col.style.animation = 'none';
+    });
+    overlay.style.transition = `opacity ${FADE_MS}ms ease-out`;
     overlay.style.opacity = '0';
-    overlay.style.transition = 'opacity 0.5s ease-out';
-
     setTimeout(() => {
       overlay.remove();
-      style.remove();
       resolve();
-    }, 500);
-  }, 3000);
+    }, FADE_MS);
+  }, COUNT_UP_MS + HOLD_MS);
+}
+
+/**
+ * Builds a fixed-viewport layer of cyber-money glyphs that erupt like a
+ * fountain from the lower-center of the screen. Each piece is randomised
+ * across glyph, colour, size, launch angle, peak height, fall time, delay,
+ * and spin direction so the eruption never looks regimented.
+ * @private
+ * @returns {HTMLDivElement} The populated `.cyber-money` container
+ */
+function createCyberMoneyLayer() {
+  const container = document.createElement('div');
+  container.className = 'cyber-money';
+
+  const GLYPHS = ['$', '₿', 'Ξ', '¥', '€', '₽', '¢'];
+  const COLOR_VARS = [
+    '--color-neon-yellow-green',
+    '--color-neon-cyan',
+    '--color-symbol-gold',
+    '--color-neon-pink',
+  ];
+  const PIECE_COUNT = 110;
+
+  for (let i = 0; i < PIECE_COUNT; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'cyber-money__piece';
+    piece.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+    piece.style.fontSize = `${2.25 + Math.random() * 2.5}rem`;
+    piece.style.color = `var(${COLOR_VARS[Math.floor(Math.random() * COLOR_VARS.length)]})`;
+    // Fountain spread: symmetric sideways launch, centered on lower-center.
+    const launchX = (Math.random() * 2 - 1) * (35 + Math.random() * 35); // vw units
+    piece.style.setProperty('--launch-x', `${launchX}vw`);
+    piece.style.setProperty('--peak-y', `-${55 + Math.random() * 35}vh`);
+    piece.style.setProperty('--spin-dir', Math.random() < 0.5 ? '1' : '-1');
+    piece.style.animationDuration = `${1.6 + Math.random() * 1.1}s`;
+    piece.style.animationDelay = `${Math.random() * 1.2}s`;
+    container.appendChild(piece);
+  }
+
+  return container;
 }
 
 /**
