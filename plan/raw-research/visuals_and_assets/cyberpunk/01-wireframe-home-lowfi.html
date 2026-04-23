@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SLOT.77 · START — Wireframe (Low-Fi)</title>
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --panel:#FAFAFA;
+    --line:#E4E4E4;
+    --line-2:#AAAAAA;
+    --bar:#D6D6D6;
+    --bar-2:#BEBEBE;
+    --fg:#333333;
+    --dim:#888888;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:-apple-system,system-ui,'Segoe UI',sans-serif;font-size:13px;line-height:1.4}
+
+  .page{display:flex;flex-direction:column;align-items:flex-start;gap:24px;padding:32px}
+  .vp-label{
+    font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--dim);padding:8px 14px;border:1px dashed var(--line-2);background:var(--panel);
+  }
+
+  .sec{position:relative}
+  .sec-label{
+    position:absolute;top:-9px;left:14px;
+    font-size:10px;font-weight:700;color:var(--dim);
+    letter-spacing:0.22em;text-transform:uppercase;
+    background:var(--bg);padding:0 8px;z-index:1;
+  }
+  .note{font-size:10px;color:var(--dim);font-style:italic;letter-spacing:0.05em}
+
+  /* ========== BAR PRIMITIVES ========== */
+  .bar{display:inline-block;height:10px;background:var(--bar);vertical-align:middle;border-radius:1px}
+  .bar.h6{height:6px}
+  .bar.h8{height:8px}
+  .bar.h10{height:10px}
+  .bar.h14{height:14px}
+  .bar.h20{height:20px}
+  .bar.h32{height:32px}
+  .bar.h48{height:48px}
+  .bar.dk{background:var(--bar-2)}
+  .bar-row{display:flex;align-items:center;gap:8px;padding:4px 0}
+  .bar-stack{display:flex;flex-direction:column;gap:8px}
+
+  /* ========== BUTTON ========== */
+  .btn{
+    font-family:inherit;cursor:pointer;
+    padding:12px 18px;
+    font-size:11px;letter-spacing:0.22em;text-transform:uppercase;
+    border:1px solid var(--line-2);background:var(--bg);color:var(--fg);
+    display:inline-flex;align-items:center;justify-content:center;
+    min-height:42px;
+  }
+  .btn.primary{
+    background:var(--fg);color:var(--bg);border:2px solid var(--fg);font-weight:700;
+  }
+  .btn.stub{min-width:140px}
+  .btn.stub .bar{width:70%}
+
+  /* ========== X-CELL ========== */
+  .cell{
+    position:relative;aspect-ratio:1;
+    border:1px solid var(--line-2);background:var(--bg);overflow:hidden;
+  }
+  .cell::before,.cell::after{
+    content:'';position:absolute;inset:0;
+    border-top:1px solid var(--line-2);top:50%;
+  }
+  .cell::before{transform:rotate(45deg)}
+  .cell::after{transform:rotate(-45deg)}
+
+  /* ========== DESKTOP ========== */
+  .desktop{
+    width:1440px;height:900px;
+    padding:32px 48px 48px;
+    display:flex;flex-direction:column;gap:22px;
+    border:1px solid var(--line-2);background:var(--bg);
+    transform-origin:top left;
+  }
+
+  .chrome{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:18px 20px;border:1px solid var(--line);gap:24px;
+  }
+  .chrome .left,.chrome .right{display:flex;gap:22px;align-items:center}
+
+  .term-card{
+    flex:1;border:1px solid var(--line-2);
+    display:grid;grid-template-columns:1.4fr 1fr;
+    background:var(--panel);min-height:0;
+  }
+
+  .boot{
+    padding:32px 40px;border-right:1px solid var(--line-2);
+    display:flex;flex-direction:column;background:var(--bg);
+  }
+  .boot .hdr{
+    display:flex;justify-content:space-between;padding-bottom:14px;margin-bottom:14px;
+    border-bottom:1px solid var(--line);
+  }
+  .boot-lines{display:flex;flex-direction:column;gap:7px;flex:1}
+  .boot-ready{margin:22px 0 10px}
+  .boot-prompt{margin-top:8px}
+
+  .cta-row{display:flex;gap:12px;margin-top:22px}
+
+  .stats{
+    padding:28px 28px 24px;display:flex;flex-direction:column;gap:6px;
+  }
+  .stats .hdr{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:4px;
+  }
+  .stat-row{
+    display:grid;grid-template-columns:1fr auto;align-items:center;gap:20px;
+    padding:12px 0;border-bottom:1px dashed var(--line);
+  }
+  .jackpot{
+    border:2px solid var(--fg);padding:18px;margin-top:14px;
+    display:flex;flex-direction:column;gap:10px;align-items:center;
+  }
+  .mini-reel{
+    margin-top:auto;padding-top:16px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+  }
+
+  .ticker{
+    border:1px solid var(--line);padding:16px 18px;
+    display:flex;gap:22px;overflow:hidden;align-items:center;
+  }
+
+  /* ========== MOBILE ========== */
+  .mobile{
+    width:390px;min-height:844px;
+    border:1px solid var(--line-2);background:var(--bg);
+    display:flex;flex-direction:column;
+  }
+  .m-status{
+    padding:14px 22px 10px;display:flex;justify-content:space-between;gap:12px;
+    border-bottom:1px solid var(--line);
+  }
+  .m-boot{padding:22px 22px;flex:1;display:flex;flex-direction:column;gap:8px}
+  .m-boot .hdr{padding-bottom:8px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+  .m-ready{margin:18px 0 10px}
+  .m-meta{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+  .m-prompt{margin-top:16px}
+  .m-cta{padding:12px 22px 24px;display:flex;flex-direction:column;gap:10px}
+  .m-cta .btn{width:100%;min-height:48px}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ======================= DESKTOP ======================= -->
+  <div class="vp-label">Desktop · 1440 × 900 · home / start (low-fi skeleton)</div>
+  <div class="desktop sec" id="dw">
+    <span class="sec-label">[ SCREEN · desktop home ]</span>
+
+    <!-- TOP CHROME -->
+    <div class="chrome sec">
+      <span class="sec-label">[ top chrome ]</span>
+      <div class="left">
+        <span class="bar" style="width:80px"></span>
+        <span class="bar dk" style="width:120px;height:14px"></span>
+        <span class="bar" style="width:160px"></span>
+      </div>
+      <div class="right">
+        <span class="bar" style="width:90px"></span>
+        <span class="bar" style="width:110px"></span>
+        <span class="bar" style="width:140px"></span>
+      </div>
+    </div>
+
+    <!-- TERMINAL CARD -->
+    <div class="term-card">
+      <!-- LEFT: BOOT -->
+      <div class="boot sec">
+        <span class="sec-label">[ left · boot log + CTAs ]</span>
+        <div class="hdr">
+          <span class="bar" style="width:200px"></span>
+          <span class="bar" style="width:120px"></span>
+        </div>
+        <div class="boot-lines">
+          <div class="bar-row"><span class="bar" style="width:70%"></span><span class="bar dk" style="width:28px"></span></div>
+          <div class="bar-row"><span class="bar" style="width:82%"></span><span class="bar dk" style="width:28px"></span></div>
+          <div class="bar-row"><span class="bar" style="width:75%"></span><span class="bar dk" style="width:28px"></span></div>
+          <div class="bar-row"><span class="bar" style="width:88%"></span><span class="bar dk" style="width:28px"></span></div>
+          <div class="bar-row"><span class="bar" style="width:66%"></span><span class="bar dk" style="width:44px"></span></div>
+          <div class="bar-row"><span class="bar" style="width:78%"></span><span class="bar dk" style="width:28px"></span></div>
+          <div class="bar-row"><span class="bar" style="width:84%"></span><span class="bar dk" style="width:28px"></span></div>
+          <div class="bar-row"><span class="bar" style="width:60%"></span><span class="bar dk" style="width:36px"></span></div>
+          <div class="bar-row"><span class="bar" style="width:72%"></span><span class="bar dk" style="width:28px"></span></div>
+          <div class="bar-row"><span class="bar" style="width:56%"></span></div>
+        </div>
+
+        <div class="boot-ready">
+          <span class="bar h48 dk" style="width:58%"></span>
+        </div>
+        <div class="boot-prompt">
+          <span class="bar" style="width:30%"></span>
+        </div>
+
+        <div class="cta-row">
+          <button class="btn primary">▶ START GAME</button>
+          <button class="btn stub"><span class="bar"></span></button>
+          <button class="btn stub"><span class="bar"></span></button>
+        </div>
+
+        <div class="note" style="margin-top:18px">
+          * boot sequence: sequential line reveal on load<br>
+          * RESUME button: conditional (shown only if prior session exists)
+        </div>
+      </div>
+
+      <!-- RIGHT: STATS -->
+      <div class="stats sec">
+        <span class="sec-label">[ right · user stats ]</span>
+        <div class="hdr">
+          <span class="bar" style="width:140px"></span>
+          <span class="bar" style="width:50px"></span>
+        </div>
+
+        <div class="stat-row">
+          <span class="bar" style="width:70px"></span>
+          <span class="bar h20 dk" style="width:110px"></span>
+        </div>
+        <div class="stat-row">
+          <span class="bar" style="width:60px"></span>
+          <span class="bar h20 dk" style="width:90px"></span>
+        </div>
+        <div class="stat-row">
+          <span class="bar" style="width:50px"></span>
+          <span class="bar h20 dk" style="width:130px"></span>
+        </div>
+        <div class="stat-row">
+          <span class="bar" style="width:70px"></span>
+          <span class="bar h20 dk" style="width:80px"></span>
+        </div>
+        <div class="stat-row">
+          <span class="bar" style="width:80px"></span>
+          <span class="bar h20 dk" style="width:70px"></span>
+        </div>
+
+        <div class="jackpot">
+          <span class="bar" style="width:70%"></span>
+          <span class="bar h32 dk" style="width:60%"></span>
+          <span class="bar" style="width:50%"></span>
+        </div>
+
+        <div class="mini-reel">
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TICKER -->
+    <div class="ticker sec">
+      <span class="sec-label">[ footer ticker ]</span>
+      <span class="bar" style="width:120px"></span>
+      <span class="bar" style="width:150px"></span>
+      <span class="bar" style="width:130px"></span>
+      <span class="bar" style="width:140px"></span>
+      <span class="bar" style="width:110px"></span>
+      <span class="bar" style="width:160px"></span>
+      <span class="bar" style="width:120px"></span>
+    </div>
+  </div>
+
+  <!-- ======================= MOBILE ======================= -->
+  <div class="vp-label">Mobile · 390 × 844 · home / start (low-fi skeleton)</div>
+  <div class="mobile sec" id="mw">
+    <span class="sec-label">[ SCREEN · mobile home ]</span>
+
+    <div class="m-status">
+      <span class="bar" style="width:40px"></span>
+      <span class="bar" style="width:80px"></span>
+    </div>
+
+    <div class="m-boot sec">
+      <span class="sec-label">[ boot + meta ]</span>
+      <div class="hdr"><span class="bar" style="width:50%"></span></div>
+      <div class="bar-row"><span class="bar" style="width:76%"></span></div>
+      <div class="bar-row"><span class="bar" style="width:82%"></span><span class="bar dk" style="width:28px"></span></div>
+      <div class="bar-row"><span class="bar" style="width:70%"></span><span class="bar dk" style="width:28px"></span></div>
+      <div class="bar-row"><span class="bar" style="width:86%"></span><span class="bar dk" style="width:28px"></span></div>
+      <div class="bar-row"><span class="bar" style="width:78%"></span><span class="bar dk" style="width:28px"></span></div>
+
+      <div class="m-ready"><span class="bar h32 dk" style="width:55%"></span></div>
+
+      <div class="m-meta">
+        <span class="bar" style="width:70%"></span>
+        <span class="bar" style="width:50%"></span>
+        <span class="bar" style="width:40%"></span>
+      </div>
+
+      <div class="m-prompt"><span class="bar" style="width:60%"></span></div>
+    </div>
+
+    <div class="m-cta sec">
+      <span class="sec-label">[ CTAs ]</span>
+      <button class="btn primary">▶ START GAME</button>
+      <button class="btn stub"><span class="bar"></span></button>
+    </div>
+  </div>
+
+  <div class="note" style="max-width:900px;margin-top:8px;line-height:1.7">
+    <b>Responsive mapping:</b><br>
+    · Desktop 2-column (boot | stats) → Mobile stack (boot only; stats compressed into meta lines)<br>
+    · Footer ticker → removed on mobile (space constraint)<br>
+    · Mini-reel 4 cells → removed (CTA prioritized)<br>
+    · Full Tier / Missions / Jackpot view → consider a separate dashboard tab after entry
+  </div>
+
+</div>
+
+<script>
+  function fit(){
+    document.querySelectorAll('#dw, #mw').forEach(el=>{
+      el.style.transform='none';
+      const w = el.offsetWidth;
+      const avail = window.innerWidth - 64;
+      if(w > avail){
+        const s = avail / w;
+        el.style.transformOrigin = 'top left';
+        el.style.transform = `scale(${s})`;
+        el.style.marginBottom = `${-(el.offsetHeight * (1-s)) + 24}px`;
+      } else {
+        el.style.marginBottom = '0';
+      }
+    });
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('load', fit);
+  fit();
+</script>
+</body>
+</html>

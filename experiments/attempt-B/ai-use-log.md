@@ -85,3 +85,20 @@ Result:
 Lint / tests: N/A (no code yet).
 Hand-edit: none.
 Learning: Writing ai-plan.md after ai-use-log.md already has three entries means the plan can reference actual observed behavior ("so far, Phase A files take ~2 min each in direct Write mode"). Writing it first, before any turns, would have been speculative. Ordering matters for plan quality.
+
+---
+
+## Turn 6 — 2026-04-22 — package.json + lint configs + npm install
+
+Prompt intent: Set up the minimal tooling surface — test runner (node --test built-in), three linters (ESLint, stylelint, html-validate), and a static serve script — so every subsequent code turn can verify itself before commit.
+Context loaded: plan Task 5.
+Result:
+- Created `package.json` — `type: module` for ESM, scripts for test/lint (js/css/html)/serve. Dev deps pinned: eslint ^8.57 (for .eslintrc.json format), stylelint ^16, stylelint-config-standard ^36, html-validate ^8.
+- Created `.eslintrc.json` — no-unused-vars, no-undef, prefer-const, eqeqeq, no-var.
+- Created `.stylelintrc.json` — loosened `selector-class-pattern` to `^[a-z][a-z0-9_\\-]*$` so `.sym-chrome_skull` (symbol-id-as-class) passes. `custom-property-pattern` left kebab-only (no underscores in --vars). `no-descending-specificity: null` to allow natural cascade ordering.
+- Created `.htmlvalidate.json` — extends :recommended; disabled `no-inline-style` and `attribute-boolean-style` (legitimate uses in `<dialog>`, SVG).
+- Created `.gitignore` — ignores node_modules/, .DS_Store, *.log.
+- Ran `npm install` — 232 packages, 0 vulnerabilities, deprecation warnings for ESLint 8 (acceptable — v9's flat config adds complexity that isn't worth it for a one-day build).
+Lint / tests: N/A — no code to lint yet. Linters installed and configs parsed successfully during install.
+Hand-edit: none.
+Learning: Loosening `selector-class-pattern` proactively (based on the UI code we're about to write) beats waiting for stylelint to fail and then scrambling. SPEC §4.1 uses underscore-bearing symbol ids (`chrome_skull`, `gold_kanji`, `neon_7`), and those ids flow into CSS class names via `sym-${id}`. The rule has to accept what the design actually produces, not a generic kebab-case-only pattern.

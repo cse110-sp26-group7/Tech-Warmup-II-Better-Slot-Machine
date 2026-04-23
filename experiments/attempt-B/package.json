@@ -1,0 +1,21 @@
+{
+  "name": "data-heist-attempt-b",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Data Heist slot machine (Attempt B, context-engineered)",
+  "scripts": {
+    "test": "node --test tests/",
+    "lint": "npm run lint:js && npm run lint:css && npm run lint:html",
+    "lint:js": "eslint src/ tests/",
+    "lint:css": "stylelint \"src/**/*.css\"",
+    "lint:html": "html-validate index.html",
+    "serve": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "stylelint": "^16.0.0",
+    "stylelint-config-standard": "^36.0.0",
+    "html-validate": "^8.0.0"
+  }
+}
