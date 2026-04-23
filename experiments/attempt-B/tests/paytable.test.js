@@ -36,11 +36,11 @@ test('INITIAL_STATE and BET_STEPS have expected shape', () => {
 });
 
 test('payoutFor returns the published table values', () => {
-  assert.equal(payoutFor('neural_chip', 3), 0.2);
-  assert.equal(payoutFor('neural_chip', 4), 0.5);
-  assert.equal(payoutFor('neural_chip', 5), 1.0);
-  assert.equal(payoutFor('wild', 5), 200);
-  assert.equal(payoutFor('gold_kanji', 4), 25);
+  assert.equal(payoutFor('neural_chip', 3), 0.14);
+  assert.equal(payoutFor('neural_chip', 4), 0.36);
+  assert.equal(payoutFor('neural_chip', 5), 0.71);
+  assert.equal(payoutFor('wild', 5), 142.10);
+  assert.equal(payoutFor('gold_kanji', 4), 17.76);
 });
 
 test('payoutFor returns 0 for counts below 3', () => {

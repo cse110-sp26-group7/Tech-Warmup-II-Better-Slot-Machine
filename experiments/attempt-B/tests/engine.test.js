@@ -26,7 +26,7 @@ test('evaluateLine: 3 matching symbols on middle row pays', () => {
   const win = evaluateLine(grid, payline, payoutFor);
   assert.equal(win.symbol, 'oni_mask');
   assert.equal(win.count, 3);
-  assert.equal(win.payout, 0.5); // oni_mask x3
+  assert.equal(win.payout, 0.36); // oni_mask x3
   assert.equal(win.lineId, 1);
 });
 
@@ -52,7 +52,7 @@ test('evaluateLine: pure-wild run pays from wild row', () => {
   const win = evaluateLine(grid, payline, payoutFor);
   assert.equal(win.symbol, 'wild');
   assert.equal(win.count, 3);
-  assert.equal(win.payout, 10); // wild x3
+  assert.equal(win.payout, 7.10); // wild x3
 });
 
 test('evaluateLine: fewer than 3 matches returns null', () => {
@@ -93,5 +93,21 @@ test('spin: grid is 5x3 and every cell is a known symbol', () => {
       assert.ok(typeof sym === 'string' && sym.length > 0);
     }
   }
+});
+
+test('RTP over 100k spins is within 95–97%', () => {
+  const rng = createRng(42);
+  let state = { ...INITIAL_STATE, balance: 1e9 };
+  const bet = 10;
+  let totalBet = 0, totalPayout = 0;
+  for (let i = 0; i < 100_000; i++) {
+    const r = spin(state, bet, rng);
+    totalBet += bet;
+    totalPayout += r.payout;
+    state = r.newState;
+    state.balance = 1e9;
+  }
+  const rtp = totalPayout / totalBet;
+  assert.ok(rtp > 0.95 && rtp < 0.97, `rtp=${rtp.toFixed(4)}`);
 });
 

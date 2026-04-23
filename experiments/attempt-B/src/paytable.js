@@ -52,14 +52,14 @@ export const BET_STEPS = [1, 5, 10, 25, 50, 100];
 export const INITIAL_STATE = { balance: 1000, bet: 10, lastSpin: null };
 
 const PAYTABLE = {
-  neural_chip:  [0.2, 0.5,   1.0],
-  katana:       [0.3, 0.8,   2.0],
-  oni_mask:     [0.5, 1.5,   4.0],
-  neon_7:       [1.0, 3.0,   8.0],
-  cyber_iris:   [1.5, 5.0,  15.0],
-  chrome_skull: [2.5, 10.0, 50.0],
-  gold_kanji:   [5.0, 25.0, 100.0],
-  wild:         [10.0, 50.0, 200.0],
+  neural_chip:  [0.14, 0.36,  0.71],
+  katana:       [0.21, 0.57,  1.42],
+  oni_mask:     [0.36, 1.07,  2.84],
+  neon_7:       [0.71, 2.13,  5.68],
+  cyber_iris:   [1.07, 3.55, 10.66],
+  chrome_skull: [1.78, 7.10, 35.52],
+  gold_kanji:   [3.55, 17.76, 71.05],
+  wild:         [7.10, 35.52, 142.10],
 };
 
 /**

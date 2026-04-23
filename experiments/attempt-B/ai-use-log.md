@@ -177,3 +177,22 @@ Result:
 Lint / tests: 17/17 pass. Lint clean.
 Hand-edit: none.
 Learning: Plan's prescribed import list assumed both `spin` AND `generateGrid` would be needed in the same test file. In practice `generateGrid` is only called inside `spin`, so `no-unused-vars` would force a choice: use it directly in a test, or drop it from imports. Subagent picked the pragmatic option. Reinforces that plan code is a starting draft, not a blueprint — subagents should make local, well-justified adjustments.
+
+---
+
+## Turn 12 — 2026-04-22 — RTP Monte Carlo + paytable tune (significant finding)
+
+Prompt intent: Append the 100k-spin RTP test to engine tests; scale paytable if observed RTP is outside [0.95, 0.97]. This is the first task where the allowed file set is wider (`paytable.js`, SPEC.md §4, `paytable.test.js` all conditionally editable).
+Context loaded (by subagent): SPEC §1/§4/§7, CLAUDE.md, slot-engine.md, slot-testing.md, plan §Task 11, current paytable.js and engine.test.js.
+Result:
+- **Observed baseline RTP = 1.3512** — my hand-written initial paytable was 35% too generous. Without the RTP test this would have shipped as a money-printer.
+- Subagent applied a single scale pass: `scale = 0.96 / 1.3512 = 0.7105`. Every PAYTABLE value multiplied and rounded to 2 decimals.
+- Final RTP: 0.9603 — comfortably inside [0.95, 0.97].
+- Files mirrored in lockstep: `src/paytable.js` (internal PAYTABLE), `SPEC.md` §4 (table), `tests/paytable.test.js` (5 payoutFor value assertions), `tests/engine.test.js` (2 payout assertions inside evaluateLine tests).
+- 18/18 tests pass. Lint clean.
+- Subagent flagged a minor deviation: had to update 2 hard-coded payouts in `engine.test.js` evaluateLine tests too — legitimate, since those tests hard-code specific values. Well-annotated in the return summary.
+Lint / tests: 18/18 pass; lint clean.
+Hand-edit: none.
+Learning: **Second major value delivery from context engineering.** A 1.35 RTP would have made the game feel broken (players always win money — boring and also unrealistic). The RTP Monte Carlo test caught it automatically and the "scale all values by ratio" tuning procedure from SPEC §7 resolved it in one pass. Two data points from this turn for the final report: (1) naively-designed payout tables can be badly mis-tuned; (2) a single automated check plus a simple tuning procedure fixes it reliably. Neither the designer nor the coder had to compute the RTP manually — Monte Carlo did it.
+
+## Phase B complete — 18 unit tests pass, empirical RTP = 0.96, lint clean.
