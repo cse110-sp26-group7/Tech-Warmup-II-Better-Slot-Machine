@@ -252,3 +252,20 @@ Result:
 Lint / tests: stylelint clean. Other gates not re-run (no change to JS/HTML/tests).
 Hand-edit: none — Claude orchestrator applied the patch.
 Learning: **Third Phase C defect traceable to "plan author did not run the artifact."** Turn 14 subagent had explicitly flagged this in its "Assumptions for Task 14" under the name "CSS must not override `[hidden]`", but I dropped the ball and did not propagate the note into the plan content. Lesson: **when a subagent flags a cross-task assumption, it needs to land in the plan file (or at least in my next dispatch prompt) or it evaporates.** The next dispatch is a good time to start doing this actively.
+
+---
+
+## Turn 17 — 2026-04-22 — Responsive media queries (tablet + mobile)
+
+Prompt intent: Append media queries to `src/styles.css` for tablet stacking (<1024px) and full mobile layout (<640px). Proactively converted the plan's legacy `max-width` syntax to modern `(width < Npx)` range notation because stylelint-config-standard enforces `media-feature-range-notation: context`.
+Context loaded (by subagent): SPEC §9, slot-ui.md, design §4.9 + §4.10, plan §Task 15, current styles.css, .stylelintrc.json.
+Result:
+- Subagent appended the prescribed CSS byte-for-byte (already in modern syntax as orchestrator pre-converted in the dispatch prompt).
+- Subagent also added `pointer-events: auto` to `.breakdown-panel.visible` beyond the plan — sensible, since without it a visible toast would still be click-through.
+- stylelint clean. Full gate green (18/18 tests, eslint clean, html-validate clean).
+- **Subagent flagged a cross-task constraint for Task 16:** plan asks for 4-second auto-dismiss of mobile breakdown toast, but `slot-ui.md` forbids `setTimeout` chains. Suggested resolution: CSS animation-based dismiss with an `animationend` listener. Will encode in Task 16 dispatch.
+Lint / tests: all green.
+Hand-edit: none.
+Learning: **First turn this run where proactive preemption in the dispatch worked.** Turn 15 cost a round-trip because the plan's CSS didn't match stylelint rules; this time I read the linter spec, re-wrote the prescribed CSS to modern syntax, and the subagent completed in one pass. The cost of "read rules, pre-convert syntax" is ~30 seconds in the dispatch prompt; the cost of round-tripping is a minute of subagent call + review + patch. Flat win.
+
+## Phase C partially complete: responsive done, ui.js + main.js remaining.

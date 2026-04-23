@@ -402,3 +402,87 @@ body {
   color: var(--loss);
   margin: 0 0 var(--space-5);
 }
+
+/* Tablet: stack sides below reels */
+@media (width < 1024px) {
+  .stage {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .paytable-panel {
+    order: 2;
+  }
+
+  .reel-frame {
+    order: 1;
+  }
+
+  .breakdown-panel {
+    order: 3;
+    min-height: 120px;
+  }
+}
+
+/* Mobile: HUD + reels + bet row + spin row */
+@media (width < 640px) {
+  .app {
+    padding: var(--space-2);
+    gap: var(--space-3);
+  }
+
+  .topbar .title {
+    font-size: 14px;
+  }
+
+  .paytable-panel {
+    display: none;
+  }
+
+  .breakdown-panel {
+    position: fixed;
+    top: 60px;
+    left: var(--space-2);
+    right: var(--space-2);
+    z-index: 5;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .breakdown-panel.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .stage {
+    grid-template-columns: 1fr;
+  }
+
+  .reel-frame {
+    padding: var(--space-3);
+  }
+
+  .controls {
+    grid-template-columns: auto 1fr auto auto;
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .controls .ctrl-group:last-child {
+    display: none;
+  }
+
+  .spin-btn {
+    padding: var(--space-3) var(--space-4);
+    font-size: 14px;
+  }
+
+  .ghost-btn {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .paytable-mobile-trigger {
+    display: inline-block;
+  }
+}
