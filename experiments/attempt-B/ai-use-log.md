@@ -345,3 +345,18 @@ Result:
 - All four gates green (18/18 tests, js+css+html lint clean).
 Hand-edit: none.
 Learning: **Second success dispatch this run** after the SVG swap. One subagent handled three related effects because they share a constraint profile (CSS @keyframes + class toggles + single reflow-force). Bundling related edits reduced round-trips from three to one. The slot-ui skill's "no timer" rule naturally maps to animation-forwards + animationend patterns; the subagent used `animation-fill-mode: forwards` instead of fighting the rule, exactly as intended.
+
+---
+
+## Turn 23 — 2026-04-22 — UX tweaks: row-wise drop + larger symbols (user feedback)
+
+Prompt intent: User reviewed the effects in browser and asked for two changes: (1) rows drop top→middle→bottom instead of columns left→right, (2) symbols fill the reel cells more (currently 70% svg inside 105px cell felt sparse).
+Context loaded: current styles.css, ui.js.
+Result:
+- Animation moved from `.reel-col` (parent) to `.cell` (leaf), indexed by `--row` instead of `--col`. Row 0 starts at 0ms, row 1 at 120ms, row 2 at 240ms. Full grid reveals in ~640ms.
+- Conflict with `.cell.hot { animation: glow-pulse }` resolved via comma-separated animations: `.cell.hot { animation: reel-drop ..., glow-pulse ...; animation-delay: calc(var(--row) * 120ms), 500ms }`. Drop runs first, glow-pulse starts 500ms later (after the drop finishes on the last row).
+- Reels max-width bumped 560 → 800px. SVG size bumped 70 → 92% of cell. Net effect: cells go from ~105px with 74px symbols to ~159px with 146px symbols — roughly double the visible glyph area.
+- ui.js: `colEl.style.setProperty('--col', ...)` moved to `cell.style.setProperty('--row', ...)` on each cell.
+Lint / tests: 18/18 pass; css + js + html all clean.
+Hand-edit: none.
+Learning: Comma-separated `animation` properties compose on a single element without fighting cascade specificity — far cleaner than trying to put the drop on a parent and glow on a child. This pattern is the CSS-only answer to "two animations on the same element, both driven by different state." Good note for the final report's "what worked" column.

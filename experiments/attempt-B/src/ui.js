@@ -33,13 +33,13 @@ export function renderGrid(grid) {
   for (let col = 0; col < grid.cols; col++) {
     const colEl = document.createElement('div');
     colEl.className = 'reel-col';
-    colEl.style.setProperty('--col', String(col));
     for (let row = 0; row < grid.rows; row++) {
       const sym = grid.reels[col][row];
       const cell = document.createElement('div');
       cell.className = `cell sym-${sym}`;
       cell.dataset.col = String(col);
       cell.dataset.row = String(row);
+      cell.style.setProperty('--row', String(row));
       cell.innerHTML = `<svg viewBox="0 0 100 100"><use href="src/assets/symbols.svg#sym-${sym}"></use></svg>`;
       colEl.appendChild(cell);
     }
