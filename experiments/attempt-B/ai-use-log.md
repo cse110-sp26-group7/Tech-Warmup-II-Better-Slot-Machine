@@ -162,3 +162,18 @@ Result:
 Lint / tests: 13/13 pass. Lint clean.
 Hand-edit: none. Both deviations were subagent corrections, well-justified.
 Learning: **This is the first turn where context engineering demonstrably saved us from shipping broken code.** The plan had a subtle bug — my single-candidate `evaluateLine` was tested against my own three test cases that seemed correct in isolation but produced a contradiction when the "pure-wild run" test was added alongside the "wild substitutes" test. The subagent, armed with just the SPEC + skill + test cases (no prior commit history to bias toward the broken code), ran the red→green cycle and the contradiction surfaced immediately. A human writing code top-down without testing between each case would likely have written the buggy version and noticed only after integration. Also: the blocker-policy clause in the dispatch gave the subagent permission to surface the design-level issue explicitly in its summary rather than silently patching or silently breaking a test.
+
+---
+
+## Turn 11 — 2026-04-22 — spin-level tests (bet validation, grid shape, balance delta)
+
+Prompt intent: Round out `engine.test.js` with four `spin` tests to cover bet validation (throw-paths) and balance arithmetic. These were reserved at Turn 10 with eslint-disables on the imports.
+Context loaded (by subagent): SPEC.md, CLAUDE.md, slot-engine.md, slot-testing.md, plan §Task 10, existing engine.js and engine.test.js.
+Result:
+- Subagent appended 4 tests: bet-too-big throws, bet<1 throws, balance = -bet+payout, grid is 5×3 with valid symbols.
+- Subagent removed the eslint-disables around spin/INITIAL_STATE/createRng imports (now used).
+- **Deviation (reasonable):** removed `generateGrid` from the import list — it was listed in the plan but never referenced by the four appended tests, so it would have triggered `no-unused-vars`. `generateGrid` is indirectly exercised via `spin`, so explicit test coverage is not lost.
+- 17 tests total now pass (3 rng + 6 paytable + 4 evaluateLine + 4 spin). Lint clean.
+Lint / tests: 17/17 pass. Lint clean.
+Hand-edit: none.
+Learning: Plan's prescribed import list assumed both `spin` AND `generateGrid` would be needed in the same test file. In practice `generateGrid` is only called inside `spin`, so `no-unused-vars` would force a choice: use it directly in a test, or drop it from imports. Subagent picked the pragmatic option. Reinforces that plan code is a starting draft, not a blueprint — subagents should make local, well-justified adjustments.

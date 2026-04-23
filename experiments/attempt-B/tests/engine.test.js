@@ -1,11 +1,9 @@
 // experiments/attempt-B/tests/engine.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-/* eslint-disable no-unused-vars -- spin, generateGrid, INITIAL_STATE, createRng are reserved for Task 10 spin tests. */
-import { evaluateLine, spin, generateGrid } from '../src/engine.js';
+import { evaluateLine, spin } from '../src/engine.js';
 import { PAYLINES, payoutFor, INITIAL_STATE } from '../src/paytable.js';
 import { createRng } from '../src/rng.js';
-/* eslint-enable no-unused-vars */
 
 function mkGrid(rows) {
   // rows: 3 x 5 array of symbols; convert to reels[col][row]
@@ -66,3 +64,34 @@ test('evaluateLine: fewer than 3 matches returns null', () => {
   const payline = PAYLINES[1]; // [0,0,0,0,0]
   assert.equal(evaluateLine(grid, payline, payoutFor), null);
 });
+
+test('spin: bet > balance throws', () => {
+  const state = { ...INITIAL_STATE, balance: 10 };
+  const rng = createRng(1);
+  assert.throws(() => spin(state, 100, rng), /invalid bet/);
+});
+
+test('spin: bet < 1 throws', () => {
+  const rng = createRng(1);
+  assert.throws(() => spin({ ...INITIAL_STATE }, 0, rng), /invalid bet/);
+});
+
+test('spin: updates balance by -bet + payout', () => {
+  const rng = createRng(1);
+  const state = { ...INITIAL_STATE, balance: 1000 };
+  const r = spin(state, 10, rng);
+  assert.equal(r.newBalance, 1000 - 10 + r.payout);
+});
+
+test('spin: grid is 5x3 and every cell is a known symbol', () => {
+  const rng = createRng(42);
+  const r = spin({ ...INITIAL_STATE }, 10, rng);
+  assert.equal(r.grid.reels.length, 5);
+  for (const col of r.grid.reels) {
+    assert.equal(col.length, 3);
+    for (const sym of col) {
+      assert.ok(typeof sym === 'string' && sym.length > 0);
+    }
+  }
+});
+
