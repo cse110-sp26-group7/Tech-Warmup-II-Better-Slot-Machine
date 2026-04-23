@@ -238,3 +238,17 @@ Result:
 Lint / tests: all gates green. 18/18 tests pass; stylelint clean; eslint clean; html-validate clean.
 Hand-edit: none.
 Learning: Second plan defect of the same shape as Turn 14 — "plan specifies prescribed content without having run the linter against it". Makes me think the remaining Phase C plan entries (responsive CSS, ui.js, main.js) may have similar hidden-lint issues. Mitigation: from here forward, after each subagent dispatch, the orchestrator reads ai-use-log entries and preemptively asks subagents to "first lint a minimal version, only then grow the file". Not yet implemented this turn, but flagging for Task 15+.
+
+---
+
+## Turn 16 — 2026-04-22 — styles.css reset-overlay visibility fix (browser-observed bug)
+
+Prompt intent: Hand-patch a CSS bug discovered during user-requested mid-phase browser smoke — RESET overlay showed on initial page load, blocking the whole UI.
+Context loaded: current styles.css, index.html.
+Result:
+- Root cause: `.reset-overlay { display: grid }` overrode the HTML `hidden` attribute's implicit `display: none`. HTML `hidden` is a convenience that maps to `display: none` only when CSS has no more specific display rule; any explicit `display` in a matching selector wins.
+- Fix: added `.reset-overlay[hidden] { display: none; }` to restore the intent. Three lines of CSS.
+- stylelint clean after the patch.
+Lint / tests: stylelint clean. Other gates not re-run (no change to JS/HTML/tests).
+Hand-edit: none — Claude orchestrator applied the patch.
+Learning: **Third Phase C defect traceable to "plan author did not run the artifact."** Turn 14 subagent had explicitly flagged this in its "Assumptions for Task 14" under the name "CSS must not override `[hidden]`", but I dropped the ball and did not propagate the note into the plan content. Lesson: **when a subagent flags a cross-task assumption, it needs to land in the plan file (or at least in my next dispatch prompt) or it evaporates.** The next dispatch is a good time to start doing this actively.
