@@ -1,4 +1,4 @@
-# DATA HEIST — Implementation Spec
+# DATA HEIST Implementation Spec
 
 This file is the single source of truth for WHAT the game does. The full rationale lives in `docs/design.md`; this file is the condensed reference for coding.
 
@@ -7,8 +7,8 @@ This file is the single source of truth for WHAT the game does. The full rationa
 - 5 columns × 3 rows. 25 fixed paylines, evaluated left-to-right.
 - Each of the 15 cells is an independent weighted draw; symbol weights are uniform across reels.
 - Wild substitutes for any symbol. A pure-wild run pays from the `wild` row of the paytable.
-- A line pays when ≥ 3 matching symbols (including wilds) extend from reel 0.
-- When a line has both a leading-wild run (3+ wilds from reel 0) AND a substituted-target run, the line pays whichever candidate yields the higher payout. Industry convention: player is paid the better of the two valid interpretations of the same path.
+- A line pays when 3 or more matching symbols (including wilds) extend from reel 0.
+- When a line has both a leading-wild run (3 or more wilds from reel 0) AND a substituted-target run, the line pays whichever candidate yields the higher payout. Industry convention: the player is paid the better of the two valid interpretations of the same path.
 
 ## 2. Symbols (8)
 
@@ -40,34 +40,34 @@ wild          5
 | gold_kanji | 3.55 | 17.76 | 71.05 |
 | wild | 7.10 | 35.52 | 142.10 |
 
-Paytable values are the **initial** set. If the 100k-spin RTP Monte Carlo (§7) falls outside [0.95, 0.97], scale every entry by `0.96 / observed_rtp` and update this table to match.
+Paytable values are the initial set. If the 100k-spin RTP Monte Carlo (§7) falls outside [0.95, 0.97], scale every entry by `0.96 / observed_rtp` and update this table to match.
 
 ## 5. Paylines
 
-25 fixed paths, each a 5-element array of row indices (0 = top, 2 = bottom). The full list is in `src/paytable.js`. Design rationale and diagrams are in `docs/design.md` §4.4.
+25 fixed paths, each a 5-element array of row indices (0 for top, 2 for bottom). The full list is in `src/paytable.js`. Design rationale and diagrams are in `docs/design.md` §4.4.
 
 ## 6. State
 
 - `INITIAL_STATE = { balance: 1000, bet: 10, lastSpin: null }`
 - `BET_STEPS = [1, 5, 10, 25, 50, 100]`
-- `MAX BET` sets bet to the largest step ≤ balance.
-- SPIN disabled when `bet > balance`. RESET overlay when balance = 0.
+- `MAX BET` sets bet to the largest step that does not exceed the balance.
+- SPIN is disabled when `bet > balance`. The RESET overlay appears when balance is 0.
 
 ## 7. RTP
 
-Target 96 ± 1%. Verified with a 100,000-spin Monte Carlo using `createRng(42)`. Tune by scaling paytable values if out of band. Do not change `SYMBOL_WEIGHTS` for tuning — hit frequency is held constant.
+Target 96% ± 1%. Verified with a 100,000-spin Monte Carlo using `createRng(42)`. Tune by scaling paytable values if out of band. Do not change `SYMBOL_WEIGHTS` for tuning; hit frequency is held constant.
 
 ## 8. Differentiators
 
-1. **Payline highlight animation** — acid-green glow sweep on winning rows, staggered by rank in the wins array (sort by descending payout, ascending lineId; 120 ms per step).
-2. **Win breakdown panel** — right sidebar (desktop/tablet) / toast (mobile), renders per-line `L<id> · <count>× <symbol> · +<payout>`.
+1. Payline highlight animation. An acid-green glow sweep on winning rows, staggered by rank in the wins array (sort by descending payout, ascending lineId; 120 ms per step).
+2. Win breakdown panel. Right sidebar on desktop and tablet, inline below reels on mobile. Renders per-line `L<id> · <count>× <symbol> · +<payout>`.
 
 ## 9. Responsive
 
-- ≥ 1024 px: 3-column (paytable | reels | breakdown) + controls bar.
-- 640–1023 px: sides stack below reels.
-- < 640 px: HUD + reels + bet stepper + spin row; paytable in `<dialog>`; breakdown as toast.
+- 1024 px and up: 3-column (paytable, reels, breakdown) plus the controls bar.
+- 640 to 1023 px: sides stack below reels.
+- Under 640 px: HUD, reels, bet stepper, and spin row. The paytable opens in a `<dialog>`, and the breakdown appears inline below reels.
 
 ## 10. Out of Scope
 
-Scatter, Free Spins, multipliers, cascading, auto-spin, both-ways pay, session history, sound, accounts. Any request for these is rejected — point back to this section.
+Scatter, Free Spins (proper bonus mode), multipliers, cascading, auto-spin, both-ways pay, session history log, and accounts. Any request for these is rejected; point back to this section.
