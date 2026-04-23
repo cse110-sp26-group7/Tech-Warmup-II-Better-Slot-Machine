@@ -330,3 +330,18 @@ Result:
 - All four gates green (18 tests, js/css/html lint clean).
 Hand-edit: none.
 Learning: The tradeoff between "author simple and themable" vs. "use the real artwork" ended up being lower-cost than I estimated. Extracting via bounding-box mapping was mechanical and the subagent completed it in one pass. Lesson: when a user asks about an asset that already exists, try the swap first rather than defending the authored version — the research artifact is usually richer for free.
+
+---
+
+## Turn 22 — 2026-04-22 — Visual effects A+B+C (user-requested upgrade)
+
+Prompt intent: User asked "why no spinning / win effects?" I explained that only the payline glow was in SPEC §4.11 scope, but offered three additions (A: staggered column drop, B: WIN counter pulse, C: BIG WIN overlay). User chose A+B+C; dispatched to a single subagent because all three share the "CSS keyframes + class toggle" pattern and edit the same four files.
+Context loaded (by subagent): SPEC, slot-ui.md, index.html, ui.js, main.js, styles.css.
+Result:
+- Effect A: `renderGrid` now sets `colEl.style.setProperty('--col', String(col))`; CSS `.reel-col` applies `animation: reel-drop 400ms both` with `animation-delay: calc(var(--col, 0) * 100ms)`. Pure CSS timing — no JS timers.
+- Effect B: `renderHud` toggles `.pulse` on `#last-win` when `lastWin > 0`, using the reflow-force trick (`void el.offsetWidth`) to restart the animation. CSS keyframes animate color cyan→acid→cyan and scale 1→1.3→1 over 1 s.
+- Effect C: New `<div id="big-win-overlay">` in index.html. `triggerBigWin(payout, bet)` exported from ui.js and called in `main.handleSpin` right after `renderBreakdown`. `ratio = payout / bet`; `≥10` triggers BIG WIN (acid), `≥50` MEGA WIN (gold). 1.5 s `big-win-flash` keyframes handle fade-in/out via `forwards` so the overlay settles transparent with no JS dismissal needed.
+- Subagent note: CSS keyframes had to be reformatted to multi-line (one declaration per line) because `declaration-block-single-line-max-declarations` is enforced by stylelint-config-standard. Same semantics.
+- All four gates green (18/18 tests, js+css+html lint clean).
+Hand-edit: none.
+Learning: **Second success dispatch this run** after the SVG swap. One subagent handled three related effects because they share a constraint profile (CSS @keyframes + class toggles + single reflow-force). Bundling related edits reduced round-trips from three to one. The slot-ui skill's "no timer" rule naturally maps to animation-forwards + animationend patterns; the subagent used `animation-fill-mode: forwards` instead of fighting the rule, exactly as intended.

@@ -4,7 +4,7 @@ import { spin, generateGrid } from './engine.js';
 import { INITIAL_STATE, BET_STEPS } from './paytable.js';
 import {
   renderGrid, highlightWins, renderBreakdown, renderHud, renderPaytable,
-  setSpinEnabled, setResetVisible, wireEvents,
+  setSpinEnabled, setResetVisible, triggerBigWin, wireEvents,
 } from './ui.js';
 
 const rng = createRng();
@@ -31,6 +31,7 @@ function handleSpin() {
     renderGrid(result.grid);
     highlightWins(result.wins);
     renderBreakdown(result.wins);
+    triggerBigWin(result.payout, state.bet);
     render(result.wins);
   } catch (err) {
     // eslint-disable-next-line no-console -- design spec §3.5 requires console logging of unexpected engine errors

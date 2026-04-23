@@ -22,6 +22,8 @@ const betDownBtn = document.getElementById('bet-down');
 const maxBetBtn = document.getElementById('max-bet');
 const resetOverlayEl = document.getElementById('reset-overlay');
 const resetBtnEl = document.getElementById('reset-btn');
+const bigWinEl = document.getElementById('big-win-overlay');
+const bigWinLabelEl = document.getElementById('big-win-label');
 
 // ----- render functions -----
 
@@ -31,6 +33,7 @@ export function renderGrid(grid) {
   for (let col = 0; col < grid.cols; col++) {
     const colEl = document.createElement('div');
     colEl.className = 'reel-col';
+    colEl.style.setProperty('--col', String(col));
     for (let row = 0; row < grid.rows; row++) {
       const sym = grid.reels[col][row];
       const cell = document.createElement('div');
@@ -98,6 +101,14 @@ export function renderHud({ balance, bet, lastWin }) {
   balanceEl.textContent = String(balance);
   betEl.textContent = String(bet);
   lastWinEl.textContent = lastWin > 0 ? `+${lastWin.toFixed(2)}` : '0';
+  if (lastWin > 0) {
+    lastWinEl.classList.remove('pulse');
+    // reflow forces the animation to restart on re-add — CSS-only restart trick
+    void lastWinEl.offsetWidth;
+    lastWinEl.classList.add('pulse');
+  } else {
+    lastWinEl.classList.remove('pulse');
+  }
 }
 
 /** @param {boolean} enabled */
@@ -165,4 +176,26 @@ export function wireEvents(handlers) {
 /** @param {boolean} show */
 export function setResetVisible(show) {
   resetOverlayEl.hidden = !show;
+}
+
+/**
+ * @param {number} payout
+ * @param {number} bet
+ */
+export function triggerBigWin(payout, bet) {
+  if (bet <= 0) return;
+  const ratio = payout / bet;
+  if (ratio < 10) return;
+
+  bigWinEl.classList.remove('active', 'mega');
+  // reflow forces the animation to restart on re-add — CSS-only restart trick
+  void bigWinEl.offsetWidth;
+
+  if (ratio >= 50) {
+    bigWinLabelEl.textContent = 'MEGA WIN';
+    bigWinEl.classList.add('active', 'mega');
+  } else {
+    bigWinLabelEl.textContent = 'BIG WIN';
+    bigWinEl.classList.add('active');
+  }
 }
