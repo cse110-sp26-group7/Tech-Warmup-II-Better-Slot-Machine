@@ -6,6 +6,7 @@ import {
   renderGrid, highlightWins, renderBreakdown, renderHud, renderPaytable,
   setSpinEnabled, setResetVisible, triggerBigWin, wireEvents,
 } from './ui.js';
+import { playSpin, playWin, playBigWin, playMegaWin } from './sound.js';
 
 const rng = createRng();
 
@@ -25,6 +26,7 @@ function render(wins = []) {
 
 function handleSpin() {
   if (state.bet > state.balance || state.balance <= 0) return;
+  playSpin();
   try {
     const result = spin(state, state.bet, rng);
     state = result.newState;
@@ -33,6 +35,13 @@ function handleSpin() {
     renderBreakdown(result.wins);
     triggerBigWin(result.payout, state.bet);
     render(result.wins);
+
+    if (result.payout > 0) {
+      const ratio = result.payout / state.bet;
+      if (ratio >= 50) playMegaWin();
+      else if (ratio >= 10) playBigWin();
+      else playWin();
+    }
   } catch (err) {
     // eslint-disable-next-line no-console -- design spec §3.5 requires console logging of unexpected engine errors
     console.error('spin failed', err);

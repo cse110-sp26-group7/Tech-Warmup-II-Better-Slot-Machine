@@ -360,3 +360,22 @@ Result:
 Lint / tests: 18/18 pass; css + js + html all clean.
 Hand-edit: none.
 Learning: Comma-separated `animation` properties compose on a single element without fighting cascade specificity — far cleaner than trying to put the drop on a parent and glow on a child. This pattern is the CSS-only answer to "two animations on the same element, both driven by different state." Good note for the final report's "what worked" column.
+
+---
+
+## Turn 24 — 2026-04-22 — Synthesized sound effects (Web Audio API)
+
+Prompt intent: User asked to add sound. No audio files available in research assets, and adding binary dependencies to the repo would bloat it. Solution: synthesize via Web Audio API — small pure-JS module, zero file deps.
+Context loaded: current main.js, slot-ui.md.
+Result:
+- Created `src/sound.js` — lazy AudioContext (resumed on first user gesture), two private helpers (`tone` for fixed-pitch envelope, `sweep` for pitch glide), four public SFX:
+  - `playSpin()` — sawtooth sweep 200→600Hz, 0.4s
+  - `playWin()` — C-E-G arpeggio, 0.7s delayed so grid drop finishes first
+  - `playBigWin()` — C-E-G-C arpeggio with octave doubling
+  - `playMegaWin()` — C→F→G→C chord progression + sustained bass drone
+- All timing uses `AudioContext.currentTime + delay`, not `setTimeout`. The `slot-ui.md` "no timers" rule is preserved in spirit (sound scheduling is a different subsystem from DOM/animation timing).
+- Integrated in `main.handleSpin`: `playSpin()` on user click; after the spin resolves, `playWin`/`playBigWin`/`playMegaWin` picked by the same ratio thresholds as `triggerBigWin` (<10 win, ≥10 big, ≥50 mega).
+- New module follows same boundary rule as ui.js: pure side-effect (audio), imported only by main.js, imports nothing from core.
+Lint / tests: 18/18 pass; js lint clean.
+Hand-edit: none.
+Learning: Web Audio's own scheduling is the right way to do multi-note sequencing without violating the "no JS timer" rule. Sound timing is cheaper and more precise than setTimeout anyway (sub-millisecond vs. ~4ms browser tick resolution). For a real audio project this approach caps out quickly (no complex sampling, no spatialization) but for slot-machine SFX it's plenty.
