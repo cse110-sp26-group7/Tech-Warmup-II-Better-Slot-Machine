@@ -72,3 +72,16 @@ Result:
 Lint / tests: N/A (no code yet).
 Hand-edit: none.
 Learning: Three narrow skills > one catch-all because Claude Code loads whichever skill matches the file path being edited — a noisy combined skill would pollute engine edits with UI rules and vice versa. Frozen signatures in slot-engine.md are the key safety rail: preventing drift of `spin` / `createRng` / `payoutFor` across turns removes the #1 risk in a long AI-assisted run.
+
+---
+
+## Turn 5 — 2026-04-22 — ai-plan.md
+
+Prompt intent: Author the AI usage strategy document per assignment rule #3 — the "pre-defined and continued documented approach".
+Context loaded: design spec §5.4, plan Task 4, CLAUDE.md (AI Rules section).
+Result:
+- Created `ai-plan.md` covering: model choice (Opus 4.7 single + rationale), harness (Claude Code + path-scoped skills), work-unit protocol (load → produce → verify → commit → log), execution pattern (subagent-driven for B/C, inline for A), hand-edit policy, adversarial check cadence, out-of-scope enforcement.
+- Logged the execution-pattern decision inline in ai-plan.md so future readers see why Phase A used direct Write and Phases B–C plan subagent dispatches.
+Lint / tests: N/A (no code yet).
+Hand-edit: none.
+Learning: Writing ai-plan.md after ai-use-log.md already has three entries means the plan can reference actual observed behavior ("so far, Phase A files take ~2 min each in direct Write mode"). Writing it first, before any turns, would have been speculative. Ordering matters for plan quality.
