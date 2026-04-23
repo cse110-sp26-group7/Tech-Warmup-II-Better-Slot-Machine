@@ -21,16 +21,16 @@ const MIN_WIN_MATCH = 3;
  * Designed for ~94% RTP on the house side.
  */
 const PAYOUT_TABLE = {
-  GOLD_KANJI:   { 3: 5,   4: 20,  5: 100 },
-  CHROME_SKULL: { 3: 5,   4: 20,  5: 100 },
-  CYBER_IRIS:   { 3: 3,   4: 12,  5: 50  },
-  KATANA:       { 3: 3,   4: 12,  5: 50  },
-  NEON_7:       { 3: 3,   4: 12,  5: 50  },
-  DIAMOND:      { 3: 2,   4: 8,   5: 25  },
-  BELL:         { 3: 2,   4: 8,   5: 25  },
-  BAR:          { 3: 0,   4: 3,   5: 10  },
-  CHERRY:       { 3: 0,   4: 2,   5: 8   },
-  WILD:         { 3: 5,   4: 20,  5: 100 },
+  GOLD_KANJI:   { 3: 125,  4: 500,   5: 2500 },
+  CHROME_SKULL: { 3: 125,  4: 500,   5: 2500 },
+  CYBER_IRIS:   { 3: 75,   4: 300,   5: 1250 },
+  KATANA:       { 3: 75,   4: 300,   5: 1250 },
+  NEON_7:       { 3: 75,   4: 300,   5: 1250 },
+  DIAMOND:      { 3: 50,   4: 200,   5: 625  },
+  BELL:         { 3: 50,   4: 200,   5: 625  },
+  BAR:          { 3: 0,    4: 75,    5: 250  },
+  CHERRY:       { 3: 0,    4: 50,    5: 200  },
+  WILD:         { 3: 125,  4: 500,   5: 2500 },
 };
 
 /** Free-spin awards for scatter counts of 5, 4, or 3 */

@@ -81,7 +81,8 @@ export function renderBet(bet) {
     throw new Error('Bet display element (#bet-display) not found in DOM');
   }
 
-  betDisplay.textContent = Math.floor(bet).toString();
+  const perLineBet = bet / 25;
+  betDisplay.innerHTML = `${Math.floor(bet)}<br><span style="font-size: 0.6em; opacity: 0.8;">(${perLineBet.toFixed(perLineBet % 1 === 0 ? 0 : 2)} per line)</span>`;
 }
 
 /**

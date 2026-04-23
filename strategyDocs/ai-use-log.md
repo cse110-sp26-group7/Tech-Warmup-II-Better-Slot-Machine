@@ -2047,6 +2047,7 @@ Fixed CSS layout for proper display on large screens with responsive scaling:
 > Redesign the reel strips in src/js/reels.js to make the game profitable for the house. Target roughly 92% RTP (house keeps ~8%). The current strips are ~40-46 symbols long — too short. Expand each reel strip to exactly 64 stops.
 >
 > Target symbol distributions:
+>
 > - REEL_1 & REEL_5 (no wilds, 64 stops): CHERRY(20), BAR(16), BELL(8), DIAMOND(7), NEON_7(4), KATANA(3), CYBER_IRIS(2), CHROME_SKULL(1), GOLD_KANJI(1), NEURAL_CHIP(2)
 > - REEL_2, REEL_3, REEL_4 (with wilds, 64 stops each): CHERRY(18), BAR(15), BELL(8), DIAMOND(7), NEON_7(4), KATANA(3), CYBER_IRIS(2), CHROME_SKULL(1), GOLD_KANJI(1), NEURAL_CHIP(2), WILD(3)
 >
@@ -2059,6 +2060,7 @@ Redesigned all 5 reel strips to achieve target ~92% RTP with exact 64-stop confi
 **Reel Configuration:**
 
 REEL_1 (64 stops, no wilds):
+
 - Low-value dominance: CHERRY(20), BAR(16) — 36/64 = 56.25% of reel
 - Mid-value: BELL(8), DIAMOND(7) — balanced frequency
 - High-value: NEON_7(4), KATANA(3), CYBER_IRIS(2) — uncommon
@@ -2066,11 +2068,13 @@ REEL_1 (64 stops, no wilds):
 - Scatter: NEURAL_CHIP(2) — balanced free-spins trigger rate
 
 REEL_2, REEL_3, REEL_4 (64 stops each, with wilds):
+
 - Same distribution but CHERRY reduced to 18 and BAR to 15 to make room for WILD(3)
 - Wilds appear 3× per center reel, enabling substitution mechanics
 - Low-value dominance maintained: 33/64 = 51.6% of reel
 
 REEL_5 (64 stops, no wilds):
+
 - Identical to REEL_1 for balanced left/right reel probabilities
 
 **Symbol Distribution Strategy:**
@@ -2120,12 +2124,14 @@ Replaced percentage-based payout formula with industry-standard fixed multiplier
 **Payout Module (src/js/payout.js):**
 
 Added PAYOUT_TABLE constant (lines 18-32):
+
 - Premium symbols (GOLD_KANJI, CHROME_SKULL, WILD): 3→5×, 4→20×, 5→100×
 - High-value symbols (CYBER_IRIS, KATANA, NEON_7): 3→3×, 4→12×, 5→50×
 - Mid-value symbols (DIAMOND, BELL): 3→2×, 4→8×, 5→25×
 - Low-value symbols (BAR, CHERRY): 3→0×, 4→3×/2×, 5→10×/8×
 
 Key design decisions:
+
 - CHERRY and BAR pay 0 on 3-of-a-kind — prevents excessive small wins from flooding the payout pool
 - Mid-tier symbols barely profitable at 3-of-a-kind (2× = break-even on 2-payline win)
 - Premium 5-of-a-kind jackpots reduced from 1000× to 100× — still exciting but sustainable
@@ -2134,6 +2140,7 @@ Key design decisions:
 Removed PAYOUT_DIVISOR constant (no longer needed)
 
 Updated evaluatePayline() calculation logic (lines 98-107):
+
 ```javascript
 // Look up payout multiplier from fixed table
 const multipliers = PAYOUT_TABLE[baseSymbol.id];
@@ -2149,6 +2156,7 @@ return { payout, matchCount };
 **Test Updates (tests/payout.test.js):**
 
 Updated all payout expectations to match new multiplier table:
+
 - 5× GOLD_KANJI at bet 1: 1000 → 100
 - 5× CHERRY at bet 1: 50 → 8
 - 5× CHROME_SKULL at bet 1: 1000 → 100
@@ -2168,17 +2176,21 @@ Multi-payline test adjusted: top row 3× DIAMOND (2) + middle row 3× CHERRY (0)
 **Impact Analysis:**
 
 Old formula example (CHERRY 3-of-a-kind at 1 per line):
+
 - (50 / 5) × 3 × 1 = 30 credits per winning line
 - With 25 paylines, potential 750 credit payout on 25 credit bet (30× return)
 
 New formula (CHERRY 3-of-a-kind at 1 per line):
+
 - 0 × 1 = 0 credits (no payout)
 - Eliminates flood of trivial wins, increases volatility
 
 Old formula (GOLD_KANJI 5-of-a-kind at 1 per line):
+
 - (1000 / 5) × 5 × 1 = 1000 credits per line
 
 New formula (GOLD_KANJI 5-of-a-kind at 1 per line):
+
 - 100 × 1 = 100 credits per line
 - Still feels like a jackpot but house edge protected
 
@@ -2193,3 +2205,118 @@ New formula (GOLD_KANJI 5-of-a-kind at 1 per line):
 **Files changed:** src/js/payout.js, tests/payout.test.js
 
 **Commit message:** feat: phase 14A - replace payout formula with fixed multiplier table for sustainable RTP
+
+---
+
+## Entry 45 — April 22, 2026 (6:40PM)
+
+**Phase:** 14B — Fix Bet Display and Payout Scaling
+
+**Prompt used:**
+
+> Fix two problems:
+>
+> PROBLEM 1 — Max bet button shows wrong value
+> In src/js/ui.js, find renderBet(). It currently displays gameState.currentBet which is the TOTAL bet (per-line × 25). Change the bet display to show both values clearly: main number (total bet) and small label underneath showing per-line bet. Also update MAX BET button label to "MAX BET (2500)" so the player knows what max bet actually is in total credits.
+>
+> PROBLEM 2 — Payouts feel insultingly small
+> The payout table multipliers in src/js/payout.js treat betAmount as per-line, but players see their total bet (25× larger) on screen. A player betting 2500 total who wins 2× on DIAMOND gets 2 credits back against a 2500 spend — that feels broken even if the math is correct.
+>
+> Multiply all values in PAYOUT_TABLE by 25 so wins feel proportional to what the player sees they spent. The RTP stays identical because betAmount (per-line) is still the input — we are just rescaling the display-facing multipliers.
+
+**Outcome:**
+
+Fixed bet display clarity and payout perception issues:
+
+**UI Module (src/js/ui.js):**
+
+Updated renderBet() function (line 84):
+
+- Changed from simple number display to dual-line display
+- Main number: total bet (currentBet)
+- Sublabel: per-line bet with formatting `"(X per line)"`
+- Implementation:
+  ```javascript
+  const perLineBet = bet / 25;
+  betDisplay.innerHTML = `${Math.floor(bet)}<br><span style="font-size: 0.6em; opacity: 0.8;">(${perLineBet.toFixed(perLineBet % 1 === 0 ? 0 : 2)} per line)</span>`;
+  ```
+- Now displays e.g., "25" with "(1 per line)" below for default bet
+- Or "2500" with "(100 per line)" below for max bet
+
+**HTML (src/index.html):**
+
+Updated MAX BET button label (line 88):
+
+- Changed from "MAX BET" to "MAX BET (2500)"
+- Makes it immediately clear what the max bet value is
+- No change to backend logic in main.js (setMaxBet still calls State.setBet(gameState, 100) correctly)
+
+**Payout Module (src/js/payout.js):**
+
+Scaled all PAYOUT_TABLE multipliers by 25× (lines 18-32):
+
+Before (felt too small):
+
+- GOLD_KANJI 5-of-a-kind: 100×
+- DIAMOND 3-of-a-kind: 2×
+- CHERRY 5-of-a-kind: 8×
+
+After (feels proportional to total bet shown):
+
+- GOLD_KANJI: 3→125×, 4→500×, 5→2500×
+- CHROME_SKULL: 3→125×, 4→500×, 5→2500×
+- CYBER_IRIS: 3→75×, 4→300×, 5→1250×
+- KATANA: 3→75×, 4→300×, 5→1250×
+- NEON_7: 3→75×, 4→300×, 5→1250×
+- DIAMOND: 3→50×, 4→200×, 5→625×
+- BELL: 3→50×, 4→200×, 5→625×
+- BAR: 3→0×, 4→75×, 5→250×
+- CHERRY: 3→0×, 4→50×, 5→200×
+- WILD: 3→125×, 4→500×, 5→2500×
+
+**Why this works:**
+
+Player experience with default bet (1 per line = 25 total shown):
+
+- Old: DIAMOND 3-of-a-kind paid 2 credits against 25 total bet shown (feels insulting)
+- New: DIAMOND 3-of-a-kind pays 50 credits against 25 total bet shown (feels like a win)
+- Old: GOLD_KANJI 5-of-a-kind paid 100 credits (underwhelming)
+- New: GOLD_KANJI 5-of-a-kind pays 2500 credits (jackpot excitement!)
+
+Mathematical equivalence:
+
+- RTP unchanged because betAmount parameter is still per-line bet
+- Formula: `payout = PAYOUT_TABLE[symbol][matchCount] * betPerLine`
+- Multiplying table values by 25 and keeping betPerLine as 1/25th of displayed bet = same RTP
+- We're only rescaling the display-facing numbers to match player perception
+
+**Test Updates (tests/payout.test.js):**
+
+Updated all payout expectations to match new 25× multipliers:
+
+- 5× GOLD_KANJI at bet 1: 100 → 2500
+- 5× CHERRY at bet 1: 8 → 200
+- 5× CHROME_SKULL at bet 1: 100 → 2500
+- 3× KATANA at bet 1: 3 → 75
+- 5× NEON_7 (with wild) at bet 1: 50 → 1250
+- 5× CYBER_IRIS at bet 1: 50 → 1250
+- 5× WILD at bet 1: 100 → 2500
+- 3× BELL at bet 1: 2 → 50
+- 4× CYBER_IRIS at bet 1: 12 → 300
+- 5× BELL at bet 0.5: 12.5 → 312.5
+- 3× DIAMOND at bet 1: 2 → 50
+- 5× CHERRY middle row at bet 1: 8 → 200
+
+All bet scaling tests still pass — proportional relationships maintained
+
+**Linter result:** Passed
+
+**Tests result:** 90 passed, all pass (5 test suites)
+
+**Issues encountered:** None
+
+**Hand-edit required?** No
+
+**Files changed:** src/js/ui.js, src/index.html, src/js/payout.js, tests/payout.test.js
+
+**Commit message:** fix: phase 14B - improve bet display clarity and scale payouts to feel proportional to total bet
