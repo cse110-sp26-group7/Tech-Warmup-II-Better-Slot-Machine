@@ -378,14 +378,43 @@ body {
     }
 }
 
-@keyframes dataRain {
+@keyframes cyberMoneyFountain {
     0% {
-        transform: translateY(-100%);
+        transform: translate(0, 0) scale(0.4) rotate(0deg);
+        opacity: 0;
+    }
+    8% {
+        opacity: 1;
+        transform: translate(calc(var(--launch-x, 0px) * 0.12), calc(var(--peak-y, -60vh) * 0.25))
+                   scale(1)
+                   rotate(calc(var(--spin-dir, 1) * 90deg));
+    }
+    50% {
+        opacity: 1;
+        transform: translate(calc(var(--launch-x, 0px) * 0.55), var(--peak-y, -60vh))
+                   scale(1)
+                   rotate(calc(var(--spin-dir, 1) * 360deg));
+    }
+    90% {
         opacity: 1;
     }
     100% {
-        transform: translateY(100vh);
+        transform: translate(var(--launch-x, 0px), 40vh)
+                   scale(0.85)
+                   rotate(calc(var(--spin-dir, 1) * 720deg));
         opacity: 0;
+    }
+}
+
+@keyframes reelColumnPulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 6px var(--color-neon-yellow-green));
+    }
+    50% {
+        transform: scale(1.04);
+        filter: drop-shadow(0 0 16px var(--color-neon-yellow-green))
+                drop-shadow(0 0 28px var(--color-neon-pink));
     }
 }
 
@@ -697,6 +726,14 @@ body {
     margin-bottom: 1rem;
 }
 
+.big-win-subtext {
+    font-size: 1.5rem;
+    color: var(--color-neon-yellow-green);
+    text-shadow: 0 0 10px var(--color-neon-yellow-green);
+    letter-spacing: 0.2em;
+    margin-bottom: 2rem;
+}
+
 .big-win-amount {
     font-size: 2.5rem;
     font-weight: 700;
@@ -704,25 +741,43 @@ body {
     text-shadow: 0 0 15px var(--color-neon-yellow-green);
 }
 
-.data-rain {
-    position: absolute;
+.cyber-money {
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
     pointer-events: none;
-    z-index: -1;
+    z-index: 0;
 }
 
-.rain-char {
+.cyber-money__piece {
     position: absolute;
-    font-size: 1.5rem;
-    color: var(--color-neon-cyan);
-    opacity: 0.7;
-    text-shadow: 0 0 5px var(--color-neon-cyan);
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
+    left: 50%;
+    bottom: 8%;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    text-shadow: 0 0 12px currentColor, 0 0 24px currentColor;
+    animation-name: cyberMoneyFountain;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+    will-change: transform, opacity;
+}
+
+.reel-column.reel-column-pulse {
+    animation: reelColumnPulse 0.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cyber-money {
+        display: none;
+    }
+
+    .reel-column.reel-column-pulse,
+    .big-win-content.glitch {
+        animation: none;
+    }
 }
 
 /* ====================================

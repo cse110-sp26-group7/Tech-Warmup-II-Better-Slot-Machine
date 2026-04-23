@@ -12,10 +12,10 @@
  * @returns {'big'|'medium'|'small'} Win tier
  */
 export function classifyWinLevel(totalPayout, currentBet) {
-  if (totalPayout >= currentBet * 10) {
+  if (totalPayout >= currentBet * 2) {
     return 'big';
   }
-  if (totalPayout >= currentBet * 3) {
+  if (totalPayout >= currentBet * 1) {
     return 'medium';
   }
   return 'small';
