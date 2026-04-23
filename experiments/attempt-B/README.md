@@ -21,7 +21,7 @@ attempt-B/
 ├── SPEC.md                    Single source of WHAT the game does
 ├── CLAUDE.md                  Project-wide HOW rules (module boundaries, style)
 ├── ai-plan.md                 AI usage strategy (model, harness, policy)
-├── ai-use-log.md              Per-turn record (26 entries across the run)
+├── ai-use-log.md              Per-turn record (28 entries across the run)
 ├── .claude/skills/            Path-scoped editing rules
 │   ├── slot-engine.md           For src/rng.js, src/engine.js, src/paytable.js
 │   ├── slot-ui.md               For src/ui.js, src/styles.css, index.html
@@ -29,7 +29,7 @@ attempt-B/
 ├── docs/
 │   ├── design.md                Full brainstorming design doc
 │   └── plan.md                  Implementation plan
-├── src/                       7 modules, 634 LOC
+├── src/                       7 modules, 720 LOC
 │   ├── types.js                 JSDoc typedefs
 │   ├── rng.js                   Mulberry32 seeded PRNG
 │   ├── paytable.js              Symbols, weights, 25 paylines, payoutFor
@@ -41,7 +41,7 @@ attempt-B/
 │   └── assets/symbols.svg       8 cyberpunk neon glyphs
 ├── tests/                     18 unit tests + 100k-spin RTP Monte Carlo
 ├── research/                  Snapshotted inputs (5 personas, 7 user stories, etc.)
-├── final-report/              Writeup and demo video
+├── final-report/
 └── index.html                 Single-page shell
 ```
 

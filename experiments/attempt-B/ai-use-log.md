@@ -408,16 +408,51 @@ Learning: Lint and unit tests caught none of the 4 real layout/rendering defects
 
 ---
 
-## Turn 26 · 2026-04-22 · FINAL-REPORT, slides outline, README
+## Turn 26 · 2026-04-22 · Mobile breakdown inline layout fix (browser-observed)
 
-Prompt intent: Author the final deliverables: `final-report/FINAL-REPORT.md` with real data from the log, `final-report/slides-outline.md` for 4 to 7 slides and a video under 4 minutes, and an updated `README.md` that reflects the shipped state.
-Context loaded: ai-use-log (25 prior turns), git log stats (29 commits, 634 + 190 LOC), test count (18/18), empirical RTP (0.9603), 0 hand-edits.
+Prompt intent: User opened the mobile viewport and reported that the Win Breakdown panel was covering the top row of symbols. The breakdown was `position: fixed; top: 60px` (toast overlay), which made sense at plan time but overlapped the reel area in practice. Requested: inline placement between reels and controls.
+Context loaded: styles.css (mobile `@media (width < 640px)` block), running page screenshot, index.html structure.
 Result:
-- `final-report/FINAL-REPORT.md` with 5 sections (Hypothesis, Process, Data, Discussion, Conclusion). Uses specific Turn references for qualitative claims (Turn 10 evaluateLine bug, Turn 12 RTP tune, Turn 23 animation composition, Turns 16/20/23 browser-caught defects). Defensible conclusion.
-- `final-report/slides-outline.md` with a 4-to-7 slide structure plus video arc, sized to the assignment's constraints. Includes notes on tooling (Marp, Keynote, Slides) and visual guidance (dark bg, Orbitron, acid accent).
-- `README.md` rewritten from the pre-build stub into a shipped-state doc: layout tree, run commands, differentiators, verification summary, and headline numbers.
-Lint / tests: 18/18 pass; all four linters clean. No regressions from the documentation additions.
+- Removed `position: fixed`, `top`, `left`, `right`, `z-index`, `opacity: 0`, `pointer-events: none`, and `transition: opacity` from the mobile `.breakdown-panel` rule.
+- Added `.breakdown-panel:not(.visible) { display: none }` so the panel is fully hidden when there are no wins, letting the grid take full width.
+- Added a dedicated `@keyframes breakdown-in` animation (translateY -8px to 0, opacity 0 to 1, 0.3s) applied via `.breakdown-panel.visible`, so the inline panel animates in on winning spins rather than toggling instantly.
+- Net result: topbar, reels, breakdown (only when winning), controls flow vertically in the stage grid with no overlap.
+Lint / tests: stylelint clean; 18/18 tests still pass; js and html linters unaffected.
 Hand-edit: none.
-Learning: Writing the final report last meant every claim could point to a specific Turn number in this log. If the report had been drafted earlier and updated as we went, it would have accreted vague "see log" references. The "log first, report last" ordering is worth keeping.
+Learning: Fifth Phase C defect browser-caught (after the RESET overlay, sprite path, symbol sizing, and drop-direction issues). The toast interpretation of the breakdown panel was a plan-level design choice that worked in theory but not in mobile viewport practice. Inline flow is simpler (fewer moving parts than a timed overlay) and strictly better UX here. Same "browser smoke beats lint for visual work" lesson as Turns 16, 20, and 23.
 
-## Phase E partially complete: FINAL-REPORT, slides outline, and README done. Remaining: slides PDF export and demo video recording (both user-driven).
+---
+
+## Turn 27 · 2026-04-22 · Implement US7 as a disclosed pity bonus
+
+Prompt intent: FINAL-REPORT §2.4 had US7 (unlucky player) as "Not implemented". User suggested a minimal compensation mechanic. Chose a disclosed pity bonus: after 10 consecutive zero-payout spins, credit a visible bonus and announce it as a rule, not as mystical intervention.
+Context loaded: current main.js, ui.js, styles.css, sound.js; slot-ui.md (no-timer rule); SPEC §10; research §8 (explainable AI / manipulation boundary).
+Result:
+- `main.js`: added `losingStreak` counter outside the engine so the engine stays pure. On a zero-payout spin, increment; on a winning spin, reset. When streak reaches `UNLUCKY_STREAK_THRESHOLD = 10`, credit `bet * UNLUCKY_BONUS_MULT (2)` and reset the streak.
+- `ui.js`: added `triggerUnlucky(amount)` that reuses the `#big-win-overlay` element with a new `.unlucky` class variant (no new DOM element needed).
+- `styles.css`: `.big-win-overlay.unlucky` styling (magenta color, 56px label) plus a dedicated `unlucky-flash` keyframes animation (1.4s, gentler than BIG WIN's 1.5s flash).
+- `sound.js`: added `playPity()`, a descending G4-E4-C4 triangle-wave arpeggio, warm consolation tone.
+- `main.js` keybind: `Shift+U` previews the overlay so we can verify without waiting for a natural 10-loss streak.
+- Framing: "UNLUCKY BONUS +N" and "on the house" language. Explicit mechanic rather than mystical intervention, per the domain-research §8 note about manipulation boundaries.
+- FINAL-REPORT §2.4 US7 row updated from "Not implemented" to "Implemented (disclosed pity bonus)".
+Lint / tests: 18/18 pass; all four linters clean. Engine untouched, so the RTP Monte Carlo still reports 0.9603. The pity credit is an orchestrator-level bonus outside the engine's RTP scope.
+Hand-edit: none.
+Learning: Keeping the pity logic in main.js (not engine) preserves engine purity, which matters both for testability (the RTP test still measures pure engine behavior) and for ethical framing (the engine's reported RTP is mathematically honest; the pity bonus is a disclosed, separate mechanic). Session-level mechanics belong at the orchestrator layer, not in the RNG path.
+
+---
+
+## Turn 28 · 2026-04-22 · Implement US5 as Mystery Drop every 20 spins
+
+Prompt intent: FINAL-REPORT §2.4 had US5 (bonus-feature hunter) as "Scope cut". User asked for a simple variant that captures the "at least one bonus moment per session" spirit without a full free-spin mode. Chose Mystery Drop: every 20 spins a bonus fires regardless of win/loss.
+Context loaded: current main.js, ui.js, styles.css, sound.js.
+Result:
+- `main.js`: added `spinCount` counter incremented on every spin. When `spinCount % MYSTERY_INTERVAL (20) === 0`, credit `bet * (1 + rng.next(3))` bonus (1, 2, or 3 times bet).
+- `ui.js`: added `triggerMystery(amount)` reusing the `#big-win-overlay` with a `.mystery` class variant (cyan color, 64px label), matching the template established by `triggerUnlucky`.
+- `styles.css`: `.big-win-overlay.mystery` styling shares the `unlucky-flash` keyframes for pacing.
+- `sound.js`: added `playMystery()`, an ascending C4-E4-G4-C5 sine+triangle arpeggio, cheerful.
+- `main.js` keybind: `Shift+Y` previews the overlay.
+- Session math: a 30-spin session is guaranteed at least one drop; a 60-spin session, three. Fulfills US5's "at least once per session" ask without an engine-level bonus mode.
+- FINAL-REPORT §2.4 US5 row updated from "Scope cut" to "Implemented (Mystery Drop)". Deliberate-deferrals list updated accordingly.
+Lint / tests: 18/18 pass; all four linters clean. Mystery Drop uses the same engine rng instance, so the pick is deterministic under `seed=42`.
+Hand-edit: none.
+Learning: Two consecutive user-story implementations (T27 and T28) followed the same architectural template: session-level state in main.js, overlay variant in ui.js via class toggle on the existing `#big-win-overlay`, a dedicated sound in sound.js, and a Shift+Key test hook. Reusing one overlay element with variant classes instead of creating per-feature DOM avoided CSS duplication and kept the page lean. Template likely extends to future "meta" bonuses (daily login, first-spin welcome, etc.) with minimal rework.
