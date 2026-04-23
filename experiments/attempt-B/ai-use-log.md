@@ -196,3 +196,17 @@ Hand-edit: none.
 Learning: **Second major value delivery from context engineering.** A 1.35 RTP would have made the game feel broken (players always win money — boring and also unrealistic). The RTP Monte Carlo test caught it automatically and the "scale all values by ratio" tuning procedure from SPEC §7 resolved it in one pass. Two data points from this turn for the final report: (1) naively-designed payout tables can be badly mis-tuned; (2) a single automated check plus a simple tuning procedure fixes it reliably. Neither the designer nor the coder had to compute the RTP manually — Monte Carlo did it.
 
 ## Phase B complete — 18 unit tests pass, empirical RTP = 0.96, lint clean.
+
+---
+
+## Turn 13 — 2026-04-22 — src/assets/symbols.svg (authored 8-symbol sprite)
+
+Prompt intent: Create a lean, self-authored SVG sprite containing all 8 cyberpunk symbols, using only strokes/fills tied to `currentColor` so CSS can re-color each instance by the owning cell's color.
+Context loaded: design spec §4.14, SPEC §2 (symbol ids), plan Task 12.
+Result:
+- Created `src/assets/symbols.svg` with 8 `<symbol>` elements in 100×100 viewBoxes: neural_chip, katana, oni_mask, neon_7, cyber_iris, chrome_skull, gold_kanji, wild.
+- Root SVG has `display:none` + `aria-hidden="true"` — the file is a sprite consumed exclusively via `<use href="...#sym-<id>" />`.
+- All strokes/fills use `currentColor` so each cell's CSS (e.g., `.cell.sym-wild { color: var(--magenta) }`) colors its symbol.
+Lint / tests: 18/18 still pass (SVG has no JS impact). Lint not run for this file (no relevant linter wired). html-validate will cover the file indirectly when it resolves `<use>` references.
+Hand-edit: none.
+Learning: Authoring symbols from scratch beats extracting from the research asset here — the research SVG has per-pixel stroke/fill/opacity layering for a mood illustration (30 KB+), whereas a sprite wants 1 KB geometric glyphs that scale and recolor cleanly. The tradeoff: our symbols are simpler than the research illustration. Acceptable for Attempt B's goal (prove context engineering), and the research illustration remains as the design reference.
