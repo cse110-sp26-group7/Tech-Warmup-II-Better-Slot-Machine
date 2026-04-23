@@ -115,3 +115,19 @@ Result:
 Lint / tests: `npm run lint:js` and `npm run lint:css` both pass.
 Hand-edit: none. The package.json edit was a Claude follow-up after observing the ESLint error, not a pre-planned change — logging for traceability.
 Learning: Running the linter immediately after the very first source file revealed the "no files matching pattern" failure mode. Catching it now, with one file, beats discovering it at Phase C when the patch would have to thread through more code. TDD discipline ("run the checker at every step") applies to tooling too, not just tests.
+
+---
+
+## Turn 8 — 2026-04-22 — src/rng.js via TDD (first subagent dispatch) + npm test script fix
+
+Prompt intent: Dispatch a fresh subagent to TDD `src/rng.js` (Mulberry32) under the slot-engine + slot-testing skill constraints; this is the first task where AI generates actual runtime code.
+Context loaded (by subagent): SPEC.md §1–§10, CLAUDE.md, slot-engine.md, slot-testing.md, docs/plan.md §Task 7.
+Context packet sent: "Built so far" (types.js, package.json, lint configs, node_modules), "In-flight decisions" (ESLint 8 with classic .eslintrc, lint --no-error-on-unmatched-pattern), hard constraints (no commits, no files outside attempt-B, only src/rng.js + tests/rng.test.js).
+Result:
+- Subagent created `tests/rng.test.js` (3 tests: seed determinism, range bounds, seed discrimination).
+- Subagent verified red → wrote `src/rng.js` (Mulberry32 per design spec §4.6) → verified green (3/3 pass, lint clean).
+- **Discovered bug in existing tooling:** `npm test` ran `node --test tests/` which fails on Node 22 with MODULE_NOT_FOUND (treats `tests/` as a file path). Subagent correctly flagged this without fixing it (hard constraint: only edit rng.js and test file).
+- **Main agent follow-up:** patched `package.json` → `"test": "node --test \"tests/**/*.test.js\""`. Verified: 3 pass, lint clean.
+Lint / tests: all green. `npm test` 3/3 pass. `npm run lint:js` clean.
+Hand-edit: none. The package.json edit was a Claude fix (not a hand-edit by the user).
+Learning: Hard constraint "only touch these two files" correctly prevented the subagent from making scope-creep decisions, but also blocked a legitimate tooling fix. The subagent did the right thing — flag, don't fix — and left the follow-up to the orchestrator. Next subagent dispatch should explicitly allow tooling patches (package.json scripts) when a genuine blocker surfaces, OR keep the constraint and accept the round-trip. For now, keeping tight constraints + orchestrator follow-up is working — the boundary is clear and observations are not getting muddled.
