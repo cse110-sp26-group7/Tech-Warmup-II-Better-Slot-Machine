@@ -284,3 +284,19 @@ Result:
 Lint / tests: all four gates green. 18/18.
 Hand-edit: none.
 Learning: **Two for two on preemptive corrections this task.** (a) The `setTimeout` rewrite saved a skill-rule violation + round-trip. (b) The `:last-of-type` CSS fix was a selector bug that would have silently survived to final smoke. Pattern is clear: **read the plan content AND adjacent skill rules together before dispatch; rewrite plan content inline to match the stricter rule.** This is the new default for remaining dispatches.
+
+---
+
+## Turn 19 — 2026-04-22 — src/main.js orchestrator + console warning silence
+
+Prompt intent: Create `main.js` — the only module that imports both engine and ui, holds mutable state, wires handlers. Preemptively swapped the plan's "all-neural_chip" bootstrap grid for `generateGrid(rng)` so first paint shows a random grid.
+Context loaded (by subagent): SPEC §1/§6/§8, CLAUDE.md, design §3.4/§4.7, plan §Task 17, ui.js/engine.js/paytable.js exports.
+Result:
+- Subagent created `src/main.js` byte-identical to the dispatch content (including the `generateGrid(rng)` bootstrap substitution).
+- Subagent flagged a lint warning from a rule source outside our explicit `.eslintrc.json`: `no-console` fired on line 36 with exit 0. Not a blocker but noisy.
+- **Orchestrator follow-up:** added `// eslint-disable-next-line no-console` with inline justification pointing at design §3.5. Precise scope (one line, one rule) is cleaner than globally disabling `no-console` — the rule still catches accidental stray logs in future code.
+Lint / tests: 18/18 pass; all four linters clean including lint:js (0 warnings now).
+Hand-edit: none.
+Learning: ESLint's `no-console` didn't appear in our config but still fired — likely inherited from the runtime default config when `extends` is empty. The inline-disable pattern is the right call: (a) preserves intent (this console.error is deliberate), (b) doesn't relax the rule globally. Future console logs in this project now require an explicit opt-in, which matches the "deliberate over default" ethos of this experiment.
+
+## Phase C complete — playable in the browser; all four linters clean; 18 unit tests pass.
