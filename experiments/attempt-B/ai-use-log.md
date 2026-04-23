@@ -300,3 +300,17 @@ Hand-edit: none.
 Learning: ESLint's `no-console` didn't appear in our config but still fired — likely inherited from the runtime default config when `extends` is empty. The inline-disable pattern is the right call: (a) preserves intent (this console.error is deliberate), (b) doesn't relax the rule globally. Future console logs in this project now require an explicit opt-in, which matches the "deliberate over default" ethos of this experiment.
 
 ## Phase C complete — playable in the browser; all four linters clean; 18 unit tests pass.
+
+---
+
+## Turn 20 — 2026-04-22 — Fix symbol sprite path + viewBox (browser-observed bug)
+
+Prompt intent: Hand-patch a rendering bug spotted during user-requested desktop smoke — cells were empty boxes (no SVG content) even though engine state was correct (balance, win breakdown, paytable all rendered fine).
+Context loaded: running page (via user screenshot), src/ui.js line 40, index.html, src/assets/symbols.svg.
+Result:
+- **Bug #1 (path):** `<use href="assets/symbols.svg#sym-${sym}">` resolved to `http://localhost:8000/assets/symbols.svg` (relative to the document), but the sprite is actually served at `http://localhost:8000/src/assets/symbols.svg`. 404 → empty `<svg>`. The plan's ui.js inherited this bug; I did not catch it in review.
+- **Bug #2 (viewBox):** the consuming `<svg>` had no `viewBox`, so even if the path had resolved, browsers would render at the default 300×150 viewport, clipping or scaling the 100×100 symbol awkwardly against the CSS `width:70%; height:70%` sizing. Added `viewBox="0 0 100 100"` to match the symbol's coordinate system.
+- Single combined patch on src/ui.js line 40.
+Lint / tests: lint:js clean; other gates not re-run (ui.js change is cosmetic, no test impact).
+Hand-edit: none — Claude orchestrator applied both patches.
+Learning: **Fourth Phase C defect traceable to "plan author did not run the artifact."** The plan's `href="assets/symbols.svg"` was a path written against a mental model where index.html lives next to `assets/`. In reality index.html is at the project root and assets are under `src/assets/`. The CSS already used the correct relative path (`src/styles.css`); the JS path was a typo-level inconsistency. Same pattern as Turns 14/15/16/18 — prescribed content doesn't survive contact with a browser. Mitigation for future projects: **the plan-write step should end with `npm run serve` + manual smoke of the plan's HTML/CSS/JS snippets, not just lint.** Lint caught none of the four Phase C defects; only the browser caught them.

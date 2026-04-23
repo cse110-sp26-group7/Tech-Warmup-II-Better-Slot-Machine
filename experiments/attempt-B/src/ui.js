@@ -37,7 +37,7 @@ export function renderGrid(grid) {
       cell.className = `cell sym-${sym}`;
       cell.dataset.col = String(col);
       cell.dataset.row = String(row);
-      cell.innerHTML = `<svg><use href="assets/symbols.svg#sym-${sym}"></use></svg>`;
+      cell.innerHTML = `<svg viewBox="0 0 100 100"><use href="src/assets/symbols.svg#sym-${sym}"></use></svg>`;
       colEl.appendChild(cell);
     }
     reelsEl.appendChild(colEl);
