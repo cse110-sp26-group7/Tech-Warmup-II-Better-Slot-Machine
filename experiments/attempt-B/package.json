@@ -10,7 +10,7 @@
     "lint:js": "eslint \"src/**/*.js\" \"tests/**/*.js\" --no-error-on-unmatched-pattern",
     "lint:css": "stylelint \"src/**/*.css\" --allow-empty-input",
     "lint:html": "html-validate index.html",
-    "serve": "python3 -m http.server 8000"
+    "serve": "printf '\\n  ▸ http://localhost:8000/\\n\\n' && python3 -m http.server 8000 --bind 127.0.0.1"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
