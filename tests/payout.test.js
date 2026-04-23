@@ -20,7 +20,7 @@ describe('Payout Module - calculatePayout', () => {
         'GOLD_KANJI',
       ];
       const betAmount = 1;
-      const expectedPayout = 1000;
+      const expectedPayout = 100;
 
       const payout = calculatePayout(paylineSymbols, betAmount);
       expect(payout).toBe(expectedPayout);
@@ -29,7 +29,7 @@ describe('Payout Module - calculatePayout', () => {
     test('should pay correct amount for 5 Cherry symbols at minimum bet', () => {
       const paylineSymbols = ['CHERRY', 'CHERRY', 'CHERRY', 'CHERRY', 'CHERRY'];
       const betAmount = 1;
-      const expectedPayout = 50;
+      const expectedPayout = 8;
 
       const payout = calculatePayout(paylineSymbols, betAmount);
       expect(payout).toBe(expectedPayout);
@@ -44,7 +44,7 @@ describe('Payout Module - calculatePayout', () => {
         'CHROME_SKULL',
       ];
       const betAmount = 1;
-      const expectedPayout = 1000;
+      const expectedPayout = 100;
 
       const payout = calculatePayout(paylineSymbols, betAmount);
       expect(payout).toBe(expectedPayout);
@@ -55,7 +55,7 @@ describe('Payout Module - calculatePayout', () => {
     test('should pay for 3 of a kind starting from reel 1', () => {
       const paylineSymbols = ['KATANA', 'KATANA', 'KATANA', 'CHERRY', 'BAR'];
       const betAmount = 1;
-      const expectedPayout = 300; // 500 * 3/5
+      const expectedPayout = 3; // KATANA 3-of-a-kind = 3× multiplier
 
       const payout = calculatePayout(paylineSymbols, betAmount);
       expect(payout).toBe(expectedPayout);
@@ -84,7 +84,7 @@ describe('Payout Module - calculatePayout', () => {
     test('should substitute Wild to complete 5 of a kind', () => {
       const paylineSymbols = ['NEON_7', 'WILD', 'NEON_7', 'NEON_7', 'NEON_7'];
       const betAmount = 1;
-      const expectedPayout = 500;
+      const expectedPayout = 50;
 
       const payout = calculatePayout(paylineSymbols, betAmount);
       expect(payout).toBe(expectedPayout);
@@ -93,7 +93,7 @@ describe('Payout Module - calculatePayout', () => {
     test('should substitute multiple Wilds to complete a match', () => {
       const paylineSymbols = ['CYBER_IRIS', 'WILD', 'CYBER_IRIS', 'WILD', 'CYBER_IRIS'];
       const betAmount = 1;
-      const expectedPayout = 500;
+      const expectedPayout = 50;
 
       const payout = calculatePayout(paylineSymbols, betAmount);
       expect(payout).toBe(expectedPayout);
@@ -102,7 +102,7 @@ describe('Payout Module - calculatePayout', () => {
     test('should treat Wild as highest value symbol when all Wilds', () => {
       const paylineSymbols = ['WILD', 'WILD', 'WILD', 'WILD', 'WILD'];
       const betAmount = 1;
-      const expectedPayout = 1000;
+      const expectedPayout = 100;
 
       const payout = calculatePayout(paylineSymbols, betAmount);
       expect(payout).toBe(expectedPayout);
@@ -111,7 +111,7 @@ describe('Payout Module - calculatePayout', () => {
     test('should substitute Wild for 3 of a kind', () => {
       const paylineSymbols = ['BELL', 'WILD', 'BELL', 'CHERRY', 'BAR'];
       const betAmount = 1;
-      const expectedPayout = 150; // 250 * 3/5
+      const expectedPayout = 2; // BELL 3-of-a-kind = 2× multiplier
 
       const payout = calculatePayout(paylineSymbols, betAmount);
       expect(payout).toBe(expectedPayout);
@@ -162,7 +162,7 @@ describe('Payout Module - calculatePayout', () => {
     test('should handle fractional bet amounts correctly', () => {
       const paylineSymbols = ['BELL', 'BELL', 'BELL', 'BELL', 'BELL'];
       const betAmount = 0.5;
-      const expectedPayout = 125; // 250 * 0.5
+      const expectedPayout = 12.5; // BELL 5-of-a-kind = 25× multiplier, 25 * 0.5 = 12.5
 
       const payout = calculatePayout(paylineSymbols, betAmount);
       expect(payout).toBe(expectedPayout);
@@ -173,7 +173,7 @@ describe('Payout Module - calculatePayout', () => {
     test('should pay for 4 of a kind starting from reel 1', () => {
       const paylineSymbols = ['CYBER_IRIS', 'CYBER_IRIS', 'CYBER_IRIS', 'CYBER_IRIS', 'BAR'];
       const betAmount = 1;
-      const expectedPayout = 400; // 500 * 4/5
+      const expectedPayout = 12; // CYBER_IRIS 4-of-a-kind = 12× multiplier
 
       const payout = calculatePayout(paylineSymbols, betAmount);
       expect(payout).toBe(expectedPayout);
@@ -336,7 +336,7 @@ describe('Payout Module - calculatePayout', () => {
     });
 
     test('scales payout by per-line bet, not by total (25x) bet', () => {
-      // 5 CHERRY on middle row → (50 / 5) * 5 * betPerLine = 50 * betPerLine
+      // 5 CHERRY on middle row → 8× multiplier * betPerLine
       const matrix = [
         ['BAR', 'CHERRY', 'BAR'],
         ['BAR', 'CHERRY', 'BAR'],
@@ -353,7 +353,7 @@ describe('Payout Module - calculatePayout', () => {
         perLineBet,
       );
 
-      expect(totalPayout).toBe(50);
+      expect(totalPayout).toBe(8);
       expect(winningPaylines).toEqual([{ index: 0, matchCount: 5 }]);
     });
 
@@ -374,8 +374,8 @@ describe('Payout Module - calculatePayout', () => {
     });
 
     test('sums payouts across multiple winning paylines and lists their indices', () => {
-      // Top row: 3x DIAMOND then break → (250/5) * 3 * 1 = 150
-      // Middle row: 3x CHERRY then break → (50/5) * 3 * 1 = 30
+      // Top row: 3x DIAMOND then break → 2× multiplier * 1 = 2
+      // Middle row: 3x CHERRY then break → 0× multiplier * 1 = 0 (no win)
       const matrix = [
         ['DIAMOND', 'CHERRY', 'BAR'],
         ['DIAMOND', 'CHERRY', 'BAR'],
@@ -394,10 +394,9 @@ describe('Payout Module - calculatePayout', () => {
         1,
       );
 
-      expect(totalPayout).toBe(180);
+      expect(totalPayout).toBe(2);
       expect(winningPaylines).toEqual([
         { index: 0, matchCount: 3 },
-        { index: 1, matchCount: 3 },
       ]);
     });
 

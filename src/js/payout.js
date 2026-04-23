@@ -16,11 +16,22 @@ const ROW_COUNT = 3;
 const MIN_WIN_MATCH = 3;
 
 /**
- * Divisor used in the payout formula — equal to REEL_COUNT so that
- * a symbol's `value` represents the 5-of-a-kind payout and shorter
- * matches are scaled proportionally.
+ * Payout multiplier table — keyed by symbol ID then match count.
+ * Values are multipliers of the per-line bet amount.
+ * Designed for ~94% RTP on the house side.
  */
-const PAYOUT_DIVISOR = 5;
+const PAYOUT_TABLE = {
+  GOLD_KANJI:   { 3: 5,   4: 20,  5: 100 },
+  CHROME_SKULL: { 3: 5,   4: 20,  5: 100 },
+  CYBER_IRIS:   { 3: 3,   4: 12,  5: 50  },
+  KATANA:       { 3: 3,   4: 12,  5: 50  },
+  NEON_7:       { 3: 3,   4: 12,  5: 50  },
+  DIAMOND:      { 3: 2,   4: 8,   5: 25  },
+  BELL:         { 3: 2,   4: 8,   5: 25  },
+  BAR:          { 3: 0,   4: 3,   5: 10  },
+  CHERRY:       { 3: 0,   4: 2,   5: 8   },
+  WILD:         { 3: 5,   4: 20,  5: 100 },
+};
 
 /** Free-spin awards for scatter counts of 5, 4, or 3 */
 const FREE_SPINS_FOR_FIVE_SCATTERS = 25;
@@ -95,10 +106,14 @@ export function evaluatePayline(paylineSymbols, betAmount) {
     return { payout: 0, matchCount: 0 };
   }
 
-  // Calculate payout: (baseValue / PAYOUT_DIVISOR) × matchCount × betAmount
-  // Ensures 5-of-a-kind pays the full value, scaled proportionally.
-  const payout = (baseSymbol.value / PAYOUT_DIVISOR) * matchCount * betAmount;
+  // Look up payout multiplier from fixed table
+  const multipliers = PAYOUT_TABLE[baseSymbol.id];
+  if (!multipliers) return { payout: 0, matchCount: 0 };
 
+  const multiplier = multipliers[matchCount] ?? 0;
+  if (multiplier === 0) return { payout: 0, matchCount: 0 };
+
+  const payout = multiplier * betAmount;
   return { payout, matchCount };
 }
 
