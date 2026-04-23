@@ -4,9 +4,12 @@ import { spin, generateGrid } from './engine.js';
 import { INITIAL_STATE, BET_STEPS } from './paytable.js';
 import {
   renderGrid, highlightWins, renderBreakdown, renderHud, renderPaytable,
-  setSpinEnabled, setResetVisible, triggerBigWin, triggerUnlucky, wireEvents,
+  setSpinEnabled, setResetVisible, triggerBigWin, triggerUnlucky,
+  triggerMystery, wireEvents,
 } from './ui.js';
-import { playSpin, playWin, playBigWin, playMegaWin, playPity } from './sound.js';
+import {
+  playSpin, playWin, playBigWin, playMegaWin, playPity, playMystery,
+} from './sound.js';
 
 const rng = createRng();
 
@@ -18,6 +21,12 @@ let state = { ...INITIAL_STATE };
 const UNLUCKY_STREAK_THRESHOLD = 10;
 const UNLUCKY_BONUS_MULT = 2;
 let losingStreak = 0;
+
+// Mystery drop per User Story 5. Every N spins regardless of outcome,
+// credit a random bonus (1-3× bet). Guarantees at least one "bonus moment"
+// per session. Engine untouched — counter lives here.
+const MYSTERY_INTERVAL = 20;
+let spinCount = 0;
 
 function render(wins = []) {
   renderHud({
@@ -36,6 +45,7 @@ function handleSpin() {
   try {
     const result = spin(state, state.bet, rng);
     state = result.newState;
+    spinCount += 1;
     renderGrid(result.grid);
     highlightWins(result.wins);
     renderBreakdown(result.wins);
@@ -58,6 +68,16 @@ function handleSpin() {
         losingStreak = 0;
         render(result.wins);
       }
+    }
+
+    // Mystery drop — every MYSTERY_INTERVAL spins. Independent of win/loss.
+    if (spinCount % MYSTERY_INTERVAL === 0) {
+      const mult = 1 + Math.floor(rng.next(3)); // 1, 2, or 3
+      const bonus = state.bet * mult;
+      state = { ...state, balance: state.balance + bonus };
+      triggerMystery(bonus);
+      playMystery();
+      render(result.wins);
     }
   } catch (err) {
     // eslint-disable-next-line no-console -- design spec §3.5 requires console logging of unexpected engine errors
@@ -88,6 +108,7 @@ function handleMaxBet() {
 function handleReset() {
   state = { ...INITIAL_STATE };
   losingStreak = 0;
+  spinCount = 0;
   render();
 }
 
@@ -103,8 +124,8 @@ function bootstrap() {
     onReset: handleReset,
   });
 
-  // Test hooks — let devs preview the rare overlay effects without RNG waiting.
-  // Shift+B = BIG WIN, Shift+M = MEGA WIN, Shift+U = UNLUCKY BONUS. Safe to remove for final build.
+  // Test hooks — preview rare overlay effects without waiting. Safe to remove.
+  // Shift+B BIG | Shift+M MEGA | Shift+U UNLUCKY | Shift+Y MYSTERY
   window.addEventListener('keydown', (e) => {
     if (!e.shiftKey) return;
     if (e.key === 'B' || e.key === 'b') {
@@ -116,6 +137,9 @@ function bootstrap() {
     } else if (e.key === 'U' || e.key === 'u') {
       triggerUnlucky(state.bet * UNLUCKY_BONUS_MULT);
       playPity();
+    } else if (e.key === 'Y' || e.key === 'y') {
+      triggerMystery(state.bet * 2);
+      playMystery();
     }
   });
 }

@@ -187,7 +187,7 @@ export function triggerBigWin(payout, bet) {
   const ratio = payout / bet;
   if (ratio < 10) return;
 
-  bigWinEl.classList.remove('active', 'mega', 'unlucky');
+  bigWinEl.classList.remove('active', 'mega', 'unlucky', 'mystery');
   // reflow forces the animation to restart on re-add — CSS-only restart trick
   void bigWinEl.offsetWidth;
 
@@ -205,8 +205,19 @@ export function triggerBigWin(payout, bet) {
  * @param {number} amount  credits awarded
  */
 export function triggerUnlucky(amount) {
-  bigWinEl.classList.remove('active', 'mega', 'unlucky');
+  bigWinEl.classList.remove('active', 'mega', 'unlucky', 'mystery');
   void bigWinEl.offsetWidth;
   bigWinLabelEl.textContent = `UNLUCKY BONUS +${amount.toFixed(1)}`;
   bigWinEl.classList.add('active', 'unlucky');
+}
+
+/**
+ * Mystery drop overlay — scheduled bonus every N spins.
+ * @param {number} amount  credits awarded
+ */
+export function triggerMystery(amount) {
+  bigWinEl.classList.remove('active', 'mega', 'unlucky', 'mystery');
+  void bigWinEl.offsetWidth;
+  bigWinLabelEl.textContent = `MYSTERY DROP +${amount.toFixed(1)}`;
+  bigWinEl.classList.add('active', 'mystery');
 }

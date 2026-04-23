@@ -98,6 +98,16 @@ export function playPity() {
   tone(261.63, 0.35, 'triangle', 0.09, d + 0.24);
 }
 
+/** Mystery drop — cheerful ascending major arpeggio (C-E-G-C). */
+export function playMystery() {
+  const d = 0.2;
+  const notes = [261.63, 329.63, 392.00, 523.25]; // C4 E4 G4 C5
+  notes.forEach((f, i) => {
+    tone(f, 0.2, 'sine', 0.12, d + i * 0.08);
+    tone(f * 2, 0.2, 'triangle', 0.05, d + i * 0.08);
+  });
+}
+
 /** Mega win — triadic progression plus sustained bass. */
 export function playMegaWin() {
   const d = 0.7;
